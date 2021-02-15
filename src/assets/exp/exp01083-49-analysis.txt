@@ -1,0 +1,237 @@
+smartHomeSecurity: 
+  noConflict
+  final not off
+  on and off counts: 0
+
+  device state and last time:
+    state value: 0
+    state name: smsoff
+    state last time: 3.0
+
+    state value: 2
+    state name: awayMode
+    state last time: 149.87000000000697
+
+    state value: 1
+    state name: homeMode
+    state last time: 146.9299999998676
+
+
+
+door: 
+  noConflict
+  final off
+  on and off counts: 0
+
+  device state and last time:
+    state value: 0
+    state name: dclosed
+    state last time: 300.0099999998745
+
+
+
+window: 
+  conflict on173.9999999999879
+  conflict on179.9999999999825
+  conflict on185.9999999999771
+  conflict on191.9999999999717
+  final off
+  on and off counts: 22
+
+  device state and last time:
+    state value: 0
+    state name: wclosed
+    state last time: 272.2399999998986
+
+    state value: 1
+    state name: wopen
+    state last time: 26.509999999975634
+
+
+
+robot: 
+  noConflict
+  final not off
+  on and off counts: 2
+
+  device state and last time:
+    state value: 0
+    state name: rdock
+    state last time: 149.92999999987023
+
+    state value: 1
+    state name: rstart
+    state last time: 149.8700000000043
+
+
+
+fan: 
+  conflict on144.0000000000149
+  conflict on197.9999999999663
+  final off
+  on and off counts: 9
+
+  device state and last time:
+    state value: 0
+    state name: foff
+    state last time: 173.72999999998802
+
+    state value: 1
+    state name: fon
+    state last time: 125.71999999988651
+
+
+
+blind: 
+  noConflict
+  final off
+  on and off counts: 2
+
+  device state and last time:
+    state value: 0
+    state name: bclosed
+    state last time: 176.9399999999854
+
+    state value: 1
+    state name: bopen
+    state last time: 122.92999999988919
+
+
+
+bulb: 
+  noConflict
+  final off
+  on and off counts: 2
+
+  device state and last time:
+    state value: 0
+    state name: boff
+    state last time: 152.940000000007
+
+    state value: 1
+    state name: bon
+    state last time: 146.92999999986762
+
+
+
+heater: 
+  noConflict
+  final off
+  on and off counts: 0
+
+  device state and last time:
+    state value: 0
+    state name: heatoff
+    state last time: 300.0099999998745
+
+
+
+humidifier: 
+  noConflict
+  final off
+  on and off counts: 0
+
+  device state and last time:
+    state value: 0
+    state name: hoff
+    state last time: 300.0099999998745
+
+
+
+airConditioner: 
+  noConflict
+  final off
+  on and off counts: 2
+
+  device state and last time:
+    state value: 0
+    state name: acoff
+    state last time: 152.940000000007
+
+    state value: 2
+    state name: heat
+    state last time: 83.78999999992419
+
+    state value: 1
+    state name: cool
+    state last time: 62.78999999994335
+
+
+
+philipsHueLight: 
+  noConflict
+  final off
+  on and off counts: 12
+
+  device state and last time:
+    state value: 0
+    state name: phloff
+    state last time: 160.58999999994512
+
+    state value: 1
+    state name: phlwhite
+    state last time: 29.579999999973154
+
+    state value: 2
+    state name: phlblue
+    state last time: 108.78999999990185
+
+
+
+rule25
+   trigger time: 3.069999999999999
+rule15
+   trigger time: 3.069999999999999
+rule23
+   trigger time: 6.069999999999954
+rule22
+   trigger time: 6.069999999999954
+rule18
+   trigger time: 6.069999999999954
+rule11
+   trigger time: 6.069999999999954
+rule24
+   trigger time: 141.0700000000176
+rule4
+   trigger time: 141.0700000000176
+rule28
+   trigger time: 144.0700000000149
+rule27
+   trigger time: 144.0700000000149
+rule21
+   trigger time: 144.0700000000149
+rule19
+   trigger time: 144.0700000000149
+rule17
+   trigger time: 144.0700000000149
+rule12
+   trigger time: 144.0700000000149
+rule7
+   trigger time: 144.0700000000149
+rule30
+   trigger time: 147.0700000000122
+rule10
+   trigger time: 156.0700000000041
+rule5
+   trigger time: 156.0700000000041
+rule26
+   trigger time: 168.0699999999933
+rule6
+   trigger time: 168.0699999999933
+rule29
+   trigger time: 174.0699999999879
+rule20
+   trigger time: 174.0699999999879
+rule2
+   trigger time: 174.0699999999879
+rule8
+   trigger time: 258.0699999999122
+
+rule1 can't be triggered
+rule3 can't be triggered
+rule9 can't be triggered
+rule13 can't be triggered
+rule14 can't be triggered
+rule16 can't be triggered
+
+  temperature satisfationDegreee: 0.09936666666660453

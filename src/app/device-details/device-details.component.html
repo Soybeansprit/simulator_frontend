@@ -1,0 +1,119 @@
+<div *ngIf="device">
+  <div class="detail-scope">
+    <h2 class="device_name"><b>{{device.deviceName}} </b></h2> <br>
+
+    <!-- <div style="display: flex;">
+          <div>
+            <p *ngFor="let deviceState of device.deviceStates">
+              <span>state: {{deviceState.stateName}}</span><br>
+              <span>stateLastTime: {{deviceState.stateLastTime}}</span>
+            </p>
+          </div>
+          
+          <div *ngIf="device.conflict.hasConflict" >
+            <p>has conflict!</p>
+            
+            <ul>
+              <li *ngFor="let time of device.conflict.conflictTime">
+                <span>{{time}}</span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p>
+              onOffCounts: {{device.onOffCounts}}
+            </p>
+          </div>
+        </div> -->
+    <div class="scroll_bar">
+      <div *ngIf="device.conflict.hasConflict">
+        <div class="inevitable">
+          <h3 (click)="showProblem()"><b>Inevitable Problem</b></h3>
+          <div id="confli">
+            <p style="color: red; margin-left: 20px;"><b>Exist States Conflict !</b></p>
+            <ul class="details">
+              <li *ngFor="let conflictTimeStates of device.conflict.conflictTimeStates" 
+              [class.selected]="conflictTimeStates===selectedConflict"
+              (click)="onSelect(device,conflictTimeStates)">
+                <div class="label"><b>conflict time:</b> <br>{{conflictTimeStates.time.toFixed(2)}} </div>
+                <div>
+                  <br>
+                  <b>conflict states:<br></b>
+                  <div *ngFor="let state of conflictTimeStates.states;index as i" class="label"> {{state}}<div
+                      class="label" *ngIf="i<(conflictTimeStates.states.length-1)">,&nbsp;</div>
+                  </div>
+                </div>
+  
+              </li>
+            </ul>
+            <div *ngIf="selectedConflict" style="margin-top: 0px;" id="conf_rule">
+              <p style="color: red; margin-left: 20px;margin-top: 0px;">Causal Rules: </p>
+              <p *ngFor="let rule of causalConflictRules" class="rule_label"> {{rule}}&nbsp;</p>
+            </div>
+          </div> 
+        </div>
+      </div>
+  
+      <div class="potential">
+        <div *ngIf="!device.finallyOff||device.onOffCounts>=10">
+          <h3 (click)="showPotentialProblem()"><b>Potential Problem</b></h3>
+          <div id="poten">
+            <div class="final_off" *ngIf="!device.finallyOff">
+              <p style="color: red; margin-left: 20px;"><b>Finally not off !</b></p>
+            </div>
+            <div class="change_rate" *ngIf="device.onOffCounts>=10">
+              <p  (click)="showFrequentCausal(device)" style="color: black;"><b style="color: red; margin-left: 20px;">Frequent state transitions:</b> &nbsp;states change rate {{device.onOffCounts}}/300</p>
+              <div id="fre_rule">               
+              <p style="color: red; margin-left: 20px;margin-top: 0px;" >Causal Rules: </p>
+              <p *ngFor="let rule of causalFrequentRules" class="rule_label">{{rule}}&nbsp;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+
+
+
+</div>
+
+
+<!-- <div  class="detail_scope" id="detail"></div> -->
+
+
+<!-- <table border="1px solid #ccc" cellpadding="5px" cellspacing="0" align="center">
+<tr class="device_tr">
+  
+  <th colspan="3">fan</th>
+</tr>
+<tr>
+  <th rowspan="2">conflict</th>
+  <td>foff,fon</td>
+  <td>time:156</td>
+</tr>
+<tr>
+  <td>foff,fon</td>
+  <td>time:162</td>
+</tr>
+<tr>
+  <th rowspan="2">stateLastTime</th>
+  <td>fon</td>
+  <td>lastTime:101.58</td>
+</tr>
+<tr>
+  <td>foff</td>
+  <td>lastTime:197.44</td>
+</tr>
+<tr>
+  <th>finallyOff</th>
+  <td colspan="2">true</td>
+</tr>
+<tr>
+  <th>stateChangeRate</th>
+  <td colspan="2">16 counts</td>
+</tr>
+</table>
+ -->

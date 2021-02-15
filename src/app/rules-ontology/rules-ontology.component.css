@@ -1,0 +1,70 @@
+.textarea{
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width:95%;
+    height: 670px;
+    border: #36648B 2px solid;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 1em;
+}
+.chooseFile{
+    margin-left: 10px; 
+    margin-top: 5px;
+    padding: 2px;
+    width: 200px;
+    
+    border: solid,1px, #36648B;
+    background-color: #5fa3df;
+}
+.chooseFile_c{
+    background-color: #8bb7df;
+    margin-left: 10px; 
+    margin-top: 0px;
+    padding: 1px;
+    width: 200px;
+    
+}
+.button{
+    margin-left: 40px;
+    margin-top: 10px;
+    width:100px;
+    height: 40px;
+    border: solid #000 1px;
+    border-radius: 5px;
+}
+
+h2{
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+label{
+    margin-left: 10px;
+    color: #36648B;
+}
+
+.my-code-editor .editor-container {
+     
+      height: calc(100vh - 100px);
+    
+  }
+
+  #input_textarea {
+    position: relative;
+    margin-left: 10px;
+    
+    height: 690px;
+    resize: none;
+    display: block;
+    border: 2px solid #36648B;
+    border-radius: 5px;
+  }
+
+  .rule_ontology{
+      position: relative;
+      height: 100%;
+      width: 100%;
+  }

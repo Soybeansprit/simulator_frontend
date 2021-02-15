@@ -1,0 +1,19 @@
+.demo-chart{
+    height: 60%;
+    width: 96%;
+
+}
+.scene-rule-analys{
+    height: 40%;
+    width: 96%;
+}
+
+.rule-echarts{
+    height: 100%;
+    position: relative;
+}
+
+.scene-rule-bar-analys{
+    height: 20%;
+    width: 96%;
+}

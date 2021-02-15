@@ -1,0 +1,20 @@
+<div class="device-scope">
+    <h3><b>Devices Information:</b></h3>
+    <ul class="devices">
+        <li *ngFor="let device of devicesResults"
+        [class.selected]="device===selectedDevice"
+        (click)="onSelect(device)">
+        <!-- <span class="badge">{{device.deviceName}}</span> -->
+        <!-- 根据条件判断样式 -->
+        <!-- <b [ngStyle]="{color: device.conflict.hasConflict?'red':''}"  >{{device.deviceName}}</b> -->
+        <b [ngClass]="{red: device.conflict.hasConflict}"  >{{device.deviceName}}
+            <b *ngIf="device.conflict.hasConflict" class="has-conflict"><br>has conflict!</b>
+            <!-- <b *ngIf="!device.finallyOff" class="not_off"><br>not off!</b> -->
+        </b>
+        </li>
+    </ul>
+    
+</div>
+<div class="device_details" >
+    <app-device-details [device]="selectedDevice"></app-device-details>
+</div>

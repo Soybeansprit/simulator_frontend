@@ -19,6 +19,11 @@
     "@angular/platform-browser": "~11.0.9",
     "@angular/platform-browser-dynamic": "~11.0.9",
     "@angular/router": "~11.0.9",
+    "@types/jquery": "^3.5.5",
+    "echarts": "^5.0.1",
+    "jquery": "^3.5.1",
+    "ngx-echarts": "^6.0.0",
+    "ngx-monaco-editor": "^10.0.0-beta.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"
@@ -38,6 +43,7 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "protractor": "~7.0.0",
+    "resize-observer-polyfill": "^1.5.1",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~4.0.2"

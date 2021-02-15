@@ -22,8 +22,10 @@
     ]
   },
   "angularCompilerOptions": {
+    "strictNullChecks": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": true,
   }
+
 }

@@ -1,0 +1,50 @@
+<div class="main">
+
+    <div id="ontology_rules" class="main_ontology_rules">
+        <div class="left">
+            <app-rules-ontology class="rule_ontology"></app-rules-ontology>
+        </div>
+
+
+
+        <div class="right">
+            <div>
+                <h2><b>Simulation Scenes:</b></h2>
+                <div class="random-range">
+                    <!-- <div echarts [options]="options | async" class="demo-chart"></div> -->
+                    <div class="scenes-scope" id="all_scenes_tree">
+
+                        <app-echarts-all-scenes class="scrollbar"></app-echarts-all-scenes>
+
+
+                    </div>
+                    <div class="scenes-scope" id="scenes_rules">
+                        <app-echarts-all-scenes-rules-analys></app-echarts-all-scenes-rules-analys>
+                    </div>
+
+                    <div class="scenes-scope" id="rules_scenes">
+                        
+                    </div>
+
+
+                </div>
+                <div class="button-group">
+                    <button class="button" (click)="showRandomResults()">Show Scenes Tree</button>
+                    <button class="button" (click)="showScenesRulesResults()">Show Scenes Rules</button>
+                    <button class="button" (click)="showRulesScenesResults()">Show Rules Scenes</button>
+                    <button class="button" routerLink="/scene-details">Scene Details</button>
+                    <button class="button" routerLink="/ifd-plan">Show IFD</button>
+                    <div ng-view></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+</div>
