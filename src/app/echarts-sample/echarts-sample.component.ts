@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Rule } from '../class/rules';
+import { DataTimeValue } from '../class/scene';
 import * as echarts from 'echarts/index';
 import { RuleService } from '../service/rule.service';
 

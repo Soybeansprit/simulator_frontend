@@ -2,31 +2,9 @@
   <div class="detail-scope">
     <h2 class="device_name"><b>{{device.deviceName}} </b></h2> <br>
 
-    <!-- <div style="display: flex;">
-          <div>
-            <p *ngFor="let deviceState of device.deviceStates">
-              <span>state: {{deviceState.stateName}}</span><br>
-              <span>stateLastTime: {{deviceState.stateLastTime}}</span>
-            </p>
-          </div>
-          
-          <div *ngIf="device.conflict.hasConflict" >
-            <p>has conflict!</p>
-            
-            <ul>
-              <li *ngFor="let time of device.conflict.conflictTime">
-                <span>{{time}}</span>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <p>
-              onOffCounts: {{device.onOffCounts}}
-            </p>
-          </div>
-        </div> -->
+
     <div class="scroll_bar">
-      <div *ngIf="device.conflict.hasConflict">
+      <!-- <div *ngIf="device.conflict.hasConflict">
         <div class="inevitable">
           <h3 (click)="showProblem()"><b>Inevitable Problem</b></h3>
           <div id="confli">
@@ -72,7 +50,7 @@
         </div>
         
       </div>
-    </div>
+    </div> -->
     
   </div>
 

@@ -39,13 +39,14 @@ img{
     width: 100%;
 }
 
+
 .scrollbar{
     color: #ffffff;
 
 position: relative;
     height: 100%;
     width: 100%;
-overflow: scroll;
+overflow: auto;
 scrollbar-face-color: #889B9F;
 scrollbar-shadow-color: #3D5054;
 scrollbar-highlight-color: #C3D6DA;
@@ -53,5 +54,11 @@ scrollbar-3dlight-color: #3D5054;
 scrollbar-darkshadow-color: #85989C;
 scrollbar-track-color: #95A6AA;
 scrollbar-arrow-color: #FFD6DA;
+}
+
+.echarts_scale{
+    position: relative;
+    height: 100%;
+    width: 100%;
 }
 

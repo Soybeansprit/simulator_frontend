@@ -14,16 +14,17 @@
                     <!-- <div echarts [options]="options | async" class="demo-chart"></div> -->
                     <div class="scenes-scope" id="all_scenes_tree">
 
-                        <app-echarts-all-scenes class="scrollbar"></app-echarts-all-scenes>
-
+                        <!-- <app-echarts-all-scenes class="scrollbar" [option]="scenesTreeOption"></app-echarts-all-scenes> -->
+                        <div id="scenesTreeid" class="echarts_scale" echarts [options]=scenesTreeOption  ></div>
 
                     </div>
                     <div class="scenes-scope" id="scenes_rules">
-                        <app-echarts-all-scenes-rules-analys></app-echarts-all-scenes-rules-analys>
+                        <!-- <app-echarts-all-scenes-rules-analys></app-echarts-all-scenes-rules-analys> -->
+                        <div echarts [options]="scenesRulesOption" class="scenes_rules"></div>
                     </div>
 
                     <div class="scenes-scope" id="rules_scenes">
-                        
+                        <div id="ruleScenesBarid" class="echarts_scale" echarts [options]=rulesScenesOption  ></div>
                     </div>
 
 
@@ -32,7 +33,7 @@
                     <button class="button" (click)="showRandomResults()">Show Scenes Tree</button>
                     <button class="button" (click)="showScenesRulesResults()">Show Scenes Rules</button>
                     <button class="button" (click)="showRulesScenesResults()">Show Rules Scenes</button>
-                    <button class="button" routerLink="/scene-details">Scene Details</button>
+                    <button class="button" [routerLink]="['/scene-details']" [queryParams]="{selectedSceneName:selectedSceneName}" >Scene Details</button>
                     <button class="button" routerLink="/ifd-plan">Show IFD</button>
                     <div ng-view></div>
                 </div>

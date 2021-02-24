@@ -103,3 +103,15 @@ scrollbar-track-color: #95A6AA;
 scrollbar-arrow-color: #FFD6DA;
 }
 
+.echarts_scale{
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.scenes_rules{
+    position: relative;
+    height: 98%;
+    width: 100%;
+}
+

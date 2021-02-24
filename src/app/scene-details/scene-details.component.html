@@ -1,13 +1,18 @@
 <div>
     <div class="scene_detail" id="scene">
         <div class="right-half">
-            <h2><b>Scene-2 Simulation Results:</b></h2>
+            <h2><b>Scene{{sceneNum}} Rules Analysis:</b></h2>
 
             <div class="scope">
                 <div class="scope_c" id="scene_rule">
-                    <app-echarts-sample id="rule-time"></app-echarts-sample>
+                    <!-- <app-echarts-sample id="rule-time"></app-echarts-sample> -->
                     <!-- <app-echarts-device id="device-time"></app-echarts-device> -->
                     <!-- <p id="rule-time">rule time</p> -->
+                    <div class="rule-echarts"> 
+                        <div echarts [options]="rulesOptions" [autoResize]="true" theme="macarons" class="demo-chart"></div>
+                        <br>
+                        <div echarts [options]="rulesBarOptions" [autoResize]="true" theme="macarons" class="scene-rule-bar-analys"></div>
+                    </div>
                 </div>
 
 
@@ -18,10 +23,26 @@
         </div>
         <div class="left-half">
             <!-- <h2><b>Information Flow Diagram:</b></h2> -->
-            <h2><b>Results Analysis</b></h2>
+            <h2><b>Scene{{sceneNum}} Devices Analysis</b></h2>
             <div class="scope">
                 <div class="scope_c" id="scene_device">
-                    <app-device-information></app-device-information>
+                    <!-- <app-device-information></app-device-information> -->
+                    <div class="device-scope">
+                        <h3><b>Devices:</b></h3>
+                        <ul class="devices">
+                            <li *ngFor="let device of devices"
+                            [class.selected]="device===selectedDevice"
+                            (click)="onSelect(device)">
+                            <b [ngClass]="{red: device.statesConflict.hasConflict}"  >{{device.deviceName}}
+                                <b *ngIf="device.statesConflict.hasConflict" class="has-conflict"><br>states conflict!</b>
+                            </b>
+                            </li>
+                        </ul>
+                        
+                    </div>
+                    <div class="device_details" >
+                        <app-device-details [device]="selectedDevice"></app-device-details>
+                    </div>
                 </div>
 
 

@@ -4,13 +4,22 @@ import * as $ from "jquery";
 import {Observable,of} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 
+import {ScenesTree} from '../class/scenes-tree';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AllScenesService {
 
+  fileUrl="http://localhost:8083/file"
   
   constructor(public http:HttpClient) { }
+
+  getScenesTreeData():Observable<ScenesTree>{
+    var url=this.fileUrl+"/getScenesTree";
+    return this.http.get<ScenesTree>(url);
+
+  }
 
   getAllSceneTreeOptions(){
 

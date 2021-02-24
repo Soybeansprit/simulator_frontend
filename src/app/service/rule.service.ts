@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Rule } from '../class/rules'
+import { DataTimeValue } from '../class/timeValue'
 import { Observable, of } from 'rxjs';
 import * as echarts from 'echarts';
 
@@ -7,7 +7,7 @@ import * as echarts from 'echarts';
     providedIn: 'root'
 })
 export class RuleService {
-    RULES: Rule[] = [{
+    RULES: DataTimeValue[] = [{
         ruleName: 'rule30',
         timeValues: [
             [0.0, 0.0],
@@ -612,7 +612,7 @@ export class RuleService {
     getRules() {
         return new Observable((observer) => {
             setTimeout(() => {
-                var rules :Rule[]= [];
+                var rules :DataTimeValue[]= [];
                 for(let i=this.RULES.length-1;i>=0;i--){
                     rules.push(this.RULES[i]);
                 }
@@ -624,7 +624,7 @@ export class RuleService {
     getRulesEchartsOption() {
         return new Observable((observer) => {
             setTimeout(() => {
-                var rules :Rule[]= [];
+                var rules :DataTimeValue[]= [];
                 for(let i=this.RULES.length-1;i>=0;i--){
                     rules.push(this.RULES[i]);
                 }

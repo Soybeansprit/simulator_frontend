@@ -13,6 +13,7 @@ const routes: Routes = [
   {path :'random-all',component:RandomAllComponent},
   {path : 'rules-ontology',component:RulesOntologyComponent},
   {path : 'scene-details',component:SceneDetailsComponent},
+  {path: 'scene-details/:id', component:SceneDetailsComponent},
 ];
 
 @NgModule({
