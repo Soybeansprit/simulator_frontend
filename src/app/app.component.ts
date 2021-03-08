@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import * as echarts from 'echarts';
+import { DiffEditorModel } from 'ngx-monaco-editor';
 //test//////////////
 import {ExampleService} from './service/example.service';
 ////////////////
@@ -10,26 +11,37 @@ import {ExampleService} from './service/example.service';
 })
 export class AppComponent {
   title = 'simulator';
-  //////////////
-  students:any;
-  /////////////////
+  
+  requirementTexts:string="requirement"
+  editorRef:any
   constructor(private eService:ExampleService) { }
+
+  // editorOptions = { theme: "reqTheme", language: "req", minimap: { enabled: false }, automaticLayout: true, fontSize:"15px" };
+  // editor:any;
+
+	// monacoOnInit(editor:any) {
+	// 	this.editor = editor;
+  //   console.log(this.editor)
+	// }
 
   editorOptions = {theme: 'vs-dark', language: 'javascript'};
   code: string= 'function x() {\nconsole.log("Hello world!");\n}';
-  onInit(editor: { getPosition: () => any; }) {
-    let line = editor.getPosition();
-    console.log(line);
-  }
-/////////////////////////////////////
-  getStudents(){
-    this.eService.getStudent().subscribe(students=>{
-      this.students=students;
-      console.log(this.students);
-    })
-  }
-////////////////////////////////////
 
+  async onInitEditor(editor:any, editorId:any) {
+    this.editorRef[editorId] = editor;
+  }
 
+  options = {
+    theme: 'vs-dark'
+  };
+  originalModel: DiffEditorModel = {
+    code: 'heLLo world!',
+    language: 'text/plain'
+  };
+ 
+  modifiedModel: DiffEditorModel = {
+    code: 'hello orlando!',
+    language: 'text/plain'
+  };
 
 }

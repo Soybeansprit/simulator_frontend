@@ -1,6 +1,6 @@
 <div>
     <div class="scene_detail" id="scene">
-        <div class="right-half">
+        <div class="left-half">
             <h2><b>Scene{{sceneNum}} Rules Analysis:</b></h2>
 
             <div class="scope">
@@ -8,10 +8,12 @@
                     <!-- <app-echarts-sample id="rule-time"></app-echarts-sample> -->
                     <!-- <app-echarts-device id="device-time"></app-echarts-device> -->
                     <!-- <p id="rule-time">rule time</p> -->
-                    <div class="rule-echarts"> 
-                        <div echarts [options]="rulesOptions" [autoResize]="true" theme="macarons" class="demo-chart"></div>
+                    <div class="rule-echarts">
+                        <div echarts [options]="rulesOptions" [autoResize]="true" theme="macarons" class="demo-chart">
+                        </div>
                         <br>
-                        <div echarts [options]="rulesBarOptions" [autoResize]="true" theme="macarons" class="scene-rule-bar-analys"></div>
+                        <div echarts [options]="rulesBarOptions" [autoResize]="true" theme="macarons"
+                            class="scene-rule-bar-analys" id="rule_bar"></div>
                     </div>
                 </div>
 
@@ -21,7 +23,7 @@
 
 
         </div>
-        <div class="left-half">
+        <div class="right-half">
             <!-- <h2><b>Information Flow Diagram:</b></h2> -->
             <h2><b>Scene{{sceneNum}} Devices Analysis</b></h2>
             <div class="scope">
@@ -29,19 +31,25 @@
                     <!-- <app-device-information></app-device-information> -->
                     <div class="device-scope">
                         <h3><b>Devices:</b></h3>
-                        <ul class="devices">
-                            <li *ngFor="let device of devices"
-                            [class.selected]="device===selectedDevice"
-                            (click)="onSelect(device)">
-                            <b [ngClass]="{red: device.statesConflict.hasConflict}"  >{{device.deviceName}}
-                                <b *ngIf="device.statesConflict.hasConflict" class="has-conflict"><br>states conflict!</b>
-                            </b>
-                            </li>
-                        </ul>
-                        
+                        <div class="scroll_bar">
+                            <ul class="devices">
+                                <li *ngFor="let device of devices" [class.selected]="device===selectedDevice"
+                                    (click)="onSelect(device)">
+                                    <b [ngClass]="{red: device.statesConflict.hasConflict}">{{device.deviceName}}
+                                        <b *ngIf="device.statesConflict.hasConflict" class="has-conflict"><br>states
+                                            conflict!</b>
+                                    </b>
+                                </li>
+                            </ul>
+                        </div>
+
+
                     </div>
-                    <div class="device_details" >
-                        <app-device-details [device]="selectedDevice"></app-device-details>
+                    <div class="device_details">
+                        <!-- <app-device-details [selectedDevice]="selectedDevice"  ></app-device-details> -->
+                        <app-device-details [selectedDevice]="selectedDevice"  [triggeredRulesName]="scene.triggeredRulesName" [uploadedFileName]="uploadedFileName" [rules]="generateModelParameters.rules" 
+                        [simulationTime]="simulationTime" [equivalentTime]="equivalentTime"
+                        [conflictOption]="conflictOption" [changeFrequentOption]='changeFrequentOption'></app-device-details>
                     </div>
                 </div>
 
@@ -61,12 +69,24 @@
     </div>
     <div class="button-scope">
         <div>
-            <button class="back" (click)="goBack()">Back</button>
+            <button class="back" (click)="goBackToMain()">Back</button>
         </div>
         <div class="button-group">
-            <button class="button" (click)="showRules()">Show Rules</button>
-            <button class="button" (click)="showDevices()">Show Devices</button>
-            <button class="button" (click)="showIFD()">Show IFD</button>
+            <button class="button" (click)="showRules()">Analysis Rules</button>
+            <div class="equivalent_time">
+                <label style="color: rgb(43, 42, 42);font-size: small;">equivalent reality time:
+                    <input [(ngModel)]="equivalentTime" class="equivalent_time_input" 
+                    type="number"  oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> h
+                </label>
+            </div>
+            <div class="interval_time">
+                <label style="color: rgb(43, 42, 42);font-size: small;">change frequency accept:
+                    <input [(ngModel)]="intervalTime" class="interval_time_input" 
+                    type="number" min="100" oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> s
+                </label>
+            </div>
+            <button class="button" (click)="showDevices()">Analysis Devices</button>
+            <!-- <button class="button" (click)="showIFD()">Show IFD</button> -->
         </div>
     </div>
 

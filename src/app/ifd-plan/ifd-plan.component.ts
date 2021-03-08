@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
-
+import { MainData } from '../provider/main-data';
+import {GenerateModelParameters} from '../class/generate-model-parameters';
 @Component({
   selector: 'app-ifd-plan',
   templateUrl: './ifd-plan.component.html',
@@ -11,14 +12,18 @@ export class IfdPlanComponent implements OnInit {
   srules="block";
   sdevices="none";
   ifdPath="./assets/IFD.png";
+  generateModelParameters!:GenerateModelParameters
 
-  constructor(private location: Location) { }
+  constructor(private location: Location) { 
+  
+  }
 
   ngOnInit(): void {
     // document.getElementById("rule-time")!.style.display="none";
     document.getElementById("device-time")!.style.display="none";
     document.getElementById("ifd")!.style.display="none";
     this.ifdPath="./assets/IFD.png";
+    
   }
   showIFD(){
     var path="./assets/IFD.png";

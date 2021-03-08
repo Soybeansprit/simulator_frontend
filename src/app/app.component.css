@@ -14,3 +14,14 @@
     border: black,solid,1px;
     position: relative;
 }
+
+
+#requirementsPanel #input_textarea {
+    position: relative;
+    margin-left: 20px;
+    height: 480px;
+    resize: none;
+    display: block;
+    border: 2px solid #000;
+    border-radius: 5px;
+  }

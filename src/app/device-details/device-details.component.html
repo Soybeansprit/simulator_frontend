@@ -1,9 +1,10 @@
-<div *ngIf="device">
+<div *ngIf="selectedDevice">
   <div class="detail-scope">
-    <h2 class="device_name"><b>{{device.deviceName}} </b></h2> <br>
+    <h2 class="device_name"><b (click)="showDeviceDetailButton()">{{selectedDevice.deviceName}} </b></h2> <br>
 
 
     <div class="scroll_bar">
+
       <!-- <div *ngIf="device.conflict.hasConflict">
         <div class="inevitable">
           <h3 (click)="showProblem()"><b>Inevitable Problem</b></h3>
@@ -51,7 +52,146 @@
         
       </div>
     </div> -->
-    
+      <!-- <div class="devices_detail">
+      <button class="conflict_button" (click)="conflictDetail()">States conflict?</button>
+      <button class="change_frequently_button" (click)="frequentChangeDetail()">States change frequently?</button>
+    </div>
+    <div class="devices_detail">
+      <button class="cannot_off_button" (click)="cannotOffDetail()">Device cannot off?</button>
+      <button class="consumption_button" (click)="consumptionDetail()">Device Consumption</button>
+    </div> -->
+
+
+      <div class="device_detail_scope" id="device_detail_button" [ngStyle]="{display: deviceDetailButtonShow}">
+        <div class="device_detail_half_scope">
+          <ul class="devices_detail">
+            <li class="conflict_button" (click)="conflictDetail()">
+              <b [ngClass]="{red: selectedDevice.statesConflict.hasConflict}">States conflict?</b>
+            </li>
+          </ul>
+          <ul class="devices_detail">
+            <li class="change_frequently_button" (click)="frequentChangeDetail()">
+              <b>States change frequently?</b>
+            </li>
+          </ul>
+        </div>
+
+        <div class="device_detail_half_scope">
+          <ul class="devices_detail">
+            <li class="cannot_off_button" (click)="cannotOffDetail()">
+              <b [ngClass]="{red: selectedDevice.deviceCannotOff.cannotOff}">Device cannot off?</b>
+            </li>
+          </ul>
+          <ul class="devices_detail">
+            <li class="consumption_button" (click)="consumptionDetail()">
+              <b>Device Consumption</b>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+
+
+
+
+      <div id="conflict_information" [ngStyle]="{display: conflictDetailShow}">
+        <div *ngIf="selectedDevice.statesConflict.hasConflict">
+          <b style="color: brown;font-size: 2em;margin-left: 20px;">Exist states conflict!</b>
+          <!-- <ul class="conflict_detail" style="display: flex;list-style-type: none;    flex-wrap: wrap;">
+            <li *ngFor="let conflictTime of selectedDevice.statesConflict.conflictTimes" style="width: 150px;margin-top: 10px;"
+            [class.selected_conflict]="conflictTime===conflictStateTime"
+            (click)="onSelectConflictTime(conflictTime)">
+            <div class="label">
+              <b style="margin-bottom: 1px;">conflict time:</b>
+              <b style="color: black;margin-top: 1px;">{{twoDevimals(conflictTime.conflictTime)}}</b>
+            </div>
+
+            </li>
+          </ul> -->
+          <div echarts [options]="conflictOption" class="conflict_option" [autoResize]="true" id="conflictOptionId">
+          </div>
+        </div>
+
+        <div *ngIf="!selectedDevice.statesConflict.hasConflict">
+          <b style="color: rgb(8, 5, 5);font-size: 2em;margin-left: 20px;">Exist no states conflict.</b>
+        </div>
+
+      </div>
+      <div id="change_frequent_information" [ngStyle]="{display: frequentChangeDetailShow}">
+        <div>
+          <div echarts [options]="changeFrequentOption" class="change_frequent_option " [autoResize]="true"
+            id="changeFrequentId"></div>
+          <div  id="frequency_conclution">
+            <div style="margin-left: 30px;margin-right: 30px;">
+              <b style="color: black;">Excluding the state conflicts, the </b><b style="color: brown;">&nbsp;{{selectedDevice.deviceName}}</b>
+              <b style="color: black;">&nbsp;undergoes</b> <b style="color: brown;">&nbsp;{{selectedDevice.statesChange.statesChangeCount}}</b> <b style="color: black;">&nbsp;state
+                changes during the</b> <b style="color: brown;">&nbsp;{{simulationTime}}</b><b style="color: black;">s simulation process.</b>
+            </div>
+
+            <br>
+            <div style="margin-left: 30px;margin-right: 30px;">
+              <b style="color: black;"> Equivalent to </b><b style="color: brown;">&nbsp;{{equivalentTime}}</b><b style="color: black;">h in the real world, the frequency
+                of state transition is</b> <b
+                style="color: brown;">&nbsp;{{getFrequency(selectedDevice.statesChange.statesChangeCount,equivalentTime)}}</b><b style="color: black;">/h.</b>
+
+            </div>
+          </div>
+          <div id="frequency_analysis">
+            <div echarts class="frequent_change_analysis_option" [autoResize]="true" id="frequency_option_id"></div>
+          </div>
+        </div>
+      </div>
+      <div id="cannot_off_information" [ngStyle]="{display: cannotOffDetailShow}">
+        <div *ngIf="selectedDevice.deviceCannotOff.cannotOff">
+          <b style="color: brown;font-size: 2em;margin-left: 20px;">Device cannot Off!</b>
+          <p style="color: brown;font-size: 1em;margin-left: 30px;">
+            Reason: {{selectedDevice.deviceCannotOff.cannotOffReason.reason}}</p>
+          <div *ngIf="selectedDevice.deviceCannotOff.cannotOffReason.cannotTriggeredRules.length>0">
+            <ul class="cannot_off_rule_list">
+              <li *ngFor="let rule of selectedDevice.deviceCannotOff.cannotOffReason.cannotTriggeredRules"
+                class="cannot_off_rule_label">
+                {{rule.ruleName}}:{{rule.ruleContent}}<br>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+
+        <div *ngIf="!selectedDevice.deviceCannotOff.cannotOff">
+          <b style="color: rgb(8, 5, 5);font-size: 2em;margin-left: 20px;">Device can off.</b>
+        </div>
+
+      </div>
+      <div id="consumption_information" [ngStyle]="{display: consumptionDetailShow}">
+
+      </div>
+      <!-- <ul class="devices_detail">
+        <li class="conflict_button" [class.selected]="device===selectedDevice" (click)="conflictDetail()">
+          <b>States conflict?</b>
+          
+        </li>
+        <li class="change_frequently_button" [class.selected]="device===selectedDevice" (click)="frequentChangeDetail()">
+          <b>States change frequently?</b>
+          
+        </li> 
+
+      </ul>
+      <ul class="devices_detail">
+        <li class="cannot_off_button" [class.selected]="device===selectedDevice"(click)="cannotOffDetail()">
+          <b>Device cannot off?</b>
+         
+        </li>
+        <li class="consumption_button" [class.selected]="device===selectedDevice" (click)="consumptionDetail()">
+          <b>Device Consumption</b>
+          
+        </li>
+      </ul> -->
+
+    </div>
+
+
+
+
   </div>
 
 

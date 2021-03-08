@@ -114,6 +114,22 @@ img{
       position: relative;
       height: 48%;
   }
+
+  .scroll_bar{
+    color: #ffffff;
+    height: 250px;
+    overflow-y: auto;
+    scrollbar-face-color: #889B9F;
+    scrollbar-shadow-color: #3D5054;
+    scrollbar-highlight-color: #C3D6DA;
+    scrollbar-3dlight-color: #3D5054;
+    scrollbar-darkshadow-color: #85989C;
+    scrollbar-track-color: #95A6AA;
+    scrollbar-arrow-color: #FFD6DA;
+    position: relative;
+    margin-bottom: 0px;
+  }
+
   .devices li {
     cursor: pointer;
     position: relative;
@@ -192,3 +208,32 @@ img{
       position: relative;
       height: 48%;
   }
+
+
+  .equivalent_time_input{
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 100px;
+  }
+
+  .equivalent_time{
+      
+    margin-left: 20px;
+    width: 150px;
+  }
+
+  .interval_time_input{
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 100px;
+  }
+
+  .interval_time{
+      
+    margin-left: 20px;
+    width: 150px;
+  }
+  .button-group{
+    height: 50px;
+    display: flex;
+}

@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FileUploadModule } from 'ng2-file-upload';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,14 +22,16 @@ import { TreemapComponent } from './treemap/treemap.component';
 import { EchartsAllSencesAnalysResultComponent } from './echarts-all-sences-analys-result/echarts-all-sences-analys-result.component';
 import { SceneDetailsComponent } from './scene-details/scene-details.component';
 import { EchartsAllScenesRulesAnalysComponent } from './echarts-all-scenes-rules-analys/echarts-all-scenes-rules-analys.component';
+
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
 import { HttpClientModule } from '@angular/common/http';
 import { MonacoConfig } from "./monaco-config";
-// const monacoConfig: NgxMonacoEditorConfig = {
-//   baseUrl: '../assets', // configure base path for monaco editor default: './assets'
-//   defaultOptions: { scrollBeyondLastLine: false }, // pass default options to be used
-//   onMonacoLoad: () => { console.log((<any>window).monaco); } // here monaco object will be available as window.monaco use this function to extend monaco editor functionalities.
-// };
+import { MainData } from './provider/main-data';
+const monacoConfig: NgxMonacoEditorConfig = {
+  baseUrl: '../assets', // configure base path for monaco editor default: './assets'
+  defaultOptions: { scrollBeyondLastLine: false }, // pass default options to be used
+  onMonacoLoad: () => { console.log((<any>window).monaco); } // here monaco object will be available as window.monaco use this function to extend monaco editor functionalities.
+};
 
 @NgModule({
   declarations: [
@@ -54,13 +57,15 @@ import { MonacoConfig } from "./monaco-config";
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    MonacoEditorModule.forRoot(MonacoConfig),
+    FileUploadModule,
+    MonacoEditorModule.forRoot(monacoConfig),
+    // MonacoEditorModule.forRoot(),
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts'),
     })
     
   ],
-  providers: [],
+  providers: [MainData],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

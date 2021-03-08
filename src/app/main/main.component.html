@@ -2,7 +2,44 @@
 
     <div id="ontology_rules" class="main_ontology_rules">
         <div class="left">
-            <app-rules-ontology class="rule_ontology"></app-rules-ontology>
+            <div class="rule_ontology">
+                <div>
+                    <h2><b>Please Enter Trigger Action Programs:</b></h2>
+
+                    <textarea class="textarea"
+                        placeholder="Please enter 'IF...THEN...', such as 'IF Door.dopen THEN M.heatoffPulse '"
+                        [(ngModel)]="ruleText"></textarea>
+                    <div class="button-group">
+                        <button class="upload button">UploadOntology
+                            <input class="change" type="file" ng2FileSelect [uploader]="uploader"
+                                (change)="selectedFileOnChanged($event)" />
+                        </button>
+                        <div class="simulation_time">
+                            <label style="color: rgb(43, 42, 42);">simulation time:
+                                <input [(ngModel)]="simulationTime" class="simulation_time_input" type="number"
+                                    min="100"
+                                    oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)">
+                                s
+                            </label>
+                        </div>
+
+
+                        <button class="analys_button" (click)="generateAllModels()">Generate Models</button>
+                        <button class="analys_button" (click)="simulation()">Simulate</button>
+                    </div>
+
+                    <!-- <form  method="post" enctype="multipart/form-data" >
+                            <label>choose ontology:</label>
+                            <input type="file" name="file" accept=".xml" class="chooseFile_c"> 
+                            
+                            <input type="submit" class="submit_button"><br>
+                            
+                       </form> -->
+
+
+                </div>
+            </div>
+            <!-- <app-rules-ontology class="rule_ontology"></app-rules-ontology> -->
         </div>
 
 
@@ -13,18 +50,25 @@
                 <div class="random-range">
                     <!-- <div echarts [options]="options | async" class="demo-chart"></div> -->
                     <div class="scenes-scope" id="all_scenes_tree">
+                        <div class="scrollbar">
+                            <!-- <div class="echarts_scale"> -->
+                                <!-- <app-echarts-all-scenes class="scrollbar" [option]="scenesTreeOption"></app-echarts-all-scenes> -->
+                                <div id="scenesTreeid" class="scenes_tree_scale" echarts [options]=scenesTreeOption>
+                                </div>
+                            <!-- </div> -->
 
-                        <!-- <app-echarts-all-scenes class="scrollbar" [option]="scenesTreeOption"></app-echarts-all-scenes> -->
-                        <div id="scenesTreeid" class="echarts_scale" echarts [options]=scenesTreeOption  ></div>
+                        </div>
+
 
                     </div>
                     <div class="scenes-scope" id="scenes_rules">
                         <!-- <app-echarts-all-scenes-rules-analys></app-echarts-all-scenes-rules-analys> -->
-                        <div echarts [options]="scenesRulesOption" class="scenes_rules"></div>
+                        <div id="scenesRulesBarid" echarts [options]="scenesRulesOption" class="scenes_rules_scale">
+                        </div>
                     </div>
 
                     <div class="scenes-scope" id="rules_scenes">
-                        <div id="ruleScenesBarid" class="echarts_scale" echarts [options]=rulesScenesOption  ></div>
+                        <div id="ruleScenesBarid" class="rules_scenes_scale" echarts [options]=rulesScenesOption></div>
                     </div>
 
 
@@ -33,7 +77,8 @@
                     <button class="button" (click)="showRandomResults()">Show Scenes Tree</button>
                     <button class="button" (click)="showScenesRulesResults()">Show Scenes Rules</button>
                     <button class="button" (click)="showRulesScenesResults()">Show Rules Scenes</button>
-                    <button class="button" [routerLink]="['/scene-details']" [queryParams]="{selectedSceneName:selectedSceneName}" >Scene Details</button>
+                    <!-- <button class="button" [routerLink]="['/scene-details']" [queryParams]="{selectedSceneName:selectedSceneName,scenes:scenes}" (click)="toSceneDetail()">Scene Details</button> -->
+                    <button class="button" (click)="toSceneDetail()">Scene Details</button>
                     <button class="button" routerLink="/ifd-plan">Show IFD</button>
                     <div ng-view></div>
                 </div>

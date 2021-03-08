@@ -77,8 +77,14 @@ export interface StateLastTime{
 
 export interface DeviceCannotOff{
     cannotOff:boolean;
-    reason:string;
+    cannotOffReason:CannotOffReason;
 }
+
+export interface CannotOffReason{
+    reason:string;
+    cannotTriggeredRules:Array<Rule>;
+} 
+
 
 export interface DeviceStateName{
     deviceName:string;
@@ -100,5 +106,59 @@ export interface Rule{
     action:Array<string>;
 }
 
+export interface RuleText{
+    rules:Array<string>
+}
 
 
+export interface RulesSceneSimulationTime{
+    rules:Array<Rule>;
+    scene:Scene;
+    simulationTime:string
+}
+
+
+/////////////////////////////states conflict//////////////
+export interface StateAndRuleAndCauseRule{
+    stateValue:string;
+    stateName:string;
+    rulesAndCauseRules:Array<RuleAndCause>;
+}
+
+export interface RuleAndCause{
+    rule:Rule;
+    relativeRules:Array<RuleAndCause>;
+}
+
+export interface CauseRuleInput{
+    conflictStateTime:ConflictTime;
+    triggeredRulesName:Array<DataTimeValue>;
+    deviceStateName:DeviceStateName;
+    rules:Array<Rule>;
+}
+
+
+/////////////////////////state changes////////////////////////
+export interface WholeAndCurrentChangeCauseRule{
+    wholeStateChangesCauseRules:Array<StateChangeCauseRules>;
+    currentStateChangeCauseRules:StateChangeCauseRules;
+}
+
+export interface StateChangeCauseRules{
+    start: TimeStateRelativeRules;
+    middle: TimeStateRelativeRules;
+    end: TimeStateRelativeRules;
+}
+
+export interface TimeStateRelativeRules{
+    time:number;
+    stateName:string;
+    relativeRules:Array<Rule>;
+}
+
+export interface StateChangeCauseRuleInput{
+    triggeredRulesName:Array<DataTimeValue>;
+    deviceStateName:DeviceStateName;
+    stateChangeFasts:Array<StateChangeFast>;
+    stateChangeFast:StateChangeFast;
+}

@@ -68,15 +68,17 @@ td{
 li {
     cursor: pointer;
     position: relative;
-    left: 0;
-    background-color: rgb(93, 200, 250);
-    margin-top: 8px;
-    margin: 0.9em;
-    padding: .3em 0;
-    width: 10em;
-    height: 6em;
+    
+    background-color: rgb(66, 116, 255);
+    margin-left: auto;
+    margin-right: auto;
+
+    padding: .3em .3em;
+    width: 14em;
+    height: 4.2em;
     border-radius: 4px;
     text-align: center;
+    line-height: 4.2em;
     color: #f1f1f3;
     
     
@@ -115,7 +117,7 @@ li.selected:hover {
   .scroll_bar{
     color: #ffffff;
     height: 250px;
-    overflow-y: scroll;
+    overflow-y: auto;
     scrollbar-face-color: #889B9F;
     scrollbar-shadow-color: #3D5054;
     scrollbar-highlight-color: #C3D6DA;
@@ -126,3 +128,82 @@ li.selected:hover {
     position: relative;
     margin-bottom: 0px;
   }
+
+
+  .devices_detail {
+    margin-left: auto;
+    margin-right: auto;
+    list-style-type: none;
+    padding: 0;
+    position: relative;
+    height: 90%;
+    width: 50%;
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    
+  }
+
+  .device_detail_scope{
+    margin-left: auto;
+    margin-right: auto;
+    list-style-type: none;
+    padding: 0;
+    position: relative;
+    height: 100%;
+    width: 90%;
+  }
+  .device_detail_half_scope{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0px;
+    list-style-type: none;
+    padding: 0;
+    position: relative;
+    height: 48%;
+    width: 90%;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .red{
+    text-align: center;
+    color: #691010;
+  }
+
+  /* .conflict_button{
+      margin-left: 20px;
+      float: left;
+  }
+  .change_frequently_button{
+      margin-right: 20px;
+      float: right;
+  } */
+
+  li.selected_conflict{
+    background-color: #adc4f0;
+    color: brown;
+  }
+
+  .conflict_option{
+    position: relative;
+    height: 180px;
+    width: 96%;
+    margin-top: 10px;
+  }
+
+  .change_frequent_option{
+    position: relative;
+    height: 200px;
+    width: 96%;
+    margin-top: 10px;
+  }
+
+  .frequent_change_analysis_option{
+    position: relative;
+    height: 300px;
+    width: 96%;
+    margin-top: 10px;
+  }
+
+ 

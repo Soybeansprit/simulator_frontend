@@ -8,9 +8,12 @@ import { DiffEditorModel } from 'ngx-monaco-editor';
 })
 export class RulesOntologyComponent implements OnInit {
 
+  rulesTxt!:string;
+
   constructor() { }
 
   ngOnInit(): void {
+    
   }
 
   //////////// ngx-monaco-editor

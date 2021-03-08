@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { Scene } from '../class/scene';
+import { CauseRuleInput, ConflictTime, DeviceStateName, Rule, RulesSceneSimulationTime, Scene, StateAndRuleAndCauseRule, StateChangeCauseRuleInput, StateChangeFast, WholeAndCurrentChangeCauseRule } from '../class/scene';
 import { ScenesTree } from '../class/scenes-tree';
 import { DataTimeValue } from '../class/scene';
 import * as echarts from 'echarts';
@@ -14,9 +14,64 @@ export class SceneService {
   fileUrl = "http://localhost:8083/file";
   constructor(public http: HttpClient) { }
 
-  // httpOptions = {
-  // 	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  // };
+  httpOptions = {
+  	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
+
+
+
+  analysisStatesConflict(conflictStateTime:ConflictTime,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName,rules:Array<Rule>,
+    initFileName:string):Observable<Array<StateAndRuleAndCauseRule>>{
+    var causeRuleInput:CauseRuleInput={
+      conflictStateTime:conflictStateTime,
+      triggeredRulesName:triggeredRulesName,
+      deviceStateName:deviceStateName,
+      rules:rules
+    }
+    console.log(conflictStateTime);
+    console.log(triggeredRulesName);
+    console.log(deviceStateName);
+    console.log(rules);
+    var url=`http://localhost:8083/str/getConflictCauseAnalysisResult?initModelName=${initFileName}`;
+
+    return this.http.post<Array<StateAndRuleAndCauseRule>>(url,causeRuleInput,this.httpOptions);
+  }
+
+  analysisStatesChangeFrequently(stateChangeFasts:Array<StateChangeFast>,stateChangeFast:StateChangeFast,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName):Observable<WholeAndCurrentChangeCauseRule>{
+    var stateChangeCauseRuleInput:StateChangeCauseRuleInput={
+      stateChangeFast:stateChangeFast,
+      stateChangeFasts:stateChangeFasts,
+      triggeredRulesName:triggeredRulesName,
+      deviceStateName:deviceStateName
+    }
+    console.log(stateChangeFasts);
+    console.log(stateChangeFast);    
+    console.log(triggeredRulesName);
+    console.log(deviceStateName);
+    var url='http://localhost:8083/str/getStateChangeFastCauseAnalysisResult';
+    return this.http.post<WholeAndCurrentChangeCauseRule>(url,stateChangeCauseRuleInput,this.httpOptions);
+
+  }
+  analysisDeviceCannotOff(scene:Scene){
+
+  }
+  
+
+
+  getDeviceAnalysisResult(scene:Scene,rules:Array<Rule>,simulationTime:string,
+    initModelName:string,equivalentTime:string,intervalTime:string):Observable<Scene>{
+      var rulesSceneSimulationTime:RulesSceneSimulationTime={
+        rules:rules,
+        scene:scene,
+        simulationTime:simulationTime
+      };
+      
+      var url=`http://localhost:8083/str/getDeviceAnalysisResult?initModelName=${initModelName}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
+
+      return this.http.post<Scene>(url,rulesSceneSimulationTime,this.httpOptions);
+  }
+
+
   getSelectedScene(sceneName: string): Observable<Scene> {
     var url = this.fileUrl + "/getSceneAnalysisResult";
     var filePath = "D:%5C%5Cexp";
@@ -90,6 +145,8 @@ export class SceneService {
             },
             xAxis: {
               data: xAxisData,
+              // name:"scene's name",
+              // nameLocation:'center',
               axisLabel: {
                 
               },
@@ -152,7 +209,7 @@ export class SceneService {
     })
   }
 
-  getRulesScenesData(scenes: Array<Scene>) {
+  getRulesScenesData(scenes: Array<Scene>,rules:Array<Rule>) {
     return new Observable((observer) => {
       setTimeout(() => {
 
@@ -160,7 +217,7 @@ export class SceneService {
 
 
         var xAxisData = [];
-        var triggeredSceneNum = [];
+        var triggeredSceneNum:number[] = [];
         var ruleNum = scenes[0].cannotTriggeredRulesName.length + scenes[0].triggeredRulesName.length;
         var triggeredNumMax = scenes.length;
         var dataShadow = [];
@@ -192,7 +249,29 @@ export class SceneService {
           },
           tooltip: {
             trigger: 'item',
-            formatter: '{c} scenes triggered {b} '
+            formatter: function(params:any){
+              var name:string="";
+              var data:number;
+              var rule:Rule;
+              name=params.name;
+              var ruleNum=parseInt(name.substring('rule'.length));
+              // if(params.componentIndex===1){
+                
+              //   data=params.data;
+              // }else{
+              //   data=scenes.length-params.data;
+              // }
+
+              for(let i=0;i<rules.length;i++){
+                if(name===rules[i].ruleName){
+                  rule=rules[i];
+                  data=triggeredSceneNum[i];
+                  break;
+                }
+              }
+              var ruleContent=rule!.ruleContent.substring(rule!.ruleContent.indexOf('IF'));
+              return params.marker+'<b>'+data!+'</b>'+' scenes triggered '+'<b>'+name+'</b>'+'<br>'+'<b>'+name+"</b>: "+ruleContent;
+            }
           },
           xAxis: {
             data: xAxisData,
@@ -439,6 +518,7 @@ export class SceneService {
             show: true,
             min: 0,
             scale: true,
+            name:"time/s",
             axisLabel: {
               formatter: function (val: number) {
                 return Math.max(0, val - 0);
@@ -485,6 +565,15 @@ export class SceneService {
             axisPointer: {            // 坐标轴指示器，坐标轴触发有效
               type: 'none'        // 默认为直线，可选为：'line' | 'shadow'
             },
+            formatter:function(params:any){
+              var triggered=params[0].marker+"triggered rules number: <b>"+params[0].data+"</b><br>";
+              var notTriggered=params[1].marker+"cannot triggered rules number: <b>"+params[1].data+"</b><br>";
+              var cannotTriggeredRules="&nbsp;&nbsp; cannot triggered rules:";
+              for(let i=0;i<scene.cannotTriggeredRulesName.length;i++){
+                cannotTriggeredRules=cannotTriggeredRules+"<br>&nbsp;&nbsp;&nbsp;&nbsp;"+scene.cannotTriggeredRulesName[i];
+              }
+              return triggered+notTriggered+cannotTriggeredRules;
+            }
             
           },
           

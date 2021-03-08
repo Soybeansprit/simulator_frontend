@@ -2,9 +2,12 @@
   <app-topbar></app-topbar>
   
 <!-- <div  class="input_class">
-  <ngx-monaco-editor style="height: 100%" [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
+  <ngx-monaco-diff-editor id="input_textarea" [options]="options" [originalModel]="originalModel" [modifiedModel]="modifiedModel" [(ngModel)]="code" ></ngx-monaco-diff-editor>
 </div> -->
+
   <router-outlet></router-outlet>
-  <!-- <app-echarts-all-sences-analys-result></app-echarts-all-sences-analys-result> -->
-  <!-- <button (click)="getStudents()"></button> -->
+
+  <!-- <ngx-monaco-editor id="input_textarea" class="input" [options]="editorOptions" [(ngModel)]="requirementTexts"
+  (onInit)="monacoOnInit($event)"></ngx-monaco-editor> -->
+  
 </div>
