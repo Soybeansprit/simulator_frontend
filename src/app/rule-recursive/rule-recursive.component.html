@@ -1,0 +1,8 @@
+<ul style="color: black;">
+    <b>Prerequisite rules:</b>
+    <li *ngFor="let causeRule of causeRules" >
+        <b>{{causeRule.selfRule.ruleName}}: </b>{{getRuleContent(causeRule.selfRule.ruleContent)}}
+        <app-rule-recursive *ngIf="causeRule.causeRules.length>0" [causeRules]="causeRule.causeRules" ></app-rule-recursive>
+    </li>
+</ul>
+

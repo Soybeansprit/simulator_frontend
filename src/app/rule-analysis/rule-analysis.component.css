@@ -1,0 +1,340 @@
+
+.overall_analysis{
+    margin-top: 10px;
+    width: 100%;
+    height: 700px;
+    
+    
+    
+}
+
+
+
+.scope{
+    position: relative;
+    display: flex;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width:99.5%;
+    height:95%;
+    
+}
+
+.rule_never_triggered{
+    position: relative;
+    border:  #36648B 2px solid;
+    border-radius: 10px;
+    margin-left: 5px;
+    margin-right: 10px;
+    padding: 10px;
+    
+    height:100%;
+}
+.rule_cause_conflict{
+    position: relative;
+    border:  #36648B 2px solid;
+    border-radius: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 10px;
+    height:100%;
+}
+
+.rule_cause_fast_change{
+    position: relative;
+    border:  #36648B 2px solid;
+    border-radius: 10px;
+    margin-left: 10px;
+    margin-right: 20px;
+    padding: 10px;
+    
+    height:100%;
+}
+
+.scope_c1{
+    position: relative;
+    height: 100%;
+    width: 20%;
+}
+
+.scope_c2{
+    position: relative;
+    height: 100%;
+    width: 40%;
+}
+
+.scope_c3{
+    position: relative;
+    height: 100%;
+    width: 40%;
+}
+
+.rule_scene_scope{
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.rules_scenes_scale{
+    position: relative;
+    height: 70%;
+    width: 100%;
+}
+
+.rule_analysis{
+  position: relative;
+  height: 25%;
+  width: 90%;
+}
+
+.button{
+    margin-left: 20px;
+    
+    width:140px;
+    height: 50px;
+    border: solid #000 1px;
+    border-radius: 5px;
+}
+
+h2{
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+img{
+    width: 100%;
+    height: 100%;
+}
+
+.back{
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 10px;
+}
+
+.button-scope{
+    display: flex;
+    margin-top: 50px;
+}
+
+.picture{
+    width: 100%;
+    height: 670px;
+    position: relative;
+}
+
+.ifd_style{
+    width: 100%;
+    height: 700px;
+}
+
+.demo-chart{
+    height: 60%;
+    width: 96%;
+
+}
+.scene-rule-analys{
+    height: 40%;
+    width: 96%;
+}
+
+.rule-echarts{
+    height: 100%;
+    position: relative;
+}
+
+.scene-rule-bar-analys{
+    height: 20%;
+    width: 96%;
+}
+
+.class_scope{
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+
+/* device information */
+
+.devices {
+    margin: 0 0 2em 0;
+    list-style-type: none;
+    padding: 0;
+    
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .device-scope{
+      margin-top: 3px;
+      margin-left: 3px;
+      margin-right: 3px;
+      border:  #36648B 1px dashed;
+      border-radius: 4px;
+      position: relative;
+      height: 48%;
+  }
+
+  .scroll_bar{
+    color: #ffffff;
+    height: 95%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-face-color: #889B9F;
+    scrollbar-shadow-color: #3D5054;
+    scrollbar-highlight-color: #C3D6DA;
+    scrollbar-3dlight-color: #3D5054;
+    scrollbar-darkshadow-color: #85989C;
+    scrollbar-track-color: #95A6AA;
+    scrollbar-arrow-color: #FFD6DA;
+    position: relative;
+    margin-bottom: 0px;
+  }
+
+  .devices li {
+    cursor: pointer;
+    position: relative;
+    left: 0;
+    background-color: rgb(15, 22, 153);
+    margin-top: 8px;
+    margin: 0.9em;
+    padding: .3em 0;
+    width: 11.9em;
+    height: 3em;
+    border-radius: 4px;
+    text-align: center;
+    color: #ffffff;
+    
+    
+  }
+  .devices li:hover {
+    color: #ffffff;
+    background-color: #DDD;
+    left: .1em;
+  }
+  .devices li.selected {
+    background-color: #CFD8DC;
+    color: rgb(119, 164, 233);
+  }
+  .devices li.selected:hover {
+    background-color: #BBD8DC;
+    color: white;
+  }
+  .devices .badge {
+    display: inline-block;
+    font-size: medium;
+    color: white;
+    padding: 1em 0.7em 0 0.7em;
+    background-color: #607D8B;
+    line-height: 1em;
+    position: relative;
+    width: 80%;
+    height: 100%;
+    
+    
+    
+    margin-right: .8em;
+    border-radius: 25px;
+    text-align: center;
+  }
+
+  h3{
+      margin-top: 10px;
+      margin-left: 10px;
+  }
+
+  .red{
+    text-align: center;
+    color: #f36767;
+  }
+
+  .has-conflict{
+    text-align: center;
+    font-size: .8em;
+    color: #802727;
+  }
+
+  .not_off{
+    text-align: center;
+    font-size: .8em;
+    color: #802727;
+  }
+
+  .device_details{
+    margin-top: 3px;
+      margin-left: 3px;
+      margin-right: 3px;
+      border:  #36648B 1px dashed;
+      border-radius: 4px;
+      position: relative;
+      height: 48%;
+  }
+
+
+  .equivalent_time_input{
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 100px;
+  }
+
+  .equivalent_time{
+      
+    margin-left: 20px;
+    width: 150px;
+  }
+
+  .interval_time_input{
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 100px;
+  }
+
+  .interval_time{
+      
+    margin-left: 20px;
+    width: 150px;
+  }
+  .button-group{
+    height: 50px;
+    display: flex;
+}
+
+li:hover {
+  color: #ffffff;
+  background-color: #DDD;
+  left: .1em;
+}
+li.selected {
+  background-color: #CFD8DC;
+  color: rgb(119, 164, 233);
+}
+li.selected:hover {
+  background-color: #BBD8DC;
+  color: white;
+}
+.badge {
+  display: inline-block;
+  font-size: medium;
+  color: white;
+  padding: 1em 0.7em 0 0.7em;
+  background-color: #607D8B;
+  line-height: 1em;
+  position: relative;
+  width: 80%;
+  height: 100%;
+  
+  
+  
+  margin-right: .8em;
+  border-radius: 25px;
+  text-align: center;
+}
+
+.device_name{
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 0px;
+}

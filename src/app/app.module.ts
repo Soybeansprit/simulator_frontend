@@ -27,6 +27,9 @@ import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
 import { HttpClientModule } from '@angular/common/http';
 import { MonacoConfig } from "./monaco-config";
 import { MainData } from './provider/main-data';
+import { OverallAnalysisComponent } from './overall-analysis/overall-analysis.component';
+import { RuleAnalysisComponent } from './rule-analysis/rule-analysis.component';
+import { RuleRecursiveComponent } from './rule-recursive/rule-recursive.component';
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: '../assets', // configure base path for monaco editor default: './assets'
   defaultOptions: { scrollBeyondLastLine: false }, // pass default options to be used
@@ -50,7 +53,10 @@ const monacoConfig: NgxMonacoEditorConfig = {
     TreemapComponent,
     EchartsAllSencesAnalysResultComponent,
     SceneDetailsComponent,
-    EchartsAllScenesRulesAnalysComponent
+    EchartsAllScenesRulesAnalysComponent,
+    OverallAnalysisComponent,
+    RuleAnalysisComponent,
+    RuleRecursiveComponent
   ],
   imports: [
     BrowserModule,

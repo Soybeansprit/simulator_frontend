@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { CauseRuleInput, ConflictTime, DeviceStateName, Rule, RulesSceneSimulationTime, Scene, StateAndRuleAndCauseRule, StateChangeCauseRuleInput, StateChangeFast, WholeAndCurrentChangeCauseRule } from '../class/scene';
+import { observable, Observable, of } from 'rxjs';
+import { AllCauseRuleInput, AllScenesAnalysisInput, CauseRuleInput, ConflictTime, DeviceStateName, Rule, RulesAllScenesSimulationTime, RulesSceneSimulationTime, Scene, StateAndRuleAndCauseRule, StateChangeCauseRuleInput, StateChangeCauseRules, StateChangeFast, WholeAndCurrentChangeCauseRule } from '../class/scene';
 import { ScenesTree } from '../class/scenes-tree';
 import { DataTimeValue } from '../class/scene';
 import * as echarts from 'echarts';
@@ -17,9 +17,32 @@ export class SceneService {
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
+/////////////////所有场景
+  analysisAllScenesStatesConflict(scenes:Array<Scene>,deviceName:string,rules:Array<Rule>,initFileName:string)
+  :Observable<Array<Array<StateAndRuleAndCauseRule>>>{
+    var allScenesAnalysisInput:AllScenesAnalysisInput={
+      scenes:scenes,
+      rules:rules
+    }
+    var url=`http://localhost:8083/str/getAllScenesConflictCauseAnalysisResult?deviceName=${deviceName}&initModelName=${initFileName}`;
+    return this.http.post<Array<Array<StateAndRuleAndCauseRule>>>(url,allScenesAnalysisInput,this.httpOptions);
+  }
 
+  ////////////单个场景
+  analysisAllStatesConflict(conflictStateTimes:Array<ConflictTime>,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName,rules:Array<Rule>,
+    initFileName:string):Observable<Array<Array<StateAndRuleAndCauseRule>>>{
+      var allCauseRuleInput:AllCauseRuleInput={
+        conflictStateTimes:conflictStateTimes,
+        triggeredRulesName:triggeredRulesName,
+        deviceStateName:deviceStateName,
+        rules:rules
+      }
+      var url=`http://localhost:8083/str/getAllConflictCauseAnalysisResult?initModelName=${initFileName}`;
+      
+      return this.http.post<Array<Array<StateAndRuleAndCauseRule>>>(url,allCauseRuleInput,this.httpOptions);
 
-
+    }
+////////////////单个场景的单个冲突
   analysisStatesConflict(conflictStateTime:ConflictTime,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName,rules:Array<Rule>,
     initFileName:string):Observable<Array<StateAndRuleAndCauseRule>>{
     var causeRuleInput:CauseRuleInput={
@@ -36,7 +59,15 @@ export class SceneService {
 
     return this.http.post<Array<StateAndRuleAndCauseRule>>(url,causeRuleInput,this.httpOptions);
   }
+  
+  /////////////所有场景所有fast change
+  analysisAllScenesFastChange(scenes:Array<Scene>,deviceName:string):Observable<Array<Array<StateChangeCauseRules>>>{
+   
+    var url=`http://localhost:8083/str/getAllScenesFastChangeCauseAnalysisResult?deviceName=${deviceName}`;
+    return this.http.post<Array<Array<StateChangeCauseRules>>>(url,scenes,this.httpOptions);
+  }
 
+  ///////////////单个场景所有fast Change和单个fast change
   analysisStatesChangeFrequently(stateChangeFasts:Array<StateChangeFast>,stateChangeFast:StateChangeFast,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName):Observable<WholeAndCurrentChangeCauseRule>{
     var stateChangeCauseRuleInput:StateChangeCauseRuleInput={
       stateChangeFast:stateChangeFast,
@@ -71,6 +102,22 @@ export class SceneService {
       return this.http.post<Scene>(url,rulesSceneSimulationTime,this.httpOptions);
   }
 
+  getAllDeviceAnalysisResult(scenes:Array<Scene>,rules:Array<Rule>,simulationTime:string,
+    initModelName:string,equivalentTime:string,intervalTime:string):Observable<Array<Scene>>{
+
+      var rulesAllScenesSimulationTime:RulesAllScenesSimulationTime={
+        rules:rules,
+        scenes:scenes,
+        simulationTime:simulationTime
+      }
+      var url=`http://localhost:8083/str/getAllDeviceAnalysisResult?initModelName=${initModelName}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
+
+      return this.http.post<Array<Scene>>(url,rulesAllScenesSimulationTime,this.httpOptions);
+    }
+
+
+
+
 
   getSelectedScene(sceneName: string): Observable<Scene> {
     var url = this.fileUrl + "/getSceneAnalysisResult";
@@ -82,6 +129,10 @@ export class SceneService {
     return this.http.get<Scene>(url);
 
   }
+
+
+
+
 
   // getScene():Observable<Scene>{
   //   var url=this.fileUrl+"/getAnalysisResult";
@@ -357,7 +408,7 @@ export class SceneService {
       }, 500)
     })
   }
-  getRulesEchartsOption(scene: Scene) {
+  getRulesEchartsOption(scene: Scene,simulationTime:string,rules:Array<Rule>) {
     return new Observable((observer) => {
       setTimeout(() => {
         var rulesTimeValue: DataTimeValue[] = [];
@@ -417,8 +468,30 @@ export class SceneService {
 
                     break;
                   } else {
+                    
+
                     k++;
                   }
+                }
+                if(k===len){
+                  startTime = rulesTimeValue[i].timeValue[j][0];
+                    endTime = rulesTimeValue[i].timeValue[k - 1][0];
+                    data.push(
+                      {
+                        name: rulesTimeValue[i].name,
+                        value: [
+                          i,
+                          startTime,
+                          endTime,
+                          endTime - startTime
+                        ],
+                        itemStyle: {
+                          normal: {
+                            color: colors[i]
+                          }
+                        }
+                      }
+                    );
                 }
                 j = k;
               } else {
@@ -479,11 +552,21 @@ export class SceneService {
           };
         }
 
+        function getRuleContent(ruleName:string,rules:Array<Rule>):string{
+          var content=""
+          for(let i=0;i<rules.length;i++){
+            if(ruleName===rules[i].ruleName){
+              content=rules[i].ruleContent
+            }
+          }
+          return content
+        }
+
 
         var options = {
           tooltip: {
             formatter: function (params: any) {
-              return params.marker + params.name + ' last time : <br/>' + params.value[3];
+              return params.marker + params.name + ' last time : ' + Number(params.value[3]).toFixed(2)+'<br/>'+getRuleContent(params.name,rules);
             }
           },
           title: {
@@ -517,6 +600,7 @@ export class SceneService {
           xAxis: {
             show: true,
             min: 0,
+            max:Number(simulationTime),
             scale: true,
             name:"time/s",
             axisLabel: {
@@ -634,6 +718,145 @@ export class SceneService {
         observer.next(rulesBarOptions);
     }, 500)
     })
+  }
+
+
+  ////////////////////判断两个trigger之间是否存在矛盾//////////////////
+  triggerExistContra(attrVal1:Array<string>,attrVal2:Array<string>):boolean{
+    if(attrVal1[0]===attrVal2[0]){
+      if(attrVal2[1]==="."){
+        if(attrVal2[2]!=attrVal1[2]){
+          /////////////////////都是同一设备状态，但状态不同
+          return true;
+        }
+      }else {
+        var val1=Number(attrVal1[2]);
+        var val2=Number(attrVal2[2]);
+        if(attrVal1[1]==="="){
+          if(attrVal2[1]==="="){
+            if(attrVal1[2]!=attrVal2[2]){
+              return true;
+            }
+          }
+          if(attrVal2[1]===">"){
+            if(val2>=val1){
+              return true;
+            }
+          }
+          if(attrVal2[1]==="<"){
+            if(val2<=val1){
+              return true;
+            }
+          }
+          
+        }
+        if(attrVal2[1]==="="){
+          if(attrVal1[1]===">"){
+            if(val1>=val2){
+              return true;
+            }
+          }
+          if(attrVal1[1]==="<"){
+            if(val1<=val2){
+              return true;
+            }
+          }
+        }
+        if(attrVal1[1]===">"){
+          if(attrVal2[1]==="<"){
+            if(val1>=val2){
+              return true;
+            }
+          }
+        }
+        if(attrVal1[1]==="<"){
+          if(attrVal2[1]===">"){
+            if(val1<val2){
+              return true;
+            }
+          }
+        }
+      }
+      
+      
+    }
+    return false;
+  }
+/////////////////trigger解析///////////////////
+  getTriggerAttrVal(trigger:string):Array<string>{
+    var attrVal:Array<string>=[];
+    if(trigger.indexOf("FOR")>0){
+      trigger=trigger.substring(0,trigger.indexOf("FOR"));
+    }
+    trigger=trigger.trim();
+    if(trigger.indexOf(">")>0){
+      var attribute="";
+      var valStr="";
+      if(trigger.indexOf(".")>=0){
+        attribute=trigger.substring(trigger.indexOf("."),trigger.indexOf(">")).substring(".".length);
+      }else{
+        attribute=trigger.substring(0,trigger.indexOf(">"));
+      }
+
+      if(trigger.indexOf("=")>0){
+        valStr=trigger.substring(trigger.indexOf("=")).substring("=".length);	
+      }
+      if(trigger.indexOf("=")<0){
+        valStr=trigger.substring(trigger.indexOf(">")).substring(">".length);
+      }
+
+      attrVal.push(attribute.trim());
+      attrVal.push(">");
+      attrVal.push(valStr.trim());
+
+    }else if(trigger.indexOf("<")>0){
+      var attribute="";
+      var valStr="";
+      if(trigger.indexOf(".")>=0) {
+				attribute=trigger.substring(trigger.indexOf("."), trigger.indexOf("<")).substring(".".length);
+			}else {
+				attribute=trigger.substring(0, trigger.indexOf("<"));
+			}
+			//找到阈值
+			if(trigger.indexOf("=")>0) {
+				valStr=trigger.substring(trigger.indexOf("=")).substring("=".length);
+				
+			}
+			if(trigger.indexOf("=")<0) {
+				valStr=trigger.substring(trigger.indexOf("<")).substring("<".length);
+			}
+
+      attrVal.push(attribute.trim());
+      attrVal.push("<");
+      attrVal.push(valStr.trim());
+
+    }else if(trigger.indexOf("=")>0){
+      var attribute="";
+      var valStr="";
+      if(trigger.indexOf(".")>=0) {
+				attribute=trigger.substring(trigger.indexOf("."), trigger.indexOf("=")).substring(".".length);
+			}else {
+				attribute=trigger.substring(0, trigger.indexOf("="));
+			}
+			valStr=trigger.substring(trigger.indexOf("=")).substring("=".length);
+
+      attrVal.push(attribute.trim());
+      attrVal.push("=");
+      attrVal.push(valStr.trim());
+
+    }else{
+      var device="";
+      var state="";
+      device=trigger.substring(0,trigger.indexOf("."));
+      state=trigger.substring(trigger.indexOf(".")).substring(".".length);
+
+      attrVal.push(device.trim());
+      attrVal.push(".");
+      attrVal.push(state.trim());
+
+    }
+
+    return attrVal
   }
 }
 

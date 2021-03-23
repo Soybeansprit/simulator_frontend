@@ -65,12 +65,12 @@
       <div class="device_detail_scope" id="device_detail_button" [ngStyle]="{display: deviceDetailButtonShow}">
         <div class="device_detail_half_scope">
           <ul class="devices_detail">
-            <li class="conflict_button" (click)="conflictDetail()">
+            <li class="anaysis_button" (click)="conflictDetail()">
               <b [ngClass]="{red: selectedDevice.statesConflict.hasConflict}">States conflict?</b>
             </li>
           </ul>
           <ul class="devices_detail">
-            <li class="change_frequently_button" (click)="frequentChangeDetail()">
+            <li class="anaysis_button" (click)="frequentChangeDetail()">
               <b>States change frequently?</b>
             </li>
           </ul>
@@ -78,12 +78,12 @@
 
         <div class="device_detail_half_scope">
           <ul class="devices_detail">
-            <li class="cannot_off_button" (click)="cannotOffDetail()">
+            <li class="anaysis_button" (click)="cannotOffDetail()">
               <b [ngClass]="{red: selectedDevice.deviceCannotOff.cannotOff}">Device cannot off?</b>
             </li>
           </ul>
           <ul class="devices_detail">
-            <li class="consumption_button" (click)="consumptionDetail()">
+            <li class="anaysis_button" (click)="consumptionDetail()">
               <b>Device Consumption</b>
             </li>
           </ul>
@@ -109,6 +109,47 @@
             </li>
           </ul> -->
           <div echarts [options]="conflictOption" class="conflict_option" [autoResize]="true" id="conflictOptionId">
+          </div>
+          <div>
+            <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">Conclusion</b><br>
+            <div *ngFor="let conflictStatesRules of conflictStatesRulesList;index as i">
+              <b style="color: black; margin-left: 10px;">{{(i+1)}}: states conflict:</b>
+              <ul>
+                <li *ngFor="let stateConflictCauseRule of conflictStatesRules.conflictStateCauseRules" style="color: black;">
+                  state:<b style="font-size: larger;color:  rgb(21, 105, 184);">{{stateConflictCauseRule.stateName}}</b>, caused by
+                  <ul>
+                    <li *ngFor="let rule of stateConflictCauseRule.rulesAndCauseRules" style="color: black;" (click)=getDeepCauseRules(rule)>
+                      <b>{{rule.selfRule.ruleName}}</b>: {{getRuleContent(rule.selfRule.ruleContent)}}
+                    </li>
+                  </ul>
+                </li>
+                <li style="color: black;">count: {{conflictStatesRules.count}}</li>
+              </ul>
+              
+            </div>
+          </div>
+          <div>
+            <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">individual analysis</b>
+            <div *ngFor="let stateConflictCauseRule of newStateCauseRuleList;index as i">
+              <b style="color: black; margin-left: 10px;">{{(i+1)}}: states conflict:</b>
+              <ul>
+                <li *ngFor="let stateCause of stateConflictCauseRule;index as j" style="color: black;"> 
+                  state:<b style="font-size: larger;color:  rgb(21, 105, 184);">{{stateCause.stateName}}</b>, caused by
+                  <ul>
+                    <li *ngIf="stateCause.rulesAndCauseRules.length==0" style="color: brown;">no rule
+                      <ul>
+                        <li *ngFor="let rule of stateCauseRulesList[i][j].rulesAndCauseRules" style="color: black;">
+                          <b>{{rule.selfRule.ruleName}}</b>: {{getRuleContent(rule.selfRule.ruleContent)}}
+                        </li>
+                      </ul>
+                    </li>
+                    <li *ngFor="let rule of stateCause.rulesAndCauseRules" style="color: black;">
+                      <b>{{rule.selfRule.ruleName}}</b>: {{getRuleContent(rule.selfRule.ruleContent)}}
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -137,7 +178,41 @@
             </div>
           </div>
           <div id="frequency_analysis">
-            <div echarts class="frequent_change_analysis_option" [autoResize]="true" id="frequency_option_id"></div>
+            <div>
+              <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">Conclusion</b><br>
+              <ul *ngFor="let stateRuleList of stateRuleListList;index as i">
+                <b style="color: black;">state: </b> <b style="color:  rgb(21, 105, 184); font-size: larger;">{{stateRuleList[0].stateName}}</b> <b style="color: black;"> caused by</b>
+                <li style="color: black;" *ngFor="let stateRule of stateRuleList">
+                  <ul>
+                    <li style="color: black;" *ngFor="let rule of stateRule.causeRules">
+                      <b>{{rule.ruleName}}</b>: {{getRuleContent(rule.ruleContent)}}
+                    </li>
+                  </ul>
+
+                </li>
+              </ul>
+            </div>
+            <div>
+              <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">individual analysis</b>
+              <div *ngFor="let frequentChangeTimeStateRules of frequentChangeTimeStateRuleList;index as i">
+                <b style="color: black;margin-left: 10px;margin-top: 20px;">{{(i+1)}}</b>
+                <ul style="list-style-type: none;">
+                  <li style="color: black;">{{frequentChangeTimeStateRules[0].time.toFixed(2)}} <b style="color: rgb(21, 105, 184); font-size: larger;">{{frequentChangeTimeStateRules[0].stateName}}</b></li>
+                  <li *ngFor="let stateRules of frequentChangeTimeStateRules;index as j"  style="color: black;">
+                    <div *ngIf="j>0">
+                      {{stateRules.time.toFixed(2)}} <b style="font-size: larger; color: rgb(21, 105, 184);" >{{stateRules.stateName}}</b> caused by 
+                      <ul>
+                        <li *ngFor="let rule of stateRules.relativeRules" style="color: black;">
+                          <b>{{rule.ruleName}}</b>: {{getRuleContent(rule.ruleContent)}}
+                        </li>
+                      </ul>
+                    </div>
+                    
+                  </li>
+                </ul>
+              </div>
+              <!-- <div echarts class="frequent_change_analysis_option" [autoResize]="true" id="frequency_option_id"></div> -->
+            </div>
           </div>
         </div>
       </div>
@@ -163,7 +238,11 @@
 
       </div>
       <div id="consumption_information" [ngStyle]="{display: consumptionDetailShow}">
-
+        <ul>
+          <li *ngFor="let stateTime of selectedDevice.deviceStateLastTime.statesTime" style="color: black;margin-left: 30px;margin-top: 30px;font-size: larger;">
+            <b style="color:  rgb(21, 105, 184);">{{stateTime.stateName}}</b> &nbsp;&nbsp;last time: &nbsp;<b> {{stateTime.lastTime.toFixed(2)}} </b>           
+          </li>
+        </ul>
       </div>
       <!-- <ul class="devices_detail">
         <li class="conflict_button" [class.selected]="device===selectedDevice" (click)="conflictDetail()">

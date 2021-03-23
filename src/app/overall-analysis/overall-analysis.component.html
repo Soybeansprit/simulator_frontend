@@ -1,0 +1,144 @@
+<div>
+    <div class="overall_analysis" id="scene">
+        <div class="left-half">
+            <h2><b>Rules Analysis:</b></h2>
+            <div class="scope">
+                <div class="scope_c" id="scene_rule">
+                    <div class="rule_scene_scope" id="rules_scenes">
+                        <div id="ruleScenesBarid" class="rules_scenes_scale" echarts [options]=rulesScenesOption></div>
+                        <div class="rule_analysis">
+                            <b style="color: brown;font-size: x-large;margin-top: 20px;margin-left: 20px;">Rules Never Triggered:</b>
+                            <ul *ngIf="rulesNeverTriggered.length>0">
+                                <li *ngFor="let rule of rulesNeverTriggered" style="color: black;font-size: large;margin-left: 40px;margin-top: 10px;">
+                                    <b>{{rule.ruleName}}: </b>{{getRuleContent(rule.ruleContent)}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right-half">
+            <h2><b>Devices Analysis</b></h2>
+            <div class="scope">
+                <div class="scope_c" id="scene_device">
+                    <div class="device-scope">
+                        <h3><b>Devices:</b></h3>
+                        <div class="scroll_bar">
+                            <ul class="devices">
+                                <li *ngFor="let device of deviceNames" [class.selected]="device===selectedDevice"
+                                    (click)="onSelect(device)">
+                                    <b>{{device}}</b>
+                                </li>
+                            </ul>
+                        </div>
+
+
+                    </div>
+                    <div class="device_details">
+                        <h2 class="device_name"><b>{{selectedDevice}} </b></h2> <br>
+                        <div class="scroll_bar">
+                            <div class="device_not_off" *ngIf="deviceNotOff!=null">
+                                <b style="color: brown;font-size: x-large;">{{deviceNotOff.deviceName}} cannot off</b>
+                                <ul *ngIf="deviceNotOff.rules.length>0">
+                                    <b style="color: black;">relative rules cannot be triggered:</b>
+                                    <li style="color: black;" *ngFor="let rule of deviceNotOff.rules">
+                                        <b>{{rule.ruleName}}:</b>{{getRuleContent(rule.ruleContent)}}
+                                    </li>
+                                </ul>
+                                <ul *ngIf="deviceNotOff.rules.length==0">
+                                    <b style="color: black;">no relative rule</b>
+                                </ul>
+                            </div>
+                            <div class="device_with_no_reachable_state" *ngIf="deviceWithUnreachableState!=null">
+                                <b style="color: brown;font-size: x-large;">{{deviceWithUnreachableState.deviceName}} has unreachable state</b>
+                                <ul>
+                                    <li style="color: black;" *ngFor="let state of deviceWithUnreachableState.stateReachable">
+                                        <div *ngIf="!state.reachable">
+                                            <b >{{state.stateName}}</b>
+                                            <ul *ngIf="state.rules.length>0">
+                                                <li *ngFor="let rule of state.rules">
+                                                    <b>{{rule.ruleName}}:</b>{{getRuleContent(rule.ruleContent)}}
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <ul *ngIf="state.rules.length==0">
+                                            <b style="color: black;">no relative rule</b>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="device_with_conflict" *ngIf="deviceWithConflictStates!=null">
+                                <b style="color: brown;font-size: x-large;">{{deviceWithConflictStates.deviceName}} has states conflict</b>
+                                <ul *ngIf="deviceWithConflictStates.conflictStatisticCauseRuleList.length>0">
+                                    <li style="color: black;" *ngFor="let conflictStates of deviceWithConflictStates.conflictStatisticCauseRuleList">
+                                        <ul style="margin-top: 20px;margin-left: 20px;">
+                                            <li *ngFor="let state of conflictStates.conflictStateCauseRules">
+                                                <b>{{state.stateName}}</b> caused by
+                                                <ul *ngFor="let rule of state.rulesAndCauseRules">
+                                                    <b>{{rule.selfRule.ruleName}}:</b>{{getRuleContent(rule.selfRule.ruleContent)}}
+                                                </ul>
+                                            </li>
+                                            <b>count:</b> {{conflictStates.count}}
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="device_with_fast_change" *ngIf="deviceWithFastChangeStates!=null">
+                                <b style="color: brown;font-size: x-large;">{{deviceWithFastChangeStates.deviceName}} states change fast</b>
+                                <ul *ngIf="deviceWithFastChangeStates.fastChangeCauseRuleList.length>0">                                
+                                    <li style="color: black;" *ngFor="let stateFastChange of deviceWithFastChangeStates.fastChangeCauseRuleList">
+                                        <ul style="margin-top: 20px;margin-left: 20px;">
+                                            <b>{{stateFastChange[0].stateName}}</b> caused by
+                                            <li *ngFor="let stateRule of stateFastChange">
+                                                <ul>
+                                                    <li *ngFor="let rule of stateRule.causeRules">
+                                                        <b>{{rule.ruleName}}:</b>{{getRuleContent(rule.ruleContent)}}
+                                                    </li>
+                                                    <b>count:</b>{{stateRule.count}}
+                                                </ul>
+                                            </li>
+                                            
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="ifd" class="ifd_style">
+        <h2><b>Information Flow Diagram:</b></h2>
+        <div class="picture">
+            <a target="_blank" id="ifdlink" >
+                <img alt="IFD" id="ifdimg">
+            </a>
+        </div>
+    </div>
+    <div class="button-scope">
+        <div>
+            <button class="back" (click)="goBackToMain()">Back</button>
+        </div>
+        <div class="button-group">
+            <button class="button" (click)="showRules()">Analysis Rules</button>
+            <div class="equivalent_time">
+                <label style="color: rgb(43, 42, 42);font-size: small;">equivalent reality time:
+                    <input [(ngModel)]="equivalentTime" class="equivalent_time_input" 
+                    type="number"  oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> h
+                </label>
+            </div>
+            <div class="interval_time">
+                <label style="color: rgb(43, 42, 42);font-size: small;">change interval accept:
+                    <input [(ngModel)]="intervalTime" class="interval_time_input" 
+                    type="number" min="100" oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> s
+                </label>
+            </div>
+            <button class="button" (click)="showDevices()">Analysis Devices</button>
+            <!-- <button class="button" (click)="showIFD()">Show IFD</button> -->
+        </div>
+    </div>
+</div>

@@ -44,7 +44,7 @@ export class MainComponent implements OnInit {
     itemAlias: 'file'
   });
   fileUploaded: boolean = false;
-  simulationTime: string = "";
+  simulationTime: string = "300";
   simulationTimeFinal: string = "";
   generateModelParameters: GenerateModelParameters | null = null;
 
@@ -55,7 +55,6 @@ export class MainComponent implements OnInit {
     this.simulationTime = this.mainData.storage.simulationTime;
     this.scenes = this.mainData.storage.scenes;
     this.generateModelParameters = this.mainData.storage.generateModelParameters;
-    this.selectedSceneName = this.mainData.storage.selectedSceneName;
     this.scenesTree = this.mainData.storage.scenesTree;
     this.ruleText = this.mainData.storage.ruleText;
     this.uploadedFileName = this.mainData.storage.uploadedFileName;
@@ -76,6 +75,7 @@ export class MainComponent implements OnInit {
 
 
     var selectedSceneName: string = "";
+
     scenesTreeChart.on('click', function (params: any) {
       
       console.log(scenesTreeChart)
@@ -253,11 +253,12 @@ export class MainComponent implements OnInit {
     this.getRulesScenesoption();
   }
 
-  toSceneDetail() {
-    console.log("toSceneDetail selectedName:" + this.selectedSceneName)
+  /////////////////////////////////分析总的场景///////////////////
+  toAllSceneDetail() {
+    
     if (this.scenes.length > 0 && !this.onSimulation) {
-      if (this.selectedSceneName != "") {
-        console.log("toSceneDetail scene:" + this.scenes)
+      
+        
         this.mainData.storage = {
           generateModelParameters: this.generateModelParameters,
           scenes: this.scenes,
@@ -267,10 +268,8 @@ export class MainComponent implements OnInit {
           ruleText: this.ruleText,
           uploadedFileName: this.uploadedFileName
         }
-        this.router.navigate(["scene-details"]);
-      } else {
-        alert("Please select a scene.")
-      }
+        this.router.navigate(["overall-analysis"]);
+      
     } else {
       alert("on simulation...")
     }
@@ -278,6 +277,26 @@ export class MainComponent implements OnInit {
 
 
 
+  }
+
+  toRuleAnalysis(){
+    if (this.scenes.length > 0 && !this.onSimulation) {
+      
+        
+      this.mainData.storage = {
+        generateModelParameters: this.generateModelParameters,
+        scenes: this.scenes,
+        selectedSceneName: this.selectedSceneName,
+        simulationTime: this.simulationTime,
+        scenesTree: this.scenesTree,
+        ruleText: this.ruleText,
+        uploadedFileName: this.uploadedFileName
+      }
+      this.router.navigate(["rule-analysis"]);
+    
+  } else {
+    alert("on simulation...")
+  }
   }
 
 

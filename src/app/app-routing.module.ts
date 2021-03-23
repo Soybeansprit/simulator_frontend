@@ -5,6 +5,8 @@ import { RandomAllComponent } from './random-all/random-all.component';
 import { MainComponent } from './main/main.component';
 import { IfdPlanComponent } from './ifd-plan/ifd-plan.component';
 import {SceneDetailsComponent} from './scene-details/scene-details.component';
+import {OverallAnalysisComponent} from './overall-analysis/overall-analysis.component';
+import {RuleAnalysisComponent} from './rule-analysis/rule-analysis.component';
 
 const routes: Routes = [
   {path: '',redirectTo:'/main',pathMatch:'full'},
@@ -14,6 +16,8 @@ const routes: Routes = [
   {path : 'rules-ontology',component:RulesOntologyComponent},
   {path : 'scene-details',component:SceneDetailsComponent},
   {path: 'scene-details/:id', component:SceneDetailsComponent},
+  {path: 'overall-analysis', component:OverallAnalysisComponent},
+  {path: 'rule-analysis', component:RuleAnalysisComponent}
 ];
 
 @NgModule({

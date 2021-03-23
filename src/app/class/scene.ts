@@ -1,3 +1,5 @@
+import { StringMap } from "@angular/compiler/src/compiler_facade_interface";
+
 export interface Scene{
     sceneName:string;
     datasTimeValue:Array<DataTimeValue>;
@@ -106,6 +108,15 @@ export interface Rule{
     action:Array<string>;
 }
 
+export interface Action{
+    action:string;
+    device:string;
+    toState:string;
+    value:string;
+    attrVal:Array<string>;
+    rules:Array<Rule>
+}
+
 export interface RuleText{
     rules:Array<string>
 }
@@ -114,6 +125,12 @@ export interface RuleText{
 export interface RulesSceneSimulationTime{
     rules:Array<Rule>;
     scene:Scene;
+    simulationTime:string
+}
+
+export interface RulesAllScenesSimulationTime{
+    rules:Array<Rule>;
+    scenes:Array<Scene>;
     simulationTime:string
 }
 
@@ -126,8 +143,8 @@ export interface StateAndRuleAndCauseRule{
 }
 
 export interface RuleAndCause{
-    rule:Rule;
-    relativeRules:Array<RuleAndCause>;
+    selfRule:Rule;
+    causeRules:Array<RuleAndCause>;
 }
 
 export interface CauseRuleInput{
@@ -135,6 +152,24 @@ export interface CauseRuleInput{
     triggeredRulesName:Array<DataTimeValue>;
     deviceStateName:DeviceStateName;
     rules:Array<Rule>;
+}
+
+export interface AllCauseRuleInput{
+    conflictStateTimes:Array<ConflictTime>;
+    triggeredRulesName:Array<DataTimeValue>;
+    deviceStateName:DeviceStateName;
+    rules:Array<Rule>; 
+}
+
+///////////////conflict 总的分析/////////////////
+export interface ConflictStateAndRules{
+    conflictStateCauseRules:Array<StateAndRuleAndCauseRule>;
+    count:number;
+}
+
+export interface DeviceConflictCauseRule{
+    deviceName:string;
+    conflictStatisticCauseRuleList:Array<ConflictStateAndRules>;
 }
 
 
@@ -161,4 +196,174 @@ export interface StateChangeCauseRuleInput{
     deviceStateName:DeviceStateName;
     stateChangeFasts:Array<StateChangeFast>;
     stateChangeFast:StateChangeFast;
+}
+
+
+export interface StateRules{
+    stateName:string;
+    causeRules:Array<Rule>;
+    count:number;
+}
+
+export interface DeviceFastChangeCause{
+    deviceName:string;
+    fastChangeCauseRuleList:Array<Array<StateRules>>;
+}
+
+
+export interface DeviceStateReachable{
+    deviceName:string;
+    stateReachable:Array<StateReachable>;
+
+}
+export interface StateReachable{
+    stateName:string;
+    stateValue:string;
+    reachable:boolean;
+    rules:Array<Rule>;
+}
+
+export interface DeviceNotOff{
+    deviceName:string;
+    rules:Array<Rule>;
+}
+
+
+
+export interface AllScenesAnalysisInput{
+    scenes:Array<Scene>;
+    rules:Array<Rule>;
+}
+
+
+export interface RuleAnalysis{
+    rule:Rule;
+    canTriggered:boolean;
+    canCauseStateConflict:CanCauseStateConflict;
+    canCauseFastChange:CanCauseFastChange;
+}
+
+export interface CanCauseStateConflict{
+    canCauseStateConflict:boolean;
+    devicesStateCounterRules:Array<DeviceStateCounterRules>
+}
+
+export interface CanCauseFastChange{
+    canCause:boolean;
+    devicesStateCouterRules:Array<DeviceStateCounterRules>
+}
+
+export interface DeviceStateCounterRules{
+    deviceName:string;
+    deviceState:string;
+    counterRules:Array<CounterRule>;
+}
+
+export interface CounterRule{
+    rule:Rule;
+    deviceState:string;
+    occurScenes:Array<Scene>
+}
+
+
+
+
+export interface DeviceSceneConflictCauseRule{
+    deviceName:string;
+    scenesConflcitStateCasueRule:Array<SceneConflictStateCauseRule>;
+}
+
+export interface SceneConflictStateCauseRule{
+    sceneName:String;
+    conflictCauseRuleStatistic:Array<CountStatesCauseRule>;
+}
+
+export interface CountStatesCauseRule{
+    count:number;
+    statesCauseRule:Array<StateCauseRule>;
+}
+
+export interface StateCauseRule{
+    stateValue:string;
+    stateName:string;
+    causeRules:Array<RuleAndCause>;
+}
+
+export interface DeviceSceneFastChangeCauseRule{
+    deviceName:string;
+    scenesFastChangeCauseRule:Array<SceneFastChangeCauseRule>;
+}
+
+export interface SceneFastChangeCauseRule{
+    sceneName:string;
+    fastChangeStateCauseRuleCountList:Array<StateCauseRuleCount>;
+}
+
+export interface DeviceScenesFastChangeCauseRule{
+    deviceName:string;
+    scenesFastChangeCauseRules:Array<ScenesFastChangeCauseRule>;
+}
+
+export interface ScenesFastChangeCauseRule{
+    sceneNames:Array<string>;
+    fastChangeStateCauseRuleCountList:Array<StateCauseRuleCount>;
+}
+
+export interface StateCauseRuleCount{
+    stateName:string;
+    rulesCount:Array<RuleCount>;
+}
+
+export interface RuleCount{
+    causeRule:RuleAndCause;
+    count:number;
+}
+
+export interface DeviceAllSceneConflictRule{
+    deviceName:string;
+    allCountStateCauseRuleSceneName:Array<CountStatesCauseRuleSceneName>;
+}
+
+export interface CountStatesCauseRuleSceneName{
+    sceneNames:Array<string>;
+    countStatesCauseRule:CountStatesCauseRule;
+}
+
+export interface DeviceAllSceneFastChangeRule{
+    deviceName:string;
+    allFastChangeStateCauseRuleCountSceneName:Array<StateCauseRuleCountSceneName>;
+}
+
+export interface StateCauseRuleCountSceneName{
+    stateName:string;
+    rulesCountSceneName:Array<RuleCountSceneName>;
+}
+
+export interface RuleCountSceneName{
+    sceneNames:Array<string>;
+    ruleCount:RuleCount;
+}
+
+export interface AllRuleAnalysisResult{
+    scenes:Array<Scene>;
+    rulesNeverTriggered:Array<RuleAndCause>;
+    devicesAllSceneConflictRule:Array<DeviceAllSceneConflictRule>;
+    devicesAllSceneFastChangeRule:Array<DeviceAllSceneFastChangeRule>;
+    devicesSceneConflictCauseRule:Array<DeviceSceneConflictCauseRule>;
+    devicesSceneFastChangeCauseRule:Array<DeviceSceneFastChangeCauseRule>;
+}
+
+export interface RuleCauseRuleInput{
+    causeRules:Array<Rule>,
+    rules:Array<Rule>
+}
+
+export interface DeviceStatesCauseRules{
+    deviceName:string;
+    statesRules:Array<StateCauseRules>
+}
+
+export interface StateCauseRules{
+    stateName:string;
+    causeRules:Array<RuleAndCause>
 }

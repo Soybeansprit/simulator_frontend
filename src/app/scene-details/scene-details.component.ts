@@ -104,12 +104,30 @@ export class SceneDetailsComponent implements OnInit {
     this.router.navigate(["main"]);
   }
 
+  toRuleAnalysis(){
+ 
+      
+        
+      this.mainData.storage = {
+        generateModelParameters: this.generateModelParameters,
+        scenes: this.scenes,
+        selectedSceneName: this.selectedSceneName,
+        simulationTime: this.simulationTime,
+        scenesTree: this.scenesTree,
+        ruleText: this.ruleText,
+        uploadedFileName: this.uploadedFileName
+      }
+      this.router.navigate(["rule-analysis"]);
+    
+
+  }
+
   showRules(){
     document.getElementById("ifd")!.style.display="none";
     document.getElementById("scene")!.style.display="flex";
     document.getElementById("scene_rule")!.style.display="block";
     if(this.scene!=null){
-      this.sceneService.getRulesEchartsOption(this.scene!).subscribe(option=>{
+      this.sceneService.getRulesEchartsOption(this.scene!,this.simulationTime,this.generateModelParameters!.rules).subscribe(option=>{
         this.rulesOptions=option
       })
       this.sceneService.getRuleBarEchartOption(this.scene!).subscribe(option=>{
@@ -134,7 +152,7 @@ export class SceneDetailsComponent implements OnInit {
     document.getElementById("scene")!.style.display="flex";
     document.getElementById("scene_device")!.style.display="block";
     if(this.scene!=null && this.generateModelParameters!=null){
-      if(this.intervalTime!=""&&this.intervalTime!=""){
+      if(this.equivalentTime!=""&&this.intervalTime!=""){
         this.sceneService.getDeviceAnalysisResult(this.scene,this.generateModelParameters.rules,this.simulationTime,this.uploadedFileName,this.equivalentTime,this.intervalTime).subscribe(scene=>{
           this.scene=scene;
           console.log(scene);
@@ -397,13 +415,21 @@ export class SceneDetailsComponent implements OnInit {
     if(this.selectedDevice!=null){
       for(let i=0;i<this.selectedDevice.statesConflict.conflictTimes.length;i++){
         var conflictTime=parseFloat(this.selectedDevice.statesConflict.conflictTimes[i].conflictTime);
-        data.push([conflictTime,1]);
+        data.push({
+          value:[conflictTime,1],
+          label:{
+            show:true,
+            offset:[0,-8],
+            formatter:(i+1)+"",
+            fontSize:10
+          }
+        });
       }
     }
     
     this.conflictOption={
       title:{
-        text:'States Conflict: '+data.length+' counts',
+        text:'States Conflict: '+data.length+' times',
         top:'top',
         left:'center',
         textStyle:{

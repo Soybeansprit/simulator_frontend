@@ -80,12 +80,13 @@
                 </label>
             </div>
             <div class="interval_time">
-                <label style="color: rgb(43, 42, 42);font-size: small;">change frequency accept:
+                <label style="color: rgb(43, 42, 42);font-size: small;">change interval accept:
                     <input [(ngModel)]="intervalTime" class="interval_time_input" 
                     type="number" min="100" oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> s
                 </label>
             </div>
             <button class="button" (click)="showDevices()">Analysis Devices</button>
+            <button class="button" (click)="toRuleAnalysis()">Overall Analysis</button>
             <!-- <button class="button" (click)="showIFD()">Show IFD</button> -->
         </div>
     </div>

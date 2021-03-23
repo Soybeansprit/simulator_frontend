@@ -78,7 +78,8 @@
                     <button class="button" (click)="showScenesRulesResults()">Show Scenes Rules</button>
                     <button class="button" (click)="showRulesScenesResults()">Show Rules Scenes</button>
                     <!-- <button class="button" [routerLink]="['/scene-details']" [queryParams]="{selectedSceneName:selectedSceneName,scenes:scenes}" (click)="toSceneDetail()">Scene Details</button> -->
-                    <button class="button" (click)="toSceneDetail()">Scene Details</button>
+                    <button class="button" (click)="toAllSceneDetail()">All Analysis</button>
+                    <button class="button" (click)="toRuleAnalysis()">Overall Analysis</button>
                     <button class="button" routerLink="/ifd-plan">Show IFD</button>
                     <div ng-view></div>
                 </div>
@@ -87,7 +88,7 @@
         </div>
 
     </div>
-
+    
 
 
 

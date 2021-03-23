@@ -1,4 +1,5 @@
-import { Rule } from "./scene";
+
+import { Action, Rule } from "./scene";
 import { ScenesTree } from "./scenes-tree";
 
 export interface GenerateModelParameters{
@@ -6,6 +7,7 @@ export interface GenerateModelParameters{
     attributes:Array<string>;
     scenesTree:ScenesTree;
     rules:Array<Rule>;
+    actions:Array<Action>;
     simulationDataNum:number;
 }
 

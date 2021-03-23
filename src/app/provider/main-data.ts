@@ -8,7 +8,7 @@ export class MainData{
         generateModelParameters:null,
         scenes: new Array<Scene>(),
         selectedSceneName:"",
-        simulationTime:"",
+        simulationTime:"300",
         scenesTree:null,
         ruleText:"",
         uploadedFileName:"",
