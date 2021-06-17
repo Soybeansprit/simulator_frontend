@@ -1,10 +1,12 @@
+import { ThisReceiver } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { GenerateModelParameters } from '../class/generate-model-parameters';
-import { AllRuleAnalysisResult, AllScenesAnalysisInput, ConflictStateAndRules, CountStatesCauseRule, DeviceAllSceneConflictRule, DeviceAllSceneFastChangeRule, DeviceConflictCauseRule, DeviceFastChangeCause, DeviceNotOff, DeviceSceneConflictCauseRule, DeviceSceneFastChangeCauseRule, DeviceScenesFastChangeCauseRule, DeviceStateReachable, DeviceStatesCauseRules, Rule, RuleAndCause, RuleCount, Scene, StateAndRuleAndCauseRule, StateCauseRule, StateCauseRuleCount, StateCauseRuleCountSceneName, StateCauseRules, StateReachable, StateRules, TimeStateRelativeRules } from '../class/scene';
+import { AllRuleAnalysisResult, AllScenesAnalysisInput, CauseRule, CauseRulesCount, ConflictStateAndRules, CountStatesCauseRule, DeviceAllSceneConflictRule, DeviceAllSceneFastChangeRule, DeviceAnalysisResult, DeviceAnalysisSyntheticResult, DeviceCauseRuleConclusion, DeviceConflictCauseRule, DeviceFastChangeCause, DeviceNotOff, DeviceSceneConflictCauseRule, DeviceSceneFastChangeCauseRule, DeviceScenesFastChangeCauseRule, DeviceStateReachable, DeviceStatesCauseRules, EnvironmentModel, PropertyReachableSyntheticResult, PropertyVerifyResult, ReachableReason, Rule, RuleAndCause, RuleCount, RuleNode, Scene, StateAndRuleAndCauseRule, StateCauseRule, StateCauseRuleCount, StateCauseRuleCountSceneName, StateCauseRules, StateReachable, StateRules, StaticAnalysisResult, TimeStateRelativeRules } from '../class/scene';
 import { ScenesTree } from '../class/scenes-tree';
 import { MainData } from '../provider/main-data';
 import { DeviceAnalysisService } from '../service/device-analysis.service';
+import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 import { RuleAnalysisService } from '../service/rule-analysis.service';
 import { SceneService } from '../service/scene.service';
 
@@ -17,35 +19,63 @@ export class RuleAnalysisComponent implements OnInit {
 
   scenes: Array<Scene>=new Array<Scene>();
   simulationTime:string="";
-  generateModelParameters:GenerateModelParameters;
   scenesTree:ScenesTree;
   ruleText:string;
-  uploadedFileName:string;
+  environmentModel:EnvironmentModel|null=null;
+  staticAnalysisResult:StaticAnalysisResult|null=null;
+  initModelFileName:string="";
+  propertyFileName:String=""
   
   deviceNames:Array<string>=[]
   allRuleAnalysisResult!:AllRuleAnalysisResult;
   equivalentTime:string="24";
   intervalTime:string="300";
+  //////////自定义性质
+  property:string="";
+  properties:Array<string>=[];
 
-  rulesNeverTriggered:Array<RuleAndCause>|null=null;
-  devicesAllSceneConflictRule:Array<DeviceAllSceneConflictRule>|null=null
-  devicesAllSceneFastChangeRule:Array<DeviceAllSceneFastChangeRule>=[]
-  devicesSceneConflictCauseRule:Array<DeviceSceneConflictCauseRule>=[];
-  devicesSceneFastChangeCauseRule:Array<DeviceSceneFastChangeCauseRule>=[];
-  devicesScenesFastChangeCauseRule:Array<DeviceScenesFastChangeCauseRule>|null=null;
-  devicesNotOff:Array<DeviceNotOff>=[]
-  devicesWithUnreachableState:Array<DeviceStateReachable>=[]
-  devicesConflictStatesCauseRules:Array<DeviceStatesCauseRules>=[]
-  devicesFastChangeStatesCauseRules:Array<DeviceStatesCauseRules>=[]
-  allRuleCanBeTriggered="none";
+  // rulesNeverTriggered:Array<RuleAndCause>|null=null;
+  // devicesAllSceneConflictRule:Array<DeviceAllSceneConflictRule>|null=null
+  // devicesAllSceneFastChangeRule:Array<DeviceAllSceneFastChangeRule>=[]
+  // devicesSceneConflictCauseRule:Array<DeviceSceneConflictCauseRule>=[];
+  // devicesSceneFastChangeCauseRule:Array<DeviceSceneFastChangeCauseRule>=[];
+  // devicesScenesFastChangeCauseRule:Array<DeviceScenesFastChangeCauseRule>|null=null;
+  // devicesNotOff:Array<DeviceNotOff>=[]
+  // devicesWithUnreachableState:Array<DeviceStateReachable>=[]
+  // devicesConflictStatesCauseRules:Array<DeviceStatesCauseRules>=[]
+  // devicesFastChangeStatesCauseRules:Array<DeviceStatesCauseRules>=[]
   
-  constructor(public mainData:MainData,public router:Router,public sceneService:SceneService,public deviceAnalysisService:DeviceAnalysisService,public ruleAnalysisService:RuleAnalysisService) { 
+  ////显示结果
+  showResult="none";
+
+/////综合分析结果
+  deviceAnalysisSyntheticResults:Array<DeviceAnalysisSyntheticResult>=[];
+  //////有没有冲突
+  hasConflict:boolean=false;
+  /////有没有jitter
+  hasJitter:boolean=false;
+
+  /////property验证结果
+  propertyVerifyResults:Array<PropertyVerifyResult>=[]
+
+  /////property综合结果
+  propertyReachableSyntheticResults:Array<PropertyReachableSyntheticResult>=[]
+
+  ///////conclusion
+  deviceConflictConflusions:Array<DeviceCauseRuleConclusion>=[]
+  deviceJitterConflusions:Array<DeviceCauseRuleConclusion>=[]
+
+  constructor(public mainData:MainData,public router:Router,public sceneService:SceneService,public deviceAnalysisService:DeviceAnalysisService,public ruleAnalysisService:RuleAnalysisService,
+    private dynamicAnalysisService:DynamicAnalysisService) { 
     this.simulationTime=this.mainData.storage.simulationTime;
     this.scenes=this.mainData.storage.scenes;
-    this.generateModelParameters=this.mainData.storage.generateModelParameters;
     this.scenesTree=this.mainData.storage.scenesTree;
     this.ruleText=this.mainData.storage.ruleText;
-    this.uploadedFileName=this.mainData.storage.uploadedFileName
+    this.environmentModel=this.mainData.storage.environmentModel
+    this.staticAnalysisResult=this.mainData.storage.staticAnalysisResult
+
+    this.initModelFileName=this.mainData.storage.initModelFileName
+    this.propertyFileName=mainData.storage.propertyFileName
   }
 
   ngOnInit(): void {
@@ -53,482 +83,466 @@ export class RuleAnalysisComponent implements OnInit {
 
 
 
-    getAllRuleAnalysis(scenes:Array<Scene>,rules:Array<Rule>
-      ,initFileName:string,simulationTime:string,equivalentTime:string,intervalTime:string){
-        this.ruleAnalysisService.getAllScenesRulesAnalysisResult(scenes,rules,initFileName,simulationTime,equivalentTime,intervalTime).subscribe(allRuleAnalysisResult=>{
-          this.allRuleAnalysisResult=allRuleAnalysisResult;
-          console.log(this.allRuleAnalysisResult)
-          this.scenes=allRuleAnalysisResult.scenes;
-          console.log("deviceAnalysis")
-          console.log(this.scenes)
-          this.rulesNeverTriggered=allRuleAnalysisResult.rulesNeverTriggered;
-          this.devicesAllSceneConflictRule=allRuleAnalysisResult.devicesAllSceneConflictRule;
-          this.devicesAllSceneFastChangeRule=allRuleAnalysisResult.devicesAllSceneFastChangeRule;
-          this.devicesSceneConflictCauseRule=allRuleAnalysisResult.devicesSceneConflictCauseRule;
-          this.devicesSceneFastChangeCauseRule=allRuleAnalysisResult.devicesSceneFastChangeCauseRule;
 
-          this.getDeviceScenesFastChangeCauseRules(this.devicesSceneFastChangeCauseRule)
-          var devicesNotOff=this.getDevicesNotOff(this.scenes);
-          var devicesWithUnReachableState=this.getDevicesWithUnreachableState(this.scenes);
-          this.getDeviceNotOffReason(devicesNotOff)
-          this.getDevicesWithUnreachableStateReason(devicesWithUnReachableState)
-
-          this.getDeviceConflictStatesRules(this.devicesAllSceneConflictRule)
-          this.getDeviceFastChangeStatesRules(this.devicesAllSceneFastChangeRule)
-          console.log("this.devicesAllSceneConflictRule")
-          console.log(this.devicesAllSceneConflictRule)
-        })
-      }
 
       goBackToMain(){
         this.mainData.storage={
-          generateModelParameters:this.generateModelParameters,
           scenes:this.scenes,
           simulationTime:this.simulationTime,
           scenesTree:this.scenesTree,
           ruleText:this.ruleText,
-          uploadedFileName:this.uploadedFileName
+          environmentModel:this.environmentModel,
+          staticAnalysisResult:this.staticAnalysisResult,
+          initModelFileName:this.initModelFileName,
+          propertyFileName:this.propertyFileName
         }
         this.router.navigate(["main"]);
       }
 
-      showRulesAnalysisResult(){
-        this.allRuleCanBeTriggered="block"
-        this.getAllRuleAnalysis(this.scenes,this.generateModelParameters.rules,this.uploadedFileName,this.simulationTime,this.equivalentTime,this.intervalTime)
+      ////跳转到特定场景
+      toSceneDetail(scenarioName:string){
+        this.mainData.storage = {
+          scenes: this.scenes,
+          selectedSceneName: scenarioName,
+          simulationTime: this.simulationTime,
+          scenesTree: this.scenesTree,
+          ruleText: this.ruleText,
+          staticAnalysisResult:this.staticAnalysisResult,
+          environmentModel:this.environmentModel,
+          equivalentTime:this.equivalentTime,
+          intervalTime:this.intervalTime,
+          initModelFileName:this.initModelFileName,
+          propertyFileName:this.propertyFileName
+        }
+        this.router.navigate(["scene-details"]);
       }
 
+      // showRulesAnalysisResult(){
+      //   console.log("analysis start time:")
+      //   var time=new Date()
+      //   console.log(time.getTime())
+      //   this.allRuleCanBeTriggered="block"
+      //   this.getAllRuleAnalysis(this.scenes,this.generateModelParameters.rules,this.uploadedFileName,this.simulationTime,this.equivalentTime,this.intervalTime)
+      // }
 
-      getDeviceConflictStatesRules(devicesAllSceneConflictRule:Array<DeviceAllSceneConflictRule>):Array<DeviceStatesCauseRules>{
-        var devicesStatesCauseRules:Array<DeviceStatesCauseRules>=[]
-        for(let i=0;i<devicesAllSceneConflictRule.length;i++){
-          var deivceStatesCauseRules:DeviceStatesCauseRules={
-            deviceName:devicesAllSceneConflictRule[i].deviceName,
-            statesRules:[]
-          }
-          for(let j=0;j<devicesAllSceneConflictRule[i].allCountStateCauseRuleSceneName.length;j++){
-            for(let k=0;k<devicesAllSceneConflictRule[i].allCountStateCauseRuleSceneName[j].countStatesCauseRule.statesCauseRule.length;k++){
-              var stateCauseRule:StateCauseRule=devicesAllSceneConflictRule[i].allCountStateCauseRuleSceneName[j].countStatesCauseRule.statesCauseRule[k];
-              var existState=false
-              forth:
-              for(let n=0;n<deivceStatesCauseRules.statesRules.length;n++){                
-                if(stateCauseRule.stateName===deivceStatesCauseRules.statesRules[n].stateName){
-                  fifth:
-                  for(let l=0;l<stateCauseRule.causeRules.length;l++){
-                    var existRule=false
-                    sixth:
-                    for(let m=0;m<deivceStatesCauseRules.statesRules[n].causeRules.length;m++){
-                      if(stateCauseRule.causeRules[l].selfRule.ruleName===deivceStatesCauseRules.statesRules[n].causeRules[m].selfRule.ruleName){
-                        existRule=true;
-                        break sixth
-                      }
-                    }
-                    if(!existRule){
-                      deivceStatesCauseRules.statesRules[n].causeRules.push(stateCauseRule.causeRules[l]);
-                    }
-                  }
-                  
-                  existState=true;
-                  break forth;
-                }
-              }
-              if(!existState){
-                deivceStatesCauseRules.statesRules.push({
-                  stateName:stateCauseRule.stateName,
-                  causeRules:stateCauseRule.causeRules
-                })
-              }
-            }
-          }
-          devicesStatesCauseRules.push(deivceStatesCauseRules)
-        }
-        console.log("devicesStatesCauseRules")
-        console.log(devicesStatesCauseRules)
-        this.devicesConflictStatesCauseRules=devicesStatesCauseRules
-        return devicesStatesCauseRules
+
+      ///////展示分析结果
+      showAnalysisResult(){
+        this.dynamicAnalysisService.getAllDynamicAnalysisResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules,this.simulationTime,this.equivalentTime,this.intervalTime).subscribe(scenePropertyResult=>{
+          this.scenes=scenePropertyResult.scenes;
+          this.propertyVerifyResults=scenePropertyResult.propertyVerifyResults;
+          console.log(this.scenes)
+          console.log(scenePropertyResult)
+          /////设备冲突
+          /////设备抖动
+          this.syntheticDeviceReason()
+          this.syntheticAllPropertyReachableReason()
+          console.log("syntheticResult:")
+          console.log(this.deviceAnalysisSyntheticResults)
+          console.log(this.propertyReachableSyntheticResults)
+          this.showResult="block"
+          this.conclusion()
+        })
       }
 
-      getDeviceFastChangeStatesRules(devicesAllSceneFastChangeRule:Array<DeviceAllSceneFastChangeRule>):Array<DeviceStatesCauseRules>{
-        var devicesStatesCauseRules:Array<DeviceStatesCauseRules>=[]
-        for(let i=0;i<devicesAllSceneFastChangeRule.length;i++){
-          var deivceStatesCauseRules:DeviceStatesCauseRules={
-            deviceName:devicesAllSceneFastChangeRule[i].deviceName,
-            statesRules:[]
-          }
-          for(let j=0;j<devicesAllSceneFastChangeRule[i].allFastChangeStateCauseRuleCountSceneName.length;j++){
-            var stateCauseRule:StateCauseRuleCountSceneName=devicesAllSceneFastChangeRule[i].allFastChangeStateCauseRuleCountSceneName[j];
-            var stateRule:StateCauseRules={
-                stateName:stateCauseRule.stateName,
-                causeRules:[]
-            }
-            for(let n=0;n<stateCauseRule.rulesCountSceneName.length;n++){
-              stateRule.causeRules.push(stateCauseRule.rulesCountSceneName[n].ruleCount.causeRule)
-            }
-            deivceStatesCauseRules.statesRules.push(stateRule)
-            
-          }
-          devicesStatesCauseRules.push(deivceStatesCauseRules)
-        }
-        console.log("devicesStatesCauseRules")
-        console.log(devicesStatesCauseRules)
-        this.devicesFastChangeStatesCauseRules=devicesStatesCauseRules
-        return devicesStatesCauseRules
+      /////找到对应的状态
+    getStates(causingRules:Array<CauseRule>):string{
+      var states=""
+      var statesList=[];
+      for(let i=0;i<causingRules.length;i++){
+        statesList.push(causingRules[i].state);
       }
-
-    getDeviceScenesFastChangeCauseRules(devicesSceneFastChangeCauseRule:Array<DeviceSceneFastChangeCauseRule>){
-      var devicesScenesFastChangeCauseRule:Array<DeviceScenesFastChangeCauseRule>=[];
-      for(let i=0;i<devicesSceneFastChangeCauseRule.length;i++){
-        var deviceName=devicesSceneFastChangeCauseRule[i].deviceName;
-        var deviceScenesFastChangeCauseRule:DeviceScenesFastChangeCauseRule={
-          deviceName:deviceName,
-          scenesFastChangeCauseRules:[]
+      for(let i=0;i<statesList.length;i++){
+        if(i<statesList.length-1){
+          states=states+statesList[i]+" & "
+        }else{
+          states=states+statesList[i]
         }
-        for(let j=0;j<devicesSceneFastChangeCauseRule[i].scenesFastChangeCauseRule.length;j++){
-          var sceneName=devicesSceneFastChangeCauseRule[i].scenesFastChangeCauseRule[j].sceneName;
-          var statesCauseRules=devicesSceneFastChangeCauseRule[i].scenesFastChangeCauseRule[j].fastChangeStateCauseRuleCountList;
-          if(statesCauseRules.length==0){
-            continue;
-          }
-          var exist=false;
-          third:
-          for(let k=0;k<deviceScenesFastChangeCauseRule.scenesFastChangeCauseRules.length;k++){
-            ////////////////如果rule导致fastChange次数<=1那不考虑吧////////////////TODO
-            if(this.statesCauseRuleEqual(statesCauseRules,deviceScenesFastChangeCauseRule.scenesFastChangeCauseRules[k].fastChangeStateCauseRuleCountList)){
-              exist=true;
-              deviceScenesFastChangeCauseRule.scenesFastChangeCauseRules[k].sceneNames.push(sceneName);
-              break third;
-            }
-          }
-          if(!exist){
-            
-            deviceScenesFastChangeCauseRule.scenesFastChangeCauseRules.push({
-              sceneNames:[sceneName],
-              fastChangeStateCauseRuleCountList:statesCauseRules
-            })
-          }
-        }
-        
-        devicesScenesFastChangeCauseRule.push(deviceScenesFastChangeCauseRule);
-
       }
-      console.log("devicesScenesFastChangeCauseRule")
-      console.log(devicesScenesFastChangeCauseRule);
-      this.devicesScenesFastChangeCauseRule=devicesScenesFastChangeCauseRule
+      return states
+    }
+    
+    getSceneName(scenarioName:string):string{
+      var name=scenarioName.substring("scenario-".length);
+      return name
     }
 
-
-    statesCauseRuleEqual(statesFastChangeRule1:Array<StateCauseRuleCount>,statesFastChangeRule2:Array<StateCauseRuleCount>):boolean{
-      if(statesFastChangeRule1.length!=statesFastChangeRule2.length){
-        return false;
+    syntheticAllPropertyReachableReason(){
+      for(let i=0;i<this.propertyVerifyResults.length;i++){
+        if(this.propertyVerifyResults[i].reachable){
+          ////可达，综合原因
+          var reachableCauseRulesCounts=this.syntheticPropertyReachableReason(this.propertyVerifyResults[i].reachableReasons);
+          var propertyReachableSyntheticResult:PropertyReachableSyntheticResult={
+            property:this.propertyVerifyResults[i].property,
+            reachable:true,
+            reachableCauseRulesCounts:reachableCauseRulesCounts,
+            hasCorrespondRule:this.propertyVerifyResults[i].hasCorrespondRule,
+            correspondingRules:this.propertyVerifyResults[i].correspondingRules
+          }
+          this.propertyReachableSyntheticResults.push(propertyReachableSyntheticResult);
+          console.log(this.propertyReachableSyntheticResults)
+        }else{
+          /////不可达
+          var propertyReachableSyntheticResult:PropertyReachableSyntheticResult={
+            property:this.propertyVerifyResults[i].property,
+            reachable:false,
+            reachableCauseRulesCounts:[],
+            hasCorrespondRule:this.propertyVerifyResults[i].hasCorrespondRule,
+            correspondingRules:this.propertyVerifyResults[i].correspondingRules
+          }
+          this.propertyReachableSyntheticResults.push(propertyReachableSyntheticResult);
+        }
       }
-      for(let i=0;i<statesFastChangeRule1.length;i++){
+    }
+
+    ////////综合property可达的原因
+    syntheticPropertyReachableReason(reachableReasons:Array<ReachableReason>):Array<CauseRulesCount>{
+      var reachableCauseRulesCounts:Array<CauseRulesCount>=[];
+      for(let i=0;i<reachableReasons.length;i++){
+        ////看是否已经存在
+        var reachableReason=reachableReasons[i];
+        if(!this.hasCausingRule(reachableReason.causingRules)){
+          ///如果原因不完整：某个状态没有对应的引发规则，则不考虑
+          continue;
+        }
+        var scenarioName=reachableReason.scenarioName;
         var exist=false;
-        second:
-        for(let j=0;j<statesFastChangeRule2.length;j++){
-          if(statesFastChangeRule1[i].stateName===statesFastChangeRule2[j].stateName){
-            if(this.ruleCountEqual(statesFastChangeRule1[i].rulesCount,statesFastChangeRule2[j].rulesCount)){
-              exist=true;
+        
+        for(let j=0;j<reachableCauseRulesCounts.length;j++){
+          if(this.isStatesSame(reachableReason.causingRules,reachableCauseRulesCounts[j].causingRules)){
+            exist=true;
+            reachableCauseRulesCounts[j].count+=1;
+            if(reachableCauseRulesCounts[j].exsitScenes.length==0){
+              reachableCauseRulesCounts[j].exsitScenes.push(scenarioName)
+            }else if(reachableCauseRulesCounts[j].exsitScenes[reachableCauseRulesCounts[j].exsitScenes.length-1]!=scenarioName){
+              reachableCauseRulesCounts[j].exsitScenes.push(scenarioName)
             }
-            break second;
+            break;
           }
         }
         if(!exist){
+          var reachableCauseRulesCount:CauseRulesCount={
+            count:1,
+            causingRules:reachableReason.causingRules,
+            exsitScenes:[scenarioName]
+          }
+          reachableCauseRulesCounts.push(reachableCauseRulesCount)
+        }
+      }
+      return reachableCauseRulesCounts
+    }
+
+    /////conclusion
+    conclusion(){
+      var deviceConflictConflusions:Array<DeviceCauseRuleConclusion>=[]
+      var deviceJitterConflusions:Array<DeviceCauseRuleConclusion>=[]
+      for(let i=0;i<this.deviceAnalysisSyntheticResults.length;i++){
+        if(this.deviceAnalysisSyntheticResults[i].conflictCauseRulesCounts.length>0){
+          ////conflcit
+          var deviceConflictConflusion:DeviceCauseRuleConclusion={
+            deviceName:this.deviceAnalysisSyntheticResults[i].deviceName,
+            causingRules:[]
+          }
+          for(let j=0;j<this.deviceAnalysisSyntheticResults[i].conflictCauseRulesCounts.length;j++){
+            var conflictCauseRulesCount=this.deviceAnalysisSyntheticResults[i].conflictCauseRulesCounts[j];
+            for(let k=0;k<conflictCauseRulesCount.causingRules.length;k++){
+              var causingRule=conflictCauseRulesCount.causingRules[k];
+              ////先找到对应的状态,如果不存在就全加进去
+              var existState=false;
+              for(let m=0;m<deviceConflictConflusion.causingRules.length;m++){
+                if(deviceConflictConflusion.causingRules[m].state===causingRule.state){
+                  existState=true;
+                  ///再看规则是否存在
+                  for(let n=0;n<causingRule.stateCausingRules.length;n++){
+                    ////看该规则是否已存在
+                    var exsitRule=false;
+                    for(let l=0;l<deviceConflictConflusion.causingRules[m].stateCausingRules.length;l++){
+                      if(causingRule.stateCausingRules[n].rule.ruleName===deviceConflictConflusion.causingRules[m].stateCausingRules[l].rule.ruleName){
+                        exsitRule=true;
+                        break;
+                      }
+                    }
+                    if(!exsitRule){
+                      deviceConflictConflusion.causingRules[m].stateCausingRules.push(causingRule.stateCausingRules[n])
+                    }
+                  }
+                  break;
+                }
+              }
+              if(!existState){
+                deviceConflictConflusion.causingRules.push(causingRule)
+              }
+            }
+          }
+          deviceConflictConflusions.push(deviceConflictConflusion)
+        }
+        if(this.deviceAnalysisSyntheticResults[i].jitterCauseRulesCounts.length>0){
+          ////Jitter
+          var deviceJitterConflusion:DeviceCauseRuleConclusion={
+            deviceName:this.deviceAnalysisSyntheticResults[i].deviceName,
+            causingRules:[]
+          }
+          for(let j=0;j<this.deviceAnalysisSyntheticResults[i].jitterCauseRulesCounts.length;j++){
+            var jitterCauseRulesCount=this.deviceAnalysisSyntheticResults[i].jitterCauseRulesCounts[j];
+            for(let k=0;k<jitterCauseRulesCount.causingRules.length;k++){
+              var causingRule=jitterCauseRulesCount.causingRules[k];
+              ////先找到对应的状态,如果不存在就全加进去
+              var existState=false;
+              for(let m=0;m<deviceJitterConflusion.causingRules.length;m++){
+                if(deviceJitterConflusion.causingRules[m].state===causingRule.state){
+                  existState=true;
+                  ///再看规则是否存在
+                  for(let n=0;n<causingRule.stateCausingRules.length;n++){
+                    ////看该规则是否已存在
+                    var exsitRule=false;
+                    for(let l=0;l<deviceJitterConflusion.causingRules[m].stateCausingRules.length;l++){
+                      if(causingRule.stateCausingRules[n].rule.ruleName===deviceJitterConflusion.causingRules[m].stateCausingRules[l].rule.ruleName){
+                        exsitRule=true;
+                        break;
+                      }
+                    }
+                    if(!exsitRule){
+                      deviceJitterConflusion.causingRules[m].stateCausingRules.push(causingRule.stateCausingRules[n])
+                    }
+                  }
+                  break;
+                }
+              }
+              if(!existState){
+                deviceJitterConflusion.causingRules.push(causingRule)
+              }
+            }
+          }
+          deviceJitterConflusions.push(deviceJitterConflusion)
+        }
+      }
+      this.deviceConflictConflusions=deviceConflictConflusions
+      this.deviceJitterConflusions=deviceJitterConflusions
+      console.log("conflusion")
+      console.log( this.deviceConflictConflusions)
+      console.log(this.deviceJitterConflusions)
+    }
+
+    /////综合分析各个设备的jitter和conflict原因
+    syntheticDeviceReason(){
+      if(this.environmentModel!=null&&this.scenes!=null){
+        var devices=this.environmentModel.devices;
+        var deviceAnalysisSyntheticResults:Array<DeviceAnalysisSyntheticResult>=[];
+        for(let i=0;i<devices.length;i++){
+          ////综合该设备各个场景的jitter和conflict原因
+          var jitterCauseRulesCounts:Array<CauseRulesCount>=[];
+          var conflictCauseRulesCounts:Array<CauseRulesCount>=[];
+          for(let j=0;j<this.scenes.length;j++){
+            ////找到对应设备分析结果
+            if(this.scenes[j].deviceAnalysisResults!=null){
+              for(let k=0;k<this.scenes[j].deviceAnalysisResults.length;k++){
+                if(devices[i].deviceName===this.scenes[j].deviceAnalysisResults[k].deviceName){
+                  /////找到对应设备，并合并
+                  this.syntheticConflictReason(this.scenes[j].deviceAnalysisResults[k],conflictCauseRulesCounts,this.scenes[j].scenarioName);
+                  this.syntheticJitterReason(this.scenes[j].deviceAnalysisResults[k],jitterCauseRulesCounts,this.scenes[j].scenarioName);
+                  break;
+                }
+              }
+            }
+          }
+          if(jitterCauseRulesCounts.length>0||conflictCauseRulesCounts.length>0){
+            var deviceAnalysisSyntheticResult:DeviceAnalysisSyntheticResult={
+              deviceName:devices[i].deviceName,
+              jitterCauseRulesCounts:jitterCauseRulesCounts,
+              conflictCauseRulesCounts:conflictCauseRulesCounts
+            }
+            deviceAnalysisSyntheticResults.push(deviceAnalysisSyntheticResult);
+          }
+        }
+        this.deviceAnalysisSyntheticResults=deviceAnalysisSyntheticResults;
+        for(let i=0;i<this.deviceAnalysisSyntheticResults.length;i++){
+          if(deviceAnalysisSyntheticResults[i].conflictCauseRulesCounts.length>0){
+            this.hasConflict=true;
+          }
+          if(deviceAnalysisSyntheticResults[i].jitterCauseRulesCounts.length>0){
+            this.hasJitter=true;
+          }
+          if(this.hasJitter&&this.hasConflict){
+            break;
+          }
+        }
+      }
+    }
+
+
+    ////////综合jitter的causingRules，并计数
+    syntheticJitterReason(deviceAnalysisResult:DeviceAnalysisResult,jitterCauseRulesCounts:Array<CauseRulesCount>,scenarioName:string){
+      if(deviceAnalysisResult!=null){        
+        for(let i=0;i<deviceAnalysisResult.jitterReasons.length;i++){
+          ////看是否已经存在
+          var jitterReason=deviceAnalysisResult.jitterReasons[i]
+          if(!this.hasCausingRule(jitterReason.causingRules)){
+            ///如果原因不完整：某个状态没有对应的引发规则，则不考虑
+            continue;
+          }
+          var exist=false;
+          for(let j=0;j<jitterCauseRulesCounts.length;j++){
+            if(this.isStatesSame(jitterReason.causingRules,jitterCauseRulesCounts[j].causingRules)){
+              exist=true;
+              jitterCauseRulesCounts[j].count+=1;
+              if(jitterCauseRulesCounts[j].exsitScenes.length==0){
+                jitterCauseRulesCounts[j].exsitScenes.push(scenarioName)
+              }else if(jitterCauseRulesCounts[j].exsitScenes[jitterCauseRulesCounts[j].exsitScenes.length-1]!=scenarioName){
+                jitterCauseRulesCounts[j].exsitScenes.push(scenarioName)
+              }
+              break;
+            }
+          }
+          if(!exist){
+            var jitterCauseRulesCount:CauseRulesCount={
+              count:1,
+              causingRules:jitterReason.causingRules,
+              exsitScenes:[scenarioName]
+            }
+            jitterCauseRulesCounts.push(jitterCauseRulesCount)
+          }
+        }
+      }
+    }
+    ///////综合conflict的causingRules，并计数
+    syntheticConflictReason(deviceAnalysisResult:DeviceAnalysisResult,conflictCauseRulesCounts:Array<CauseRulesCount>,scenarioName:string){
+      if(deviceAnalysisResult!=null){        
+        for(let i=0;i<deviceAnalysisResult.conflictReasons.length;i++){
+          ////看是否已经存在
+          var conflictReason=deviceAnalysisResult.conflictReasons[i];
+          if(!this.hasCausingRule(conflictReason.causingRules)){
+            ///如果原因不完整：某个状态没有对应的引发规则，则不考虑
+            continue;
+          }
+          var exist=false;
+          for(let j=0;j<conflictCauseRulesCounts.length;j++){
+            if(this.isStatesSame(conflictReason.causingRules,conflictCauseRulesCounts[j].causingRules)){
+              exist=true;
+              conflictCauseRulesCounts[j].count+=1;
+              if(conflictCauseRulesCounts[j].exsitScenes.length==0){
+                conflictCauseRulesCounts[j].exsitScenes.push(scenarioName)
+              }else if(conflictCauseRulesCounts[j].exsitScenes[conflictCauseRulesCounts[j].exsitScenes.length-1]!=scenarioName){
+                conflictCauseRulesCounts[j].exsitScenes.push(scenarioName)
+              }
+              break;
+            }
+          }
+          if(!exist){
+            var conflictCauseRulesCount:CauseRulesCount={
+              count:1,
+              causingRules:conflictReason.causingRules,
+              exsitScenes:[scenarioName]
+            }
+            conflictCauseRulesCounts.push(conflictCauseRulesCount)
+          }
+        }      
+      }
+    }
+
+    ///////////如果原因不完整：某个状态没有对应的引发规则，则不考虑
+    hasCausingRule(causingRules:Array<CauseRule>):boolean{
+      for(let i=0;i<causingRules.length;i++){
+        if(causingRules[i].stateCausingRules.length<=0){
           return false;
         }
       }
       return true;
     }
 
-    ruleCountEqual(rules1:Array<RuleCount>,rules2:Array<RuleCount>):boolean{
-      if(rules1.length!=rules2.length){
+        /////两则状态及规则是否一样
+        isStatesSame(causingRules1:Array<CauseRule>,causingRules2:Array<CauseRule>):boolean{
+          if(causingRules1.length!=causingRules2.length){
+            return false;
+          }
+          for(let i=0;i<causingRules1.length;i++){
+            var stateExist=false;
+            for(let j=0;j<causingRules2.length;j++){
+              if(causingRules2[j].state===causingRules1[i].state){
+                ////找到对应状态
+                stateExist=true;
+                ////看规则是否一样
+                if(!this.isStateCausingRuleSame(causingRules2[j].stateCausingRules,causingRules1[i].stateCausingRules)){
+                  ////两组规则不一样
+                  return false;
+                }
+                break;
+              }
+            }
+            if(!stateExist){
+              ////状态不存在
+              return false;
+            }
+          }
+          return true;
+        }
+  
+    /////判断两个causingRules是否相同
+    isStateCausingRuleSame(stateCausingRules1:Array<RuleNode>,stateCausingRules2:Array<RuleNode>):boolean{
+      if(stateCausingRules1.length!=stateCausingRules2.length){
+        /////长度不等
         return false;
       }
-      for(let i=0;i<rules1.length;i++){
+      for(let i=0;i<stateCausingRules1.length;i++){
         var exist=false;
-        for(let j=0;j<rules2.length;j++){
-          if(rules1[i].causeRule.selfRule.ruleName===rules2[j].causeRule.selfRule.ruleName){
+        for(let j=0;j<stateCausingRules2.length;j++){
+          if(stateCausingRules2[j].rule.ruleName===stateCausingRules1[i].rule.ruleName){
             exist=true;
             break;
           }
         }
         if(!exist){
+          /////如果不存在
           return false;
         }
       }
       return true;
     }
-
-
-
-    /////////////////////////////////获得永远无法触发的规则///////////////////////////
-    getRulesNeverTriggered(scenes:Array<Scene>,rules:Array<Rule>):Array<Rule>{
-      var rulesNeverTriggered:Array<Rule>=[];
-      for(let i=0;i<rules.length;i++){
-        var canTriggered=false;
-        second:
-        for(let j=0;j<scenes.length;j++){
-          for(let k=0;k<scenes[j].triggeredRulesName.length;k++){
-            if(rules[i].ruleName===scenes[j].triggeredRulesName[k].name){
-              canTriggered=true;
-              break second;
-            }
-          }
-        }
-        if(!canTriggered){
-          rulesNeverTriggered.push(rules[i])
-        }
-      }
-      return rulesNeverTriggered;
-    }
-
-      ///////////////////////////获得设备无法关闭的/////////////////////////
-  getDevicesNotOff(scenes:Array<Scene>):Array<string>{
-    var devicesNeverOff:Array<string>=[];
-    for(let i=0;i<scenes[0].devicesAnalysResults.length;i++){
-      var canOff=false;
-      var canChangeState=false;
-      second:
-      for(let j=0;j<scenes.length;j++){
-        for(let n=0;n<scenes[j].nameDataFunctions.length;n++){
-          if(scenes[j].nameDataFunctions[n].name===scenes[0].devicesAnalysResults[i].deviceName){
-            if(scenes[j].nameDataFunctions[n].dataFunctions.length>1){
-              canChangeState=true;
-              third:
-              for(let k=0;k<scenes[j].devicesAnalysResults.length;k++){
-                if(scenes[0].devicesAnalysResults[i].deviceName===scenes[j].devicesAnalysResults[k].deviceName){
-                  if(!scenes[j].devicesAnalysResults[k].deviceCannotOff.cannotOff){
-                    canOff=true;
-                    break second;
-                  }
-                  break third;
-                }
-              }
-            }
-          }
-        }
-
-      }
-      
-      if(!canOff && canChangeState){
-        devicesNeverOff.push(scenes[0].devicesAnalysResults[i].deviceName)
-      }
-    }
-    return devicesNeverOff;
-  }
-
-    //////////////////////////获得永远有不可达状态的设备/////////////////////////
-    getDevicesWithUnreachableState(scenes:Array<Scene>):Array<DeviceStateReachable>{
-      var devicesWithUnReachableState:Array<DeviceStateReachable>=[];
-      for(let i=0;i<scenes[0].devicesAnalysResults.length;i++){
-        var deviceResult=this.scenes[0].devicesAnalysResults[i];
-        var withUnreachableState=false;
-        var deviceStateReachable:DeviceStateReachable={
-          deviceName:deviceResult.deviceName,
-          stateReachable:[]
-        }
-        for(let j=0;j<deviceResult.deviceStateName.stateNames.length;j++){
-          var stateName=deviceResult.deviceStateName.stateNames[j].stateName;
-          /////////////////看这个状态是否可达///////////////////////
-          var stateHappen=false;
-          third:
-          for(let k=0;k<scenes.length;k++){
-            forth:
-            for(let n=0;n<scenes[k].devicesAnalysResults.length;n++){
-              if(scenes[k].devicesAnalysResults[n].deviceName===deviceResult.deviceName){
-                for(let m=0;m<scenes[k].devicesAnalysResults[n].deviceStateLastTime.statesTime.length;m++){
-                  if(stateName===scenes[k].devicesAnalysResults[n].deviceStateLastTime.statesTime[m].stateName){
-                    /////////////////////状态可发生/////////////////
-                    stateHappen=true;
-                    break third;
-                  }
-                }
-                break forth;
-              }
-            }
-          }
-          if(!stateHappen){
-            withUnreachableState=true;
-            var stateReachable:StateReachable={
-              stateName:stateName,
-              stateValue:deviceResult.deviceStateName.stateNames[j].stateValue,
-              reachable:false,
-              rules:[]
-            }
-            deviceStateReachable.stateReachable.push(stateReachable);
-          }else{
-            var stateReachable:StateReachable={
-              stateName:stateName,
-              stateValue:deviceResult.deviceStateName.stateNames[j].stateValue,
-              reachable:true,
-              rules:[]
-            }
-            deviceStateReachable.stateReachable.push(stateReachable);
-          }
-        }
-        if(withUnreachableState){
-          devicesWithUnReachableState.push(deviceStateReachable);
-        }
-  
-      }
-      return devicesWithUnReachableState;
-    }
-
-    getDeviceNotOffReason(devicesNeverOff:Array<string>){
-      var devicesNotOffReason:Array<DeviceNotOff>=[]
-      for(let j=0;j<devicesNeverOff.length;j++){
-        var existRules=false;
-        for(let i=0;i<this.generateModelParameters.actions.length;i++){
-          if(this.generateModelParameters.actions[i].device===devicesNeverOff[j]){
-            if(this.generateModelParameters.actions[i].value==="0"){
-              if(this.generateModelParameters.actions[i].rules.length>0){
-                ///////////////////////有相应规则
-                existRules=true;
-                var deviceNotOff:DeviceNotOff={
-                  deviceName:devicesNeverOff[j],
-                  rules:this.generateModelParameters.actions[i].rules
-                }
-                devicesNotOffReason.push(deviceNotOff)
-                break;
-              }
-            }
-          }
-        }
-        if(!existRules){
-          var deviceNotOff:DeviceNotOff={
-            deviceName:devicesNeverOff[j],
-            rules:[]
-          }
-          devicesNotOffReason.push(deviceNotOff)
-  
-        }
-      }
-      this.devicesNotOff=devicesNotOffReason;
-      console.log("deivceNotOff")
-      console.log(this.devicesNotOff)
-    }
-
-    getDevicesWithUnreachableStateReason(devicesWithUnReachableState:Array<DeviceStateReachable>){
-      var devicesWithUnreachableStateReason:Array<DeviceStateReachable>=[];
-      for(let j=0;j<devicesWithUnReachableState.length;j++){
-        var deviceWithUnreachableState=devicesWithUnReachableState[j];
-        for(let i=0;i<deviceWithUnreachableState!.stateReachable.length;i++){
-          if(!deviceWithUnreachableState!.stateReachable[i].reachable){
-            var stateName=deviceWithUnreachableState!.stateReachable[i].stateName;
-            second:
-            for(let j=0;j<this.generateModelParameters.actions.length;j++){
-              if(this.generateModelParameters.actions[j].toState===stateName && 
-                this.generateModelParameters.actions[j].device===deviceWithUnreachableState.deviceName){
-                if(this.generateModelParameters.actions[j].rules.length>0){
-                  deviceWithUnreachableState!.stateReachable[i].rules=this.generateModelParameters.actions[j].rules;
-                  break second;
-                }
-                break second;
-              }
-            }
-            
-          }
-        }
-        devicesWithUnreachableStateReason.push(deviceWithUnreachableState)
-      }
-      this.devicesWithUnreachableState=devicesWithUnreachableStateReason;
-      console.log("devicesWithUnreachableState")
-      console.log(this.devicesWithUnreachableState)
-    }
-
-
+    
     getRuleContent(ruleContent:string):string{
       return ruleContent.substring(ruleContent.indexOf("IF"));
     }
-
-    getConflictStates(countStatesCauseRule:CountStatesCauseRule):string{
-      var states=""
-      for(let i=0;i<countStatesCauseRule.statesCauseRule.length;i++){
-        if(i<countStatesCauseRule.statesCauseRule.length-1){
-          // states=states+'&lt;b &gt;'+countStatesCauseRule.statesCauseRule[i].stateName+'&lt;/b &gt;'+" & "
-          states=states+countStatesCauseRule.statesCauseRule[i].stateName+" & "
-        }else{
-          // states=states+'&lt;b &gt;'+countStatesCauseRule.statesCauseRule[i].stateName+'&lt;/b &gt;'
-          states=states+countStatesCauseRule.statesCauseRule[i].stateName
+    /////添加property
+    addProperty(){
+      if(this.property.trim()!=""){
+        var exist=false;
+        var conList=this.property.split("&");
+        console.log(conList)
+        for(var i=0;i<this.properties.length;i++){
+          var existConList=this.properties[i].split("&");
+          if(existConList.length!=conList.length){
+            continue;
+          }
+          var existCon;
+          second:
+          for(var j=0;j<conList.length;j++){
+            existCon=false;
+            for(var k=0;k<existConList.length;k++){
+              if(conList[j].trim()===existConList[k].trim()){
+                existCon=true;
+              }
+            }
+            if(!existCon){
+              break second;
+            }
+          }
+          if(!existCon){
+            continue;
+          }else{
+            exist=true;
+            break;
+          }
         }
-      }
-      return states;
-    }
-
-    getStates(deviceConflictStatesCauseRules:DeviceStatesCauseRules):string{
-      var states=""
-      for(let i=0;i<deviceConflictStatesCauseRules.statesRules.length;i++){
-        if(i<deviceConflictStatesCauseRules.statesRules.length-1){
-          states=states+deviceConflictStatesCauseRules.statesRules[i].stateName+" & "
-        }else{
-          states=states+deviceConflictStatesCauseRules.statesRules[i].stateName
+        if(!exist){
+          this.properties.push(this.property);
         }
+        console.log(this.properties)
       }
-      return states
     }
 
-    getFastChangeStates(fastChangeStatesCauseRule:Array<StateCauseRuleCount>):string{
-      var states="";
-      for(let i=0;i<fastChangeStatesCauseRule.length;i++){
-        if(i<fastChangeStatesCauseRule.length-1){
-          states=states+fastChangeStatesCauseRule[i].stateName+" & "
-        }else{
-          states=states+fastChangeStatesCauseRule[i].stateName
-        }
-      }
-      return states
-    }
 
-    getDeviceUnreachableStates(statesReachable:Array<StateReachable>):string{
-      var states="";
-      for(let i=0;i<statesReachable.length;i++){
-        if(!statesReachable[i].reachable){
-          states=states+statesReachable[i].stateName+" "
-        }
-      }
-      return states
-    }
 
-    getFastChangeCauseRulesGroup(devicesScenesFastChangeCauseRule:Array<DeviceScenesFastChangeCauseRule>,i:number,j:number):number{
-      var groupNum=0;
-      if(i>0){
-        i=i-1
-        for(;i>=0;i--){
-          groupNum+=devicesScenesFastChangeCauseRule[i].scenesFastChangeCauseRules.length
-        }
-      }
-      groupNum+=j+1
-      return groupNum
-      
-    }
 
-    getConflictCauseRulesGraph(devicesAllSceneConflictRule:Array<DeviceAllSceneConflictRule>,i:number,j:number):number{
-      var groupNum=0;
-      if(i>0){
-        i=i-1
-        for(;i>=0;i--){
-          groupNum+=devicesAllSceneConflictRule[i].allCountStateCauseRuleSceneName.length
-        }
-      }
-      groupNum+=j+1
-      return groupNum
-    }
 
-    getSceneName(sceneName:string):string{
-      var name=sceneName.substring(sceneName.indexOf("-")).substring("-".length);
-      return name
-    }
-
-    toSceneDetail(sceneName:string){
-      this.mainData.storage = {
-        generateModelParameters: this.generateModelParameters,
-        scenes: this.scenes,
-        selectedSceneName: sceneName,
-        simulationTime: this.simulationTime,
-        scenesTree: this.scenesTree,
-        ruleText: this.ruleText,
-        uploadedFileName: this.uploadedFileName
-      }
-      this.router.navigate(["scene-details"]);
-    }
 
 
 

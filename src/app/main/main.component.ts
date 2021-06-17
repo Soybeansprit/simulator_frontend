@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AllScenesService } from '../service/all-scenes.service';
 import { ScenesTree } from '../class/scenes-tree';
 import { SceneService } from '../service/scene.service';
-import { Scene } from '../class/scene';
+import { EnvironmentModel, Rule, Scene, StaticAnalysisResult } from '../class/scene';
 import * as echarts from 'echarts';
 import { UploadFileService } from '../service/upload-file.service';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
@@ -12,6 +12,9 @@ import { GenerateModelParameters } from '../class/generate-model-parameters';
 import { newArray } from '@angular/compiler/src/util';
 import { MainData } from '../provider/main-data';
 import { Router, NavigationExtras } from "@angular/router";
+import { RuleAnalysisService } from '../service/rule-analysis.service';
+import { StaticAnalysisService } from '../service/static-analysis.service';
+import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 
 @Component({
   selector: 'app-main',
@@ -20,8 +23,7 @@ import { Router, NavigationExtras } from "@angular/router";
 })
 export class MainComponent implements OnInit {
   ifdPath = "";
-  show: string = "none";
-  unshow: string = "none";
+
 
   show_tree: string = "block";
   show_scenes_rules: string = "none";
@@ -36,13 +38,33 @@ export class MainComponent implements OnInit {
 
   ruleText: string = "";
   ruleTextFinal: string = "";
-  uploadedFileName: string = "";
+
+  /////initModelFile
+  initModelFileName:string="";
+  /////propertyFile
+  propertyFileName:string="";
+
+
+  environmentModel:EnvironmentModel|null=null;
+  staticAnalysisResult:StaticAnalysisResult|null=null;
 
   uploader: FileUploader = new FileUploader({
-    url: 'http://localhost:8083/str/upload',
+    url: 'http://localhost:8083/analysis/upload',
     method: 'POST',
     itemAlias: 'file'
   });
+  
+  modelUploader: FileUploader = new FileUploader({
+    url: 'http://localhost:8083/analysis/upload',
+    method: 'POST',
+    itemAlias: 'file'
+  });
+  propertyUploader: FileUploader = new FileUploader({
+    url: 'http://localhost:8083/analysis/upload',
+    method: 'POST',
+    itemAlias: 'file'
+  });
+
   fileUploaded: boolean = false;
   simulationTime: string = "300";
   simulationTimeFinal: string = "";
@@ -51,20 +73,23 @@ export class MainComponent implements OnInit {
   onSimulation:boolean=false;
 
   constructor(public allScenesService: AllScenesService, public sceneService: SceneService, public uploadFileService: UploadFileService,
-    public generateAllModelsService: GenerateAllModelsService, public mainData: MainData, public router: Router) {
+    public generateAllModelsService: GenerateAllModelsService, public mainData: MainData, public router: Router,public ruleAnalysisService:RuleAnalysisService,
+    private staticAnalysisService:StaticAnalysisService,private dynamicAnalysisService:DynamicAnalysisService) {
     this.simulationTime = this.mainData.storage.simulationTime;
     this.scenes = this.mainData.storage.scenes;
-    this.generateModelParameters = this.mainData.storage.generateModelParameters;
     this.scenesTree = this.mainData.storage.scenesTree;
     this.ruleText = this.mainData.storage.ruleText;
-    this.uploadedFileName = this.mainData.storage.uploadedFileName;
+    this.environmentModel=this.mainData.storage.environmentModel;
+    this.staticAnalysisResult=this.mainData.storage.staticAnalysisResult
+    this.initModelFileName=this.mainData.storage.initModelFileName
+    this.propertyFileName=mainData.storage.propertyFileName
   }
 
   ngOnInit(): void {
     // document.getElementById("rule-time")!.style.display="none";
     // document.getElementById("device-time")!.style.display="none";
 
-
+    document.getElementById("simulation")!.style.display="none";
     document.getElementById("all_scenes_tree")!.style.display = this.show_tree;
     document.getElementById("scenes_rules")!.style.display = this.show_scenes_rules;
     document.getElementById("rules_scenes")!.style.display = this.show_rules_scenes;
@@ -77,20 +102,19 @@ export class MainComponent implements OnInit {
     var selectedSceneName: string = "";
 
     scenesTreeChart.on('click', function (params: any) {
-      
       console.log(scenesTreeChart)
       if (params.data.name.indexOf("details") >= 0) {
-        var sceneName = params.data.name.replace(" details", "");
+        var sceneName = params.data.name.replace(" details", "").trim();
         selectedSceneName = sceneName;
       }
     })
     setInterval(() => {
       // console.log("sceNameOut"+sceName);
       if (this.selectedSceneName != selectedSceneName) {
-
         this.selectedSceneName = selectedSceneName;
         console.log("toSceneDetail selectedName:" + this.selectedSceneName)
-        if (this.scenes.length > 0 && !this.onSimulation) {
+        if (this.scenes.length > 0 ) {
+          //////点击跳转到某个场景细节页面
           console.log("toSceneDetail scene:" + this.scenes)
             this.mainData.storage = {
               generateModelParameters: this.generateModelParameters,
@@ -99,7 +123,9 @@ export class MainComponent implements OnInit {
               simulationTime: this.simulationTime,
               scenesTree: this.scenesTree,
               ruleText: this.ruleText,
-              uploadedFileName: this.uploadedFileName
+              staticAnalysisResult:this.staticAnalysisResult,
+              environmentModel:this.environmentModel,
+              initModelFileName:this.initModelFileName
             }
             this.router.navigate(["scene-details"]);
         } else {
@@ -114,28 +140,24 @@ export class MainComponent implements OnInit {
 
 
   //////////////////////////////上传文件/////////////////////////////////
-  selectedFileOnChanged(event: any) {
-    // 这里是文件选择完成后的操作处理
-    // alert('上传文件改变啦');
-    // console.log(event.target.value);
-    this.uploadedFileName = event.target.files[0].name;
-    // console.log(this.uploadedFileName)
+  ////上传环境本体文件
+  uploadModelFile(event:any){
+    this.initModelFileName=event.target.files[0].name;
     console.log(event);
-    if (!this.uploadedFileName.endsWith(".xml")) {
-      alert("please choose .xml file");
-      return;
-    } else {
-      this.uploadFile(this.uploadedFileName);
-    }
-
-
+    ////上传
+    this.upload(this.modelUploader,this.initModelFileName);
+  }
+  /////上传property文件
+  uploadPropertyFile(event:any){
+    this.propertyFileName=event.target.files[0].name;
+    console.log(event);
+    //////上传
+    this.upload(this.propertyUploader,this.propertyFileName);
   }
 
-  uploadFile(fileName: string | null) {
+  upload(fileUploader:FileUploader,fileName:string){
     console.log(fileName + '执行上传文件');
-    // 上传
-    this.uploader.queue[0].onSuccess = function (response, status, headers) {
-      // 上传文件成功
+    fileUploader.queue[0].onSuccess= function (response, status, headers){
       if (status == 200) {
         // 上传文件后获取服务器返回的数据
         const tempRes = response;
@@ -144,64 +166,68 @@ export class MainComponent implements OnInit {
         // 上传文件后获取服务器返回的数据错误
         alert(fileName + '上传失败');
       }
-    };
-    // onSuccessItem(item: FileItem, response: string, status: number, headers: ParsedResponseHeaders): any;
-    this.uploader.queue[0].upload(); // 开始上传
-    // this.uploader.queue[0].onSuccess()
+    }
+    fileUploader.queue[0].upload();//开始上传
     console.log(fileName + '上传之后');
-    this.fileUploaded = true;
+
   }
-  ///////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
 
 
 
 
 
+  //////静态分析
+  getStaticAnalysisResult(){
+    document.getElementById("static")!.style.display="block";
+    document.getElementById("simulation")!.style.display="none";
+    this.ruleText=this.ruleText.trim();
+    this.staticAnalysisService.getStaticAnalysisResult(this.ruleText,this.initModelFileName,this.propertyFileName).subscribe(environmentStatic=>{
+      console.log(environmentStatic)
+      this.staticAnalysisResult=environmentStatic.staticAnalysisResult
+      this.environmentModel=environmentStatic.environmentModel;
+    })
+  }
 
-  generateAllModels() {
-    ///////////////////如果文件和ruleText都没有变化的话则不重新分析//////////////////
-    if (this.simulationTime == "") {
-      alert("please enter simulation time")
-    } else if (parseInt(this.simulationTime) < 100 || parseInt(this.simulationTime) > 1000) {
-      alert("please enter simulation time between 100 and 1000")
-    }
-    if (this.ruleText.trim() == "") {
-      alert("please enter rules")
-    }
-    if (!this.fileUploaded) {
-      alert("please upload ontology file")
-    }
-    if (this.simulationTime!=""&&this.ruleText.trim()!=""&&this.fileUploaded) {
-      this.ruleText = this.ruleText.trim();
-
-      this.generateAllModelsService.generateAllModels(this.ruleText, this.uploadedFileName, this.simulationTime).subscribe(generateModelsParameters => {
-        console.log(generateModelsParameters);
-        this.generateModelParameters = generateModelsParameters;
+  /////动态分析，生成所有仿真场景模型
+  generateAllSystemModels(){
+    document.getElementById("static")!.style.display="none";
+    document.getElementById("simulation")!.style.display="block";
+    console.log("generateAllModels start time:")
+    var time = new Date();
+    console.log(time.getTime())
+    if(this.staticAnalysisResult!=null&&this.environmentModel!=null){
+      this.dynamicAnalysisService.generateAllScenarioModels(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scenesTree=>{
+        this.scenesTree=scenesTree;
+        console.log(this.scenesTree)
       })
-
-
-      // this.showRandomResults()
     }
   }
-
-  simulation() {
-    if (this.generateModelParameters != null && this.onSimulation===false) {
-      this.onSimulation=true;
-      this.generateAllModelsService.simulationAllModels(this.generateModelParameters, this.uploadedFileName).subscribe(scenes => {
-        alert("simulation finished")
-        this.scenes = scenes;
+  /////仿真
+  scenariosSimulation(){
+    if(this.scenesTree!=null&&this.environmentModel!=null){
+      this.dynamicAnalysisService.simulateAllScenarios(this.environmentModel.devices,this.scenesTree,this.initModelFileName).subscribe(scenes=>{
+        this.scenes=scenes;
         console.log(this.scenes)
-        this.onSimulation=false;
-        ///////////////////////////this.simulation用来记录是否在仿真中/////////////////////
       })
-
-      // this.showRulesScenesResults()
-
-
-    } else if(this.generateModelParameters===null){
-      alert("models not ready...")
     }
   }
+
+
+
+
+
+
+
+  /////显示仿真结果
+  simulationResults(){
+    document.getElementById("static")!.style.display="none";
+    document.getElementById("simulation")!.style.display="block";
+  }
+
+
+
+
 
 
 
@@ -209,24 +235,21 @@ export class MainComponent implements OnInit {
   showIFD() {
     var path = "./assets/IFD.png";
     this.ifdPath = path;
-
     document.getElementById("ontology_rules")!.style.display = "none";
 
   }
-  showRandomResults() {
-    console.log(this.scenesTree)
-
+  /////显示仿真场景树
+  showScenarioTree(){
     document.getElementById("all_scenes_tree")!.style.display = "block";
     document.getElementById("scenes_rules")!.style.display = "none";
     document.getElementById("rules_scenes")!.style.display = "none";
     this.show_tree = "block";
     this.show_scenes_rules = "none";
     this.show_rules_scenes = "none";
-    // const scenesTreeChart=echarts.init(document.getElementById("scenesTreeid"));
-    // scenesTreeChart.showLoading()
-
     this.getScenesTreeOption();
   }
+
+
 
   showScenesRulesResults() {
 
@@ -253,57 +276,34 @@ export class MainComponent implements OnInit {
     this.getRulesScenesoption();
   }
 
-  /////////////////////////////////分析总的场景///////////////////
-  toAllSceneDetail() {
-    
-    if (this.scenes.length > 0 && !this.onSimulation) {
-      
-        
-        this.mainData.storage = {
-          generateModelParameters: this.generateModelParameters,
-          scenes: this.scenes,
-          selectedSceneName: this.selectedSceneName,
-          simulationTime: this.simulationTime,
-          scenesTree: this.scenesTree,
-          ruleText: this.ruleText,
-          uploadedFileName: this.uploadedFileName
-        }
-        this.router.navigate(["overall-analysis"]);
-      
-    } else {
-      alert("on simulation...")
-    }
 
 
 
-
-  }
-
+  /////总的分析
   toRuleAnalysis(){
     if (this.scenes.length > 0 && !this.onSimulation) {
-      
-        
       this.mainData.storage = {
-        generateModelParameters: this.generateModelParameters,
         scenes: this.scenes,
-        selectedSceneName: this.selectedSceneName,
         simulationTime: this.simulationTime,
         scenesTree: this.scenesTree,
         ruleText: this.ruleText,
-        uploadedFileName: this.uploadedFileName
+        staticAnalysisResult:this.staticAnalysisResult,
+        environmentModel:this.environmentModel,
+        equivalentTime:"24",
+        intervalTime:"300",
+        initModelFileName:this.initModelFileName,
+        propertyFileName:this.propertyFileName
       }
       this.router.navigate(["rule-analysis"]);
-    
-  } else {
-    alert("on simulation...")
-  }
+    } else {
+      alert("on simulation...")
+    }
   }
 
 
   getRulesScenesoption() {
-
-    if (this.scenes.length > 0 && !this.onSimulation) {
-      this.sceneService.getRulesScenesData(this.scenes,this.generateModelParameters?.rules!).subscribe(option => {
+    if (this.scenes.length > 0 ) {
+      this.sceneService.getRulesScenesData(this.scenes,this.staticAnalysisResult!).subscribe(option => {
         this.rulesScenesOption = option;
       })
     } else {
@@ -312,10 +312,8 @@ export class MainComponent implements OnInit {
   }
 
   getScenesRulesOption() {
-
-
-    if (this.scenes.length > 0 && !this.onSimulation) {
-      this.sceneService.getScenesRulesData(this.scenes).subscribe(option => {
+    if (this.scenes.length > 0 ) {
+      this.sceneService.getScenesRulesData(this.scenes,this.staticAnalysisResult!.totalRules).subscribe(option => {
         this.scenesRulesOption = option;
       })
     } else {
@@ -324,8 +322,8 @@ export class MainComponent implements OnInit {
   }
 
   getScenesTreeOption() {
-    if (this.generateModelParameters != null) {
-      this.scenesTree = this.generateModelParameters!.scenesTree;
+    if (this.scenesTree!= null) {
+      
       // console.log(scenesTree)
       this.scenesTreeOption = {
         title: {

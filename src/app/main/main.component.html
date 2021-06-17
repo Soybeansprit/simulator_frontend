@@ -8,11 +8,18 @@
 
                     <textarea class="textarea"
                         placeholder="Please enter 'IF...THEN...', such as 'IF Door.dopen THEN M.heatoffPulse '"
-                        [(ngModel)]="ruleText"></textarea>
+                        [(ngModel)]="ruleText">
+                    </textarea>
                     <div class="button-group">
+                        <!-- 上传环境本体 -->
                         <button class="upload button">UploadOntology
-                            <input class="change" type="file" ng2FileSelect [uploader]="uploader"
-                                (change)="selectedFileOnChanged($event)" />
+                            <input class="change" type="file" ng2FileSelect [uploader]="modelUploader"
+                                (change)="uploadModelFile($event)" />
+                        </button>
+                        <!-- 上传location和deviceInformation的property文件 -->
+                        <button class="upload button">UploadProperty
+                            <input class="change" type="file" ng2FileSelect [uploader]="propertyUploader"
+                                (change)="uploadPropertyFile($event)" />
                         </button>
                         <div class="simulation_time">
                             <label style="color: rgb(43, 42, 42);">simulation time:
@@ -23,9 +30,9 @@
                             </label>
                         </div>
 
-
-                        <button class="analys_button" (click)="generateAllModels()">Generate Models</button>
-                        <button class="analys_button" (click)="simulation()">Simulate</button>
+                        <button class="analys_button" (click)="getStaticAnalysisResult()">Static Analysis</button>
+                        <button class="analys_button" (click)="generateAllSystemModels()">Generate Models</button>
+                        <button class="analys_button" (click)="scenariosSimulation()">Simulate</button>
                     </div>
 
                     <!-- <form  method="post" enctype="multipart/form-data" >
@@ -45,7 +52,7 @@
 
 
         <div class="right">
-            <div>
+            <div id="simulation">
                 <h2><b>Simulation Scenes:</b></h2>
                 <div class="random-range">
                     <!-- <div echarts [options]="options | async" class="demo-chart"></div> -->
@@ -74,16 +81,80 @@
 
                 </div>
                 <div class="button-group">
-                    <button class="button" (click)="showRandomResults()">Show Scenes Tree</button>
+                    <button class="button" (click)="showScenarioTree()">Show Scenes Tree</button>
+                    
                     <button class="button" (click)="showScenesRulesResults()">Show Scenes Rules</button>
                     <button class="button" (click)="showRulesScenesResults()">Show Rules Scenes</button>
                     <!-- <button class="button" [routerLink]="['/scene-details']" [queryParams]="{selectedSceneName:selectedSceneName,scenes:scenes}" (click)="toSceneDetail()">Scene Details</button> -->
-                    <button class="button" (click)="toAllSceneDetail()">All Analysis</button>
-                    <button class="button" (click)="toRuleAnalysis()">Overall Analysis</button>
-                    <button class="button" routerLink="/ifd-plan">Show IFD</button>
+                    <!-- <button class="button" (click)="toAllSceneDetail()">All Analysis</button> -->
+                    <button class="button" (click)="toRuleAnalysis()">Dynamic Analysis</button>
+                    <!-- <button class="button" routerLink="/ifd-plan">Show IFD</button> -->
                     <div ng-view></div>
                 </div>
 
+            </div>
+            <div id="static">
+                <h2><b>Static Analysis Result:</b></h2>
+                <div class="random-range">
+                    <!-- <div echarts [options]="options | async" class="demo-chart"></div> -->
+                    <div class="scenes-scope" >
+                        <div class="scrollbar">
+                            <div *ngIf="staticAnalysisResult!=null">
+                                <div *ngIf="staticAnalysisResult.incorrectRules.length>0">
+                                    <b style="font-size: x-large;color: brown;">Incorrect rules:</b>
+                                    <ul *ngFor="let incorrectRule of staticAnalysisResult.incorrectRules">
+                                        <li style="list-style-type: none;color: black;">{{incorrectRule.rule.ruleName}}: {{incorrectRule.rule.ruleContent}}<br>
+                                            <b style="color: brown;">Reason: {{incorrectRule.reason}}</b>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div *ngIf="staticAnalysisResult.unusedRules.length>0">
+                                    <b style="font-size: x-large;color: brown;">Unused rules:</b>
+                                    <ul *ngFor="let unusedRule of staticAnalysisResult.unusedRules">
+                                        <li style="list-style-type: none;color: black;"><b>{{unusedRule.rule.ruleName}}</b>: {{unusedRule.rule.ruleContent}} <br>
+                                            <b style="color: brown;">Reason: {{unusedRule.reason}}</b>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div *ngIf="staticAnalysisResult.redundantRules.length>0">
+                                    <b style="font-size: x-large;color: brown;">Redundant rules:</b>
+                                    <ul *ngFor="let redundantRules of staticAnalysisResult.redundantRules">
+                                        <li><b>{{redundantRules[0].ruleName}}</b>: {{redundantRules[0].ruleContent}} <b style="color: brown;"> is redundant with</b></li>
+                                        
+                                        <li *ngFor="let rule of redundantRules;index as i" style="list-style-type: none">
+                                            <div *ngIf="i>0">
+                                                <b>{{rule.ruleName}}</b>: {{rule.ruleContent}}
+                                            </div>
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
+                                <div *ngIf="staticAnalysisResult.incompleteness.length>0">
+                                    <b style="font-size: x-large;color: brown;">Incompleteness:</b>
+                                    <ul *ngFor="let incomplete of staticAnalysisResult.incompleteness">
+                                        <li><b style="color: brown;">{{incomplete}}</b></li>
+                                        
+                                        
+                                        
+                                    </ul>
+                                </div>
+                            </div>
+
+                            
+                        </div>
+
+
+                    </div>
+                    
+
+
+                </div>
+                <div class="button-group">
+                    <button class="button" (click)="simulationResults()">Simulation Results</button>
+                    
+
+                    <div ng-view></div>
+                </div>
             </div>
         </div>
 

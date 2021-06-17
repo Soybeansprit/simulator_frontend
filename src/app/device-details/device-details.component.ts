@@ -4,13 +4,14 @@ import * as echarts from 'echarts';
 import * as $ from "jquery";
 import {
   Scene, DeviceAnalysResult, DeviceConflict, StatesChange, DeviceStateTime, DeviceCannotOff, DeviceStateName,
-  ConflictTime, StateChangeFast, StateLastTime, StateNameRelativeRule, Rule, DataTimeValue, StateChangeCauseRuleInput, StateAndRuleAndCauseRule, WholeAndCurrentChangeCauseRule, TimeStateRelativeRules, ConflictStateAndRules, RuleAndCause, StateRules
+  ConflictTime, StateChangeFast, StateLastTime, StateNameRelativeRule, Rule, DataTimeValue, StateChangeCauseRuleInput, StateAndRuleAndCauseRule, WholeAndCurrentChangeCauseRule, TimeStateRelativeRules, ConflictStateAndRules, RuleAndCause, StateRules, DeviceAnalysisResult, ConflictReason, CauseRule, RuleNode, CauseRulesCount
 } from "../class/scene";
 import { MainData } from '../provider/main-data';
 import { GenerateModelParameters } from '../class/generate-model-parameters';
 import { SceneService } from "../service/scene.service";
 import { data } from 'jquery';
 import { DeviceAnalysisService } from '../service/device-analysis.service';
+import { ThisReceiver } from '@angular/compiler';
 
 @Component({
   selector: 'app-device-details',
@@ -33,9 +34,8 @@ export class DeviceDetailsComponent implements OnInit {
   cannotOffDetailShow: string = "none";
   consumptionDetailShow: string = "none";
 
-  @Input() selectedDevice!: DeviceAnalysResult;
+  @Input() selectedDevice!: DeviceAnalysisResult;
   @Input() triggeredRulesName: Array<DataTimeValue> = new Array<DataTimeValue>();
-  @Input() uploadedFileName!: string;
   @Input() rules: Array<Rule> = new Array<Rule>();
   @Input() simulationTime: string = "";
   @Input() equivalentTime: string = "";
@@ -60,9 +60,10 @@ export class DeviceDetailsComponent implements OnInit {
   conflictStatesRulesList:Array<ConflictStateAndRules>=[];
   stateRuleListList:Array<Array<StateRules>>=[];
 
-
-
-
+///////综合冲突原因及计数
+  @Input() conflictCauseRulesCounts:Array<CauseRulesCount>=[];
+///////综合jitter原因及计数
+  @Input() jitterCauseRulesCounts:Array<CauseRulesCount>=[];
 
 
 
@@ -126,7 +127,11 @@ export class DeviceDetailsComponent implements OnInit {
     // console.log(this.rules);
     // console.log(this.triggeredRulesName);
     // console.log(this.uploadedFileName)
-
+    // setInterval(() => {
+    //   /////综合并计数
+    //   this.syntheticConflictReason();
+    //   this.syntheticJitterReason();
+    // }, 1000)
 
 
   }
@@ -210,7 +215,7 @@ export class DeviceDetailsComponent implements OnInit {
     var conflictTime: string = "";
     // this.getConflictOption();
 
-    if(this.selectedDevice.statesConflict.conflictTimes.length>0){
+    if(this.selectedDevice.conflictReasons.length>0){
       const conflictChart = echarts.init(document.getElementById("conflictOptionId"));
       console.log(conflictChart)
   
@@ -228,15 +233,16 @@ export class DeviceDetailsComponent implements OnInit {
         console.log("this.conflictTime" + this.conflictTime)
         console.log("conflictTime" + conflictTime)
         this.conflictTime = conflictTime;
-        for (let i = 0; i < this.selectedDevice.statesConflict.conflictTimes.length; i++) {
-          var conflictStateTime = this.selectedDevice.statesConflict.conflictTimes[i];
-          if (conflictStateTime.conflictTime === this.conflictTime) {
-            this.sceneService.analysisStatesConflict(conflictStateTime, this.triggeredRulesName, this.selectedDevice.deviceStateName, this.rules, this.uploadedFileName)
-              .subscribe(stateCauseRulesAndRelativeRules => {
+        for (let i = 0; i < this.selectedDevice.conflictReasons.length; i++) {
+          var conflictStateTime = this.selectedDevice.conflictReasons[i].conflict;
+          if (conflictStateTime.time+"" === this.conflictTime) {
+            console.log(conflictTime)
+            // this.sceneService.analysisStatesConflict(conflictStateTime, this.triggeredRulesName, this.selectedDevice.deviceStateName, this.rules, this.uploadedFileName)
+            //   .subscribe(stateCauseRulesAndRelativeRules => {
 
-                console.log(stateCauseRulesAndRelativeRules);
-              })
-            break;
+            //     console.log(stateCauseRulesAndRelativeRules);
+            //   })
+            // break;
           }
 
         }
@@ -246,59 +252,57 @@ export class DeviceDetailsComponent implements OnInit {
       }
     }, 1000)
 
-    this.sceneService.analysisAllStatesConflict(this.selectedDevice.statesConflict.conflictTimes, this.triggeredRulesName, this.selectedDevice.deviceStateName, this.rules, this.uploadedFileName)
-            .subscribe(stateCauseRulesAndRelativeRulesList => {
-              console.log("stateCauseRulesAndRelativeRulesList")
-              console.log(stateCauseRulesAndRelativeRulesList);
-              console.log("stateCauseRulesAndRelativeRulesList")
-              console.log(stateCauseRulesAndRelativeRulesList);
-              this.stateCauseRulesList=stateCauseRulesAndRelativeRulesList;
-              // this.conflictStatistics(this.stateCauseRulesList)
-              var newStateCauseRuleList=[];
-              for(let i=0;i<this.stateCauseRulesList.length;i++){
-                newStateCauseRuleList.push(this.deviceAnalysisService.removeContraRules(this.stateCauseRulesList[i]));
-              }
-              this.newStateCauseRuleList=newStateCauseRuleList;
-              console.log("stateCauseRuleList")
-              console.log(this.stateCauseRulesList);
-              console.log("newStateCauseRuleList")
-              console.log(this.newStateCauseRuleList)
-              this.conflictStatesRulesList=this.deviceAnalysisService.conflictStatistics(this.newStateCauseRuleList)
-            })
+    // this.sceneService.analysisAllStatesConflict(this.selectedDevice.statesConflict.conflictTimes, this.triggeredRulesName, this.selectedDevice.deviceStateName, this.rules, this.uploadedFileName)
+    //         .subscribe(stateCauseRulesAndRelativeRulesList => {
+    //           console.log("stateCauseRulesAndRelativeRulesList")
+    //           console.log(stateCauseRulesAndRelativeRulesList);
+    //           console.log("stateCauseRulesAndRelativeRulesList")
+    //           console.log(stateCauseRulesAndRelativeRulesList);
+    //           this.stateCauseRulesList=stateCauseRulesAndRelativeRulesList;
+    //           // this.conflictStatistics(this.stateCauseRulesList)
+    //           var newStateCauseRuleList=[];
+    //           for(let i=0;i<this.stateCauseRulesList.length;i++){
+    //             newStateCauseRuleList.push(this.deviceAnalysisService.removeContraRules(this.stateCauseRulesList[i]));
+    //           }
+    //           this.newStateCauseRuleList=newStateCauseRuleList;
+    //           console.log("stateCauseRuleList")
+    //           console.log(this.stateCauseRulesList);
+    //           console.log("newStateCauseRuleList")
+    //           console.log(this.newStateCauseRuleList)
+    //           this.conflictStatesRulesList=this.deviceAnalysisService.conflictStatistics(this.newStateCauseRuleList)
+    //         })
 
-    setInterval(() => {
-      if (this.deviceNameCon != this.selectedDevice.deviceName) {
-        console.log("conflictTimes")
-        console.log(this.selectedDevice.statesConflict.conflictTimes)
-        this.deviceNameCon = this.selectedDevice.deviceName;
-        this.sceneService.analysisAllStatesConflict(this.selectedDevice.statesConflict.conflictTimes, this.triggeredRulesName, this.selectedDevice.deviceStateName, this.rules, this.uploadedFileName)
-            .subscribe(stateCauseRulesAndRelativeRulesList => {
+    // setInterval(() => {
+    //   if (this.deviceNameCon != this.selectedDevice.deviceName) {
+    //     console.log("conflictTimes")
+    //     console.log(this.selectedDevice.statesConflict.conflictTimes)
+    //     this.deviceNameCon = this.selectedDevice.deviceName;
+    //     this.sceneService.analysisAllStatesConflict(this.selectedDevice.statesConflict.conflictTimes, this.triggeredRulesName, this.selectedDevice.deviceStateName, this.rules, this.uploadedFileName)
+    //         .subscribe(stateCauseRulesAndRelativeRulesList => {
               
-              console.log("stateCauseRulesAndRelativeRulesList")
-              console.log(stateCauseRulesAndRelativeRulesList);
-              this.stateCauseRulesList=stateCauseRulesAndRelativeRulesList;
-              // this.conflictStatistics(this.stateCauseRulesList)
-              var newStateCauseRuleList=[];
-              for(let i=0;i<this.stateCauseRulesList.length;i++){
-                newStateCauseRuleList.push(this.deviceAnalysisService.removeContraRules(this.stateCauseRulesList[i]));
-              }
-              this.newStateCauseRuleList=newStateCauseRuleList;
-              console.log("stateCauseRuleList")
-              console.log(this.stateCauseRulesList);
-              console.log("newStateCauseRuleList")
-              console.log(this.newStateCauseRuleList)
-              this.conflictStatesRulesList=this.deviceAnalysisService.conflictStatistics(this.newStateCauseRuleList)
-              console.log("conflictStatesRulesList2")
-              console.log(this.conflictStatesRulesList);
-            })
-      }
-    }, 1000)
+    //           console.log("stateCauseRulesAndRelativeRulesList")
+    //           console.log(stateCauseRulesAndRelativeRulesList);
+    //           this.stateCauseRulesList=stateCauseRulesAndRelativeRulesList;
+    //           // this.conflictStatistics(this.stateCauseRulesList)
+    //           var newStateCauseRuleList=[];
+    //           for(let i=0;i<this.stateCauseRulesList.length;i++){
+    //             newStateCauseRuleList.push(this.deviceAnalysisService.removeContraRules(this.stateCauseRulesList[i]));
+    //           }
+    //           this.newStateCauseRuleList=newStateCauseRuleList;
+    //           console.log("stateCauseRuleList")
+    //           console.log(this.stateCauseRulesList);
+    //           console.log("newStateCauseRuleList")
+    //           console.log(this.newStateCauseRuleList)
+    //           this.conflictStatesRulesList=this.deviceAnalysisService.conflictStatistics(this.newStateCauseRuleList)
+    //           console.log("conflictStatesRulesList2")
+    //           console.log(this.conflictStatesRulesList);
+    //         })
+    //   }
+    // }, 1000)
 
   }
 
-  getDeepCauseRules(rule:RuleAndCause){
-    
-  }
+
 
 //   /////////////////这个好像是对stateAndRuleAndCauseRules本身进行操作，因此会改变stateAndRuleAndCauseRules////////
 //   ////////////////不要让newStateAndRulAndCauseRules地址直接指向stateAndRuleAndCauseRules//copy///////////////////
@@ -517,7 +521,7 @@ export class DeviceDetailsComponent implements OnInit {
 
     var frequentChangeStartTime: number = 0;
 
-    const frequentChangeChart = echarts.init(document.getElementById('changeFrequentId'));
+    const frequentChangeChart = echarts.init(document.getElementById('changeFrequentId')!);
     console.log(frequentChangeChart);
     console.log(frequentChangeChart.getOption());
     frequentChangeChart.on('click', function (params: any) {
@@ -528,56 +532,54 @@ export class DeviceDetailsComponent implements OnInit {
       }
     })
 
-    var stateChangeFasts = this.selectedDevice.statesChange.stateChangeFasts;
-    if(stateChangeFasts.length>0){
-      var stateChangeFast = stateChangeFasts[0];
-      this.sceneService.analysisStatesChangeFrequently(stateChangeFasts, stateChangeFast, this.triggeredRulesName, this.selectedDevice.deviceStateName).subscribe(wholeAndCurrentChangeCauseRule => {
-        console.log(wholeAndCurrentChangeCauseRule);
-        this.frequentChangeTimeStateRuleList=this.deviceAnalysisService.fastChangeCauseRules(wholeAndCurrentChangeCauseRule.wholeStateChangesCauseRules)
-      })
-    }
+    // var stateChangeFasts = this.selectedDevice.statesChange.stateChangeFasts;
+    // if(stateChangeFasts.length>0){
+    //   var stateChangeFast = stateChangeFasts[0];
+    //   this.sceneService.analysisStatesChangeFrequently(stateChangeFasts, stateChangeFast, this.triggeredRulesName, this.selectedDevice.deviceStateName).subscribe(wholeAndCurrentChangeCauseRule => {
+    //     console.log(wholeAndCurrentChangeCauseRule);
+    //     this.frequentChangeTimeStateRuleList=this.deviceAnalysisService.fastChangeCauseRules(wholeAndCurrentChangeCauseRule.wholeStateChangesCauseRules)
+    //   })
+    // }
 
-    setInterval(() => {
-      if(this.deviceNameCha!=this.selectedDevice.deviceName){
-        this.deviceNameCha=this.selectedDevice.deviceName;
-        var stateChangeFasts = this.selectedDevice.statesChange.stateChangeFasts;
-        console.log("hasStateChangeFasts?")
-        console.log(stateChangeFasts)
-        if(stateChangeFasts.length>0){
-          document.getElementById("frequency_analysis")!.style.display="block"
-          var stateChangeFast = stateChangeFasts[0];
-          this.sceneService.analysisStatesChangeFrequently(stateChangeFasts, stateChangeFast, this.triggeredRulesName, this.selectedDevice.deviceStateName).subscribe(wholeAndCurrentChangeCauseRule => {
-            console.log(wholeAndCurrentChangeCauseRule);
-            this.frequentChangeTimeStateRuleList=this.deviceAnalysisService.fastChangeCauseRules(wholeAndCurrentChangeCauseRule.wholeStateChangesCauseRules)
-            this.deviceAnalysisService.frequentChangeAnalysis(this.frequentChangeTimeStateRuleList)
-            this.stateRuleListList=this.deviceAnalysisService.frequentChangeAnalysisAll(this.frequentChangeTimeStateRuleList);
-          })
-        }else{
-          console.log("frequency_analysis?")
-          document.getElementById("frequency_analysis")!.style.display="none"
-        }
-      }
-
-
-      /////////////////////这块是点击某个点显示////////////////////
-      // if (this.frequentChangeStartTime != frequentChangeStartTime) {
-      //   this.frequentChangeStartTime = frequentChangeStartTime;
-      //   var stateChangeFasts = this.selectedDevice.statesChange.stateChangeFasts;
-      //   for (let i = 0; i < stateChangeFasts.length; i++) {
-      //     var stateChangeFast = this.selectedDevice.statesChange.stateChangeFasts[i];
-      //     if (stateChangeFast.startTimeValue[0] === this.frequentChangeStartTime) {
-      //       //////////////////////////寻找规则///////////////////
-      //       this.sceneService.analysisStatesChangeFrequently(stateChangeFasts, stateChangeFast, this.triggeredRulesName, this.selectedDevice.deviceStateName).subscribe(wholeAndCurrentChangeCauseRule => {
-      //         console.log(wholeAndCurrentChangeCauseRule);
-      //         this.fastChangeCauseRules(wholeAndCurrentChangeCauseRule)
-      //       })
-      //       break;
-      //     }
-      //   }
-      //   frequentChangeStartTime = 0;
-      //   this.frequentChangeStartTime = 0;
-      // }
-    }, 1000)
+    // setInterval(() => {
+    //   if(this.deviceNameCha!=this.selectedDevice.deviceName){
+    //     this.deviceNameCha=this.selectedDevice.deviceName;
+    //     var stateChangeFasts = this.selectedDevice.statesChange.stateChangeFasts;
+    //     console.log("hasStateChangeFasts?")
+    //     console.log(stateChangeFasts)
+    //     if(stateChangeFasts.length>0){
+    //       document.getElementById("frequency_analysis")!.style.display="block"
+    //       var stateChangeFast = stateChangeFasts[0];
+    //       this.sceneService.analysisStatesChangeFrequently(stateChangeFasts, stateChangeFast, this.triggeredRulesName, this.selectedDevice.deviceStateName).subscribe(wholeAndCurrentChangeCauseRule => {
+    //         console.log(wholeAndCurrentChangeCauseRule);
+    //         this.frequentChangeTimeStateRuleList=this.deviceAnalysisService.fastChangeCauseRules(wholeAndCurrentChangeCauseRule.wholeStateChangesCauseRules)
+    //         this.deviceAnalysisService.frequentChangeAnalysis(this.frequentChangeTimeStateRuleList)
+    //         this.stateRuleListList=this.deviceAnalysisService.frequentChangeAnalysisAll(this.frequentChangeTimeStateRuleList);
+    //       })
+    //     }else{
+    //       console.log("frequency_analysis?")
+    //       document.getElementById("frequency_analysis")!.style.display="none"
+    //     }
+    //   }
+    //   /////////////////////这块是点击某个点显示////////////////////
+    //   // if (this.frequentChangeStartTime != frequentChangeStartTime) {
+    //   //   this.frequentChangeStartTime = frequentChangeStartTime;
+    //   //   var stateChangeFasts = this.selectedDevice.statesChange.stateChangeFasts;
+    //   //   for (let i = 0; i < stateChangeFasts.length; i++) {
+    //   //     var stateChangeFast = this.selectedDevice.statesChange.stateChangeFasts[i];
+    //   //     if (stateChangeFast.startTimeValue[0] === this.frequentChangeStartTime) {
+    //   //       //////////////////////////寻找规则///////////////////
+    //   //       this.sceneService.analysisStatesChangeFrequently(stateChangeFasts, stateChangeFast, this.triggeredRulesName, this.selectedDevice.deviceStateName).subscribe(wholeAndCurrentChangeCauseRule => {
+    //   //         console.log(wholeAndCurrentChangeCauseRule);
+    //   //         this.fastChangeCauseRules(wholeAndCurrentChangeCauseRule)
+    //   //       })
+    //   //       break;
+    //   //     }
+    //   //   }
+    //   //   frequentChangeStartTime = 0;
+    //   //   this.frequentChangeStartTime = 0;
+    //   // }
+    // }, 1000)
   }
 
   // /////////////////////分段分析////////////////////////
@@ -739,7 +741,6 @@ export class DeviceDetailsComponent implements OnInit {
     this.frequentChangeDetailShow = "none";
     this.cannotOffDetailShow = "block";
     this.consumptionDetailShow = "none";
-    console.log(this.selectedDevice.deviceCannotOff)
   }
 
   consumptionDetail() {
@@ -766,12 +767,12 @@ export class DeviceDetailsComponent implements OnInit {
     this.deviceStateName = this.selectedDevice.deviceStateName;
     if (this.conflictStateTime != conflictTime) {
       this.conflictStateTime = conflictTime;
-      this.sceneService.analysisStatesConflict(this.conflictStateTime, this.triggeredRulesName, this.deviceStateName, this.rules, this.uploadedFileName)
-        .subscribe(stateCauseRulesAndRelativeRules => {
+      // this.sceneService.analysisStatesConflict(this.conflictStateTime, this.triggeredRulesName, this.deviceStateName, this.rules, this.uploadedFileName)
+      //   .subscribe(stateCauseRulesAndRelativeRules => {
 
-          console.log(stateCauseRulesAndRelativeRules);
+      //     console.log(stateCauseRulesAndRelativeRules);
 
-        })
+      //   })
     } else {
       this.conflictStateTime = null;
     }
@@ -940,6 +941,8 @@ export class DeviceDetailsComponent implements OnInit {
   getRuleContent(ruleContent:string):string{
     return ruleContent.substring(ruleContent.indexOf("IF"));
   }
+
+
 
 
 

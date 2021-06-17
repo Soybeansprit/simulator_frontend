@@ -18,23 +18,23 @@ export class GenerateAllModelsService {
 	};
   constructor(public http:HttpClient) { }
 
-  generateAllModels(ruleText:string,initModelName:string,simulationTime:string):Observable<GenerateModelParameters>{
+  generateAllModels(rules:Array<Rule>,initModelName:string,simulationTime:string):Observable<GenerateModelParameters>{
 
-    var ruleTextLines:Array<string>;
-    if(ruleText.indexOf("\r\n")>0){
+    // var ruleTextLines:Array<string>;
+    // if(ruleText.indexOf("\r\n")>0){
       
-      ruleTextLines=ruleText.split("\r\n");
-    }else if(ruleText.indexOf("\n")>0){
+    //   ruleTextLines=ruleText.split("\r\n");
+    // }else if(ruleText.indexOf("\n")>0){
       
-      ruleTextLines=ruleText.split("\n");
-    }else {
+    //   ruleTextLines=ruleText.split("\n");
+    // }else {
       
-      ruleTextLines=ruleText.split("\n");
-    }
+    //   ruleTextLines=ruleText.split("\n");
+    // }
    
-    console.log(ruleTextLines)
+    // console.log(ruleTextLines)
     var url=`http://localhost:8083/str/generateAllModels?initModelName=${initModelName}&simulationTime=${simulationTime}`;
-    return this.http.post<GenerateModelParameters>(url,ruleTextLines,this.httpOptions);
+    return this.http.post<GenerateModelParameters>(url,rules,this.httpOptions);
 
   }
 

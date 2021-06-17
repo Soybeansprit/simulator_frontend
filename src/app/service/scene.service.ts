@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { observable, Observable, of } from 'rxjs';
-import { AllCauseRuleInput, AllScenesAnalysisInput, CauseRuleInput, ConflictTime, DeviceStateName, Rule, RulesAllScenesSimulationTime, RulesSceneSimulationTime, Scene, StateAndRuleAndCauseRule, StateChangeCauseRuleInput, StateChangeCauseRules, StateChangeFast, WholeAndCurrentChangeCauseRule } from '../class/scene';
+import { AllCauseRuleInput, AllScenesAnalysisInput, CauseRuleInput, ConflictTime, DeviceStateName, Rule, RulesAllScenesSimulationTime, RulesSceneSimulationTime, Scene, StateAndRuleAndCauseRule, StateChangeCauseRuleInput, StateChangeCauseRules, StateChangeFast, StaticAnalysisResult, WholeAndCurrentChangeCauseRule } from '../class/scene';
 import { ScenesTree } from '../class/scenes-tree';
 import { DataTimeValue } from '../class/scene';
 import * as echarts from 'echarts';
@@ -22,7 +22,8 @@ export class SceneService {
   :Observable<Array<Array<StateAndRuleAndCauseRule>>>{
     var allScenesAnalysisInput:AllScenesAnalysisInput={
       scenes:scenes,
-      rules:rules
+      rules:rules,
+      properties:[]
     }
     var url=`http://localhost:8083/str/getAllScenesConflictCauseAnalysisResult?deviceName=${deviceName}&initModelName=${initFileName}`;
     return this.http.post<Array<Array<StateAndRuleAndCauseRule>>>(url,allScenesAnalysisInput,this.httpOptions);
@@ -161,21 +162,29 @@ export class SceneService {
     return this.http.get<Array<Scene>>(url);
   }
 
-  getScenesRulesData(scenes: Array<Scene>){
+  getScenesRulesData(scenes: Array<Scene>,rules:Array<Rule>){
     return new Observable((observer)=>{
       setTimeout(()=>{
-        
-        
+
           var length=scenes.length;
           var xAxisData=[];
           var ruleNumsData=[];
-          const yMax = scenes[0].triggeredRulesName.length+scenes[0].cannotTriggeredRulesName.length;
+          // var max1:number=0;
+          // var max2:number=0;
+          // if(scenes[0].triggeredRulesName.length>0){
+          //   max1=parseInt(scenes[0].triggeredRulesName[scenes[0].triggeredRulesName.length-1].name.substring("rule".length));
+          // }
+          // if(scenes[0].cannotTriggeredRulesName.length>0){
+          //   max2=parseInt(scenes[0].cannotTriggeredRulesName[scenes[0].cannotTriggeredRulesName.length-1].substring("rule".length));
+          // }
+          const yMax=rules.length;
+          // const yMax = scenes[0].triggeredRulesName.length+scenes[0].cannotTriggeredRulesName.length;
           var dataShadow = [];
           for(let i=0;i<length;i++){
             var scene=scenes[i];
-            var sceneIndex=scene.sceneName.indexOf("scene");
-            var sceneName=scene.sceneName.substr(sceneIndex);
-            xAxisData.push(sceneName);
+            // var sceneIndex=scene.scenarioName.indexOf("scenario-");
+            // var sceneName=scene.scenarioName.substr(sceneIndex);
+            xAxisData.push("s-"+scene.scenarioName.substring("scenario-".length));
             var sceneRuleNum=scene.triggeredRulesName.length;
             ruleNumsData.push(sceneRuleNum);
             dataShadow.push(yMax);
@@ -260,28 +269,38 @@ export class SceneService {
     })
   }
 
-  getRulesScenesData(scenes: Array<Scene>,rules:Array<Rule>) {
+  getRulesScenesData(scenes: Array<Scene>,staticAnalysisResult:StaticAnalysisResult) {
     return new Observable((observer) => {
       setTimeout(() => {
 
         console.log(scenes)
+        var rules=staticAnalysisResult.totalRules;
 
 
         var xAxisData = [];
         var triggeredSceneNum:number[] = [];
-        var ruleNum = scenes[0].cannotTriggeredRulesName.length + scenes[0].triggeredRulesName.length;
+        // var max1:number=0;
+        // var max2:number=0;
+        // if(scenes[0].triggeredRulesName.length>0){
+        //   max1=parseInt(scenes[0].triggeredRulesName[scenes[0].triggeredRulesName.length-1].name.substring("rule".length));
+        // }
+        // if(scenes[0].cannotTriggeredRulesName.length>0){
+        //   max2=parseInt(scenes[0].cannotTriggeredRulesName[scenes[0].cannotTriggeredRulesName.length-1].substring("rule".length));
+        // }
+        var ruleNum =rules.length;
         var triggeredNumMax = scenes.length;
         var dataShadow = [];
         for (let i = 0; i < ruleNum; i++) {
-          var ruleName = "rule" + (i + 1);
+          
           var triggeredNum = 0;
-          xAxisData.push(ruleName);
+          /////规则名为横坐标
+          xAxisData.push(rules[i].ruleName);
           for (let j = 0; j < triggeredNumMax; j++) {
             var scene = scenes[j];
             for (let k = 0; k < scene.triggeredRulesName.length; k++) {
               var triggeredRule = scenes[j].triggeredRulesName[k].name;
 
-              if (triggeredRule == ruleName) {
+              if (triggeredRule === rules[i].ruleName) {
                 triggeredNum = triggeredNum + 1;
                 break;
               }
@@ -398,8 +417,8 @@ export class SceneService {
       setTimeout(() => {
         var rulesTimeValue: DataTimeValue[] = [];
 
-        for (let i = scene.datasTimeValue.length - 1; i >= 0; i--) {
-          var dataTimeValue = scene.datasTimeValue[i];
+        for (let i = scene.dataTimeValues.length - 1; i >= 0; i--) {
+          var dataTimeValue = scene.dataTimeValues[i];
           if (dataTimeValue.name.indexOf("rule") >= 0) {
             rulesTimeValue.push(dataTimeValue);
           }
@@ -412,8 +431,8 @@ export class SceneService {
     return new Observable((observer) => {
       setTimeout(() => {
         var rulesTimeValue: DataTimeValue[] = [];
-        for (let i = scene.datasTimeValue.length - 1; i >= 0; i--) {
-          var dataTimeValue = scene.datasTimeValue[i];
+        for (let i = scene.dataTimeValues.length - 1; i >= 0; i--) {
+          var dataTimeValue = scene.dataTimeValues[i];
           if (dataTimeValue.name.indexOf("rule") >= 0) {
             rulesTimeValue.push(dataTimeValue);
           }
@@ -435,19 +454,19 @@ export class SceneService {
 
         for (let i = 0; i < length; i++) {
 
-          var len = rulesTimeValue[i].timeValue.length;
+          var len = rulesTimeValue[i].timeValues.length;
 
           var startTime = 0;
           var endTime = 0;
 
           for (let j = 0; j < len;) {
             if (j < len - 1) {
-              if (rulesTimeValue[i].timeValue[j][1] > 0) {
+              if (rulesTimeValue[i].timeValues[j][1] > 0) {
                 var k = j + 1;
                 for (; k < len;) {
-                  if (!(rulesTimeValue[i].timeValue[k][1] > 0)) {
-                    startTime = rulesTimeValue[i].timeValue[j][0];
-                    endTime = rulesTimeValue[i].timeValue[k - 1][0];
+                  if (!(rulesTimeValue[i].timeValues[k][1] > 0)) {
+                    startTime = rulesTimeValue[i].timeValues[j][0];
+                    endTime = rulesTimeValue[i].timeValues[k - 1][0];
                     data.push(
                       {
                         name: rulesTimeValue[i].name,
@@ -474,8 +493,8 @@ export class SceneService {
                   }
                 }
                 if(k===len){
-                  startTime = rulesTimeValue[i].timeValue[j][0];
-                    endTime = rulesTimeValue[i].timeValue[k - 1][0];
+                  startTime = rulesTimeValue[i].timeValues[j][0];
+                    endTime = rulesTimeValue[i].timeValues[k - 1][0];
                     data.push(
                       {
                         name: rulesTimeValue[i].name,
@@ -500,9 +519,9 @@ export class SceneService {
               }
 
             } else {
-              if (rulesTimeValue[i].timeValue[j][1] > 0) {
-                startTime = rulesTimeValue[i].timeValue[j][0];
-                endTime = rulesTimeValue[i].timeValue[j][0];
+              if (rulesTimeValue[i].timeValues[j][1] > 0) {
+                startTime = rulesTimeValue[i].timeValues[j][0];
+                endTime = rulesTimeValue[i].timeValues[j][0];
                 data.push(
                   {
                     name: rulesTimeValue[i].name,
@@ -634,8 +653,8 @@ export class SceneService {
   getRuleBarEchartOption(scene:Scene){
     return new Observable((observer)=>{
       setTimeout(() => {
-        var sceneIndex=scene.sceneName.indexOf("scene");
-        var sceneName=scene.sceneName.substr(sceneIndex);
+        var sceneIndex=scene.scenarioName.indexOf("scene");
+        var sceneName=scene.scenarioName.substr(sceneIndex);
         console.log(sceneName);
         var rulesBarOptions = {
           title: {

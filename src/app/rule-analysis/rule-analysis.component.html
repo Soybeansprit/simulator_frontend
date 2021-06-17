@@ -4,50 +4,52 @@
         <div class="scope">
             <div class="scope_c1">
                 <div class="rule_never_triggered">
-                    <div [style.display]="allRuleCanBeTriggered" class="class_scope"> 
+                    <div [style.display]="showResult" class="class_scope"> 
                         <div class="scroll_bar">
-                            <div>
-                                <b style="color: brown;font-size: x-large;">Rules never triggered:</b>
-                                <ul *ngIf="rulesNeverTriggered!=null&&rulesNeverTriggered.length>0">
-                                    <li *ngFor="let causeRule of rulesNeverTriggered" style="color: black;font-size: larger;margin-top: 10px;">
-                                        <b>{{causeRule.selfRule.ruleName}}: </b>{{getRuleContent(causeRule.selfRule.ruleContent)}}
-                                    </li>
-                                </ul>
-                                <ul *ngIf="rulesNeverTriggered!=null&&rulesNeverTriggered.length==0" >
-                                    <li ><b style="color: black;font-size: larger;margin-top: 10px;" >All rules can be triggered.</b></li>
-                                    
-                                </ul>
-                            </div>
-                            <div *ngIf="devicesNotOff.length>0">
-                                <ul style="color: black;list-style-type: none;margin-left: 0px;">
-                                    <li *ngFor="let device of devicesNotOff" style="margin-left: 0px;">
-                                        <b style="color: brown;font-size: x-large;">No rule to turn off</b> <b style="color: #36648B;font-size: x-large;">&nbsp;{{device.deviceName}}&nbsp;</b>
-                                        <ul *ngIf="device.rules.length>0">
-                                            <li *ngFor="let rule of device.rules">
-                                                <b>{{rule.ruleName}}: </b>{{getRuleContent(rule.ruleContent)}}
+                            <b style="color: brown;font-size: x-large;">Property verification result:</b>
+                            <div *ngIf="properties.length>0">
+                                <ul *ngFor="let propertyReachableSyntheticResult of propertyReachableSyntheticResults;index as i">
+                                    <b style="color: black;font-size: large;">{{i+1.}} {{propertyReachableSyntheticResult.property}}</b>
+                                    <div *ngIf="propertyReachableSyntheticResult.reachable">
+                                        <b style="font-size: large;color: brown;">is reachable.</b>
+                                        <div *ngIf="propertyReachableSyntheticResult.reachableCauseRulesCounts.length>0">
+                                            <li *ngFor="let reachableCauseRulesCount of propertyReachableSyntheticResult.reachableCauseRulesCounts;index as j">
+                                                <b style="color: black;">Group {{j+1}}</b>
+                                                <ul *ngFor="let causingRule of reachableCauseRulesCount.causingRules" style="color: black;">                                                
+                                                    <div *ngIf="causingRule.stateCausingRules.length>0">
+                                                        <li *ngFor="let stateCausingRule of causingRule.stateCausingRules">
+                                                            <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
+                                                            <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0" [preRules]="stateCausingRule.preRules">
+                                                            </app-rule-recursive>
+                                                          </li>
+                                                    </div>
+                                                    <b style="color: black;margin-left: 20px;font-size: large;">can cause </b>
+                                                    <b style="color:#36648B ;font-size: large;">&nbsp;{{causingRule.state}}&nbsp;</b>
+                                                  </ul>
+                                                <div style="color: black;margin-left: 30px;">time: {{reachableCauseRulesCount.count}}
+                                                </div>
+                                                
                                             </li>
-                                            <li>can not be triggered to turn off {{device.deviceName}}</li>
-                                        </ul>
-                                    </li>
+                                            <div *ngIf="(!propertyReachableSyntheticResult.hasCorrespondRule) && propertyReachableSyntheticResult.correspondingRules.length>0" style="color: brown;">
+                                                
+                                                <b>You can add one of following rules:</b>
+                                                <li *ngFor="let rule of propertyReachableSyntheticResult.correspondingRules">
+                                                    Rule: {{getRuleContent(rule.ruleContent)}}
+                                                </li>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                    <div *ngIf="!propertyReachableSyntheticResult.reachable">
+                                        <b style="color: brown;font-size: large;">is unreachable.</b>
+                                    </div>
                                 </ul>
                             </div>
-                            <div *ngIf="devicesWithUnreachableState.length>0">
-                                <ul style="color: black;list-style-type: none;margin-left: 0px;">
-                                    <li *ngFor="let device of devicesWithUnreachableState" style="margin-left: 0px;">
-                                        <b style="color: brown;font-size: x-large;">No rule to turn</b> <b style="color: #36648B;font-size: x-large;">&nbsp;{{device.deviceName}}&nbsp;</b>  <b style="color: brown;font-size: x-large;">to state</b> <b style="font-size: x-large;">&nbsp;{{getDeviceUnreachableStates(device.stateReachable)}}</b>
-                                        <ul *ngFor="let stateReachable of device.stateReachable" style="list-style-type: none;">
-                                            <li *ngIf="!stateReachable.reachable">
-                                                <ul *ngIf="stateReachable.rules.length>0">
-                                                    <li *ngFor="let rule of stateReachable.rules">
-                                                        <b>{{rule.ruleName}}: </b>{{getRuleContent(rule.ruleContent)}}
-                                                    </li>
-                                                    <li>can not be triggered to turn {{device.deviceName}} to {{stateReachable.stateName}}</li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
+                            <div *ngIf="properties.length==0">
+                                <b style="color: black;font-size: x-large;margin-top: 10px;" >There is no property to be verified.</b>
                             </div>
+
+
                         </div>
                         
                     </div>
@@ -58,54 +60,67 @@
             </div>
             <div class="scope_c2">
                 <div class="rule_cause_conflict">
-                    <div [style.display]="allRuleCanBeTriggered" class="class_scope">
-                        <b style="font-size: x-large;color: brown;">Rules can cause device's states conflict:</b>
+                    <div [style.display]="showResult" class="class_scope">
+                        <b style="font-size: x-large;color: brown;display: flex; flex-wrap: wrap;">Rules can cause device states conflict:</b>
                         <div class="scroll_bar">
-                            <div *ngIf="devicesAllSceneConflictRule!=null&&devicesAllSceneConflictRule.length>0">
-                                <div *ngFor="let deviceAllSceneConflictRule of devicesAllSceneConflictRule;index as i">
-                                    <ul *ngFor="let stateCauseRuleSceneName of deviceAllSceneConflictRule.allCountStateCauseRuleSceneName;index as j" style="color: black;">
-                                        <b style="font-size: larger;">Group {{getConflictCauseRulesGraph(devicesAllSceneConflictRule,i,j)}}</b>
-                                        <li *ngFor="let stateCauseRule of stateCauseRuleSceneName.countStatesCauseRule.statesCauseRule">
-                                            <ul style="list-style-type: none;">
-                                                <li *ngFor="let causeRule of stateCauseRule.causeRules">
-                                                    <b>{{causeRule.selfRule.ruleName}}: </b>{{getRuleContent(causeRule.selfRule.ruleContent)}}
+                            <div *ngIf="hasConflict">
+                                <div *ngFor="let deviceAnalysisSyntheticResult of deviceAnalysisSyntheticResults;index as i">
+                                    <div *ngIf="deviceAnalysisSyntheticResult.conflictCauseRulesCounts.length>0">
+                                        <b style="color: rgb(230, 61, 39);font-size: larger;margin-top: 10px;">{{deviceAnalysisSyntheticResult.deviceName}}</b>
+                                        <div *ngFor="let conflictCauseRulesCount of deviceAnalysisSyntheticResult.conflictCauseRulesCounts;index as j">
+                                            <b style="color: rgb(40, 111, 179);font-size: larger;margin-left: 10px;">Group {{j+1}}</b>
+                                            <ul *ngFor="let causingRule of conflictCauseRulesCount.causingRules" style="color: black;">                                                
+                                                <div *ngIf="causingRule.stateCausingRules.length>0">
+                                                    <li *ngFor="let stateCausingRule of causingRule.stateCausingRules">
+                                                        <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
+                                                        <!-- <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0" [preRules]="stateCausingRule.preRules">
+                                                        </app-rule-recursive> -->
+                                                      </li>
+                                                </div>
+                                              </ul>
+                                            <div style="color: black;margin-left: 30px;">time: {{conflictCauseRulesCount.count}}
+                                            </div>
+                                            <b style="color: black;margin-left: 20px;font-size: large;">can cause </b>
+                                            <b style="color:#36648B ;font-size: large;">&nbsp;{{deviceAnalysisSyntheticResult.deviceName}}&nbsp;</b>
+
+                                            <b *ngIf="conflictCauseRulesCount!=null" style="color: rgb(247, 36, 36);font-size: large;">'s states {{getStates(conflictCauseRulesCount.causingRules)}}</b>
+                                            <b style="color: black;font-size: large;"> conflict at scenes:</b>
+                                            <ul style="display: flex;list-style-type: none;flex-wrap: wrap;" *ngIf="conflictCauseRulesCount!=null">
+                                                <li *ngFor="let scenarioName of conflictCauseRulesCount.exsitScenes" style="margin-left: 10px;" (click)="toSceneDetail(scenarioName)">
+                                                    <b style="color: black;">{{getSceneName(scenarioName)}}&nbsp;</b>
                                                 </li>
                                             </ul>
-                                        </li>
-                                        <li>can result in <b>{{deviceAllSceneConflictRule.deviceName}}</b>'s states {{getConflictStates(stateCauseRuleSceneName.countStatesCauseRule)}} conflict<br>
-                                            at scenes:
-                                            <ul style="display: flex;list-style-type: none;flex-wrap: wrap;">
-                                                <li *ngFor="let sceneName of stateCauseRuleSceneName.sceneNames" style="margin-left: 10px;" (click)="toSceneDetail(sceneName)">
-                                                    {{getSceneName(sceneName)}}
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                        
+                                    </div>
                                 </div>
-                                <div>
-                                    <b style="font-size: larger;color: brown;">Conclusion:</b>
-                                    <div *ngFor="let deviceConflictStatesCauseRules of devicesConflictStatesCauseRules;index as i">
-                                        <b style="font-size: larger;color: black;margin-top: 50px;">Group {{i+1}}</b>
-                                        <ul style="color: black;">
-                                            <li *ngFor="let stateCauseRule of deviceConflictStatesCauseRules.statesRules">
-                                                
-                                                <ul>
-                                                    <li *ngFor="let causeRule of stateCauseRule.causeRules">
-                                                        <b>{{causeRule.selfRule.ruleName}}: </b>{{getRuleContent(causeRule.selfRule.ruleContent)}}
-                                                        <app-rule-recursive  *ngIf="causeRule.causeRules.length>0" [causeRules]="causeRule.causeRules">
-                                                    
-                                                        </app-rule-recursive>
-                                                    </li>
-                                                </ul>
-                                            </li>
+                                <b style="font-size: larger;color: brown;display: flex; flex-wrap: wrap;">Conclusion:</b>
+                                <div *ngFor="let deviceConflictConflusion of deviceConflictConflusions">
+                                    <div *ngIf="deviceConflictConflusion.causingRules.length>0">
+                                        <b style="color: rgb(40, 111, 179);font-size: larger;margin-top: 10px;">{{deviceConflictConflusion.deviceName}}</b>
+                                        <ul *ngFor="let causingRule of deviceConflictConflusion.causingRules;index as k">
+                                            <b style="color: black;">{{k+1}}</b>
+                                            <div *ngIf="causingRule.stateCausingRules.length>0">
+                                                <li *ngFor="let stateCausingRule of causingRule.stateCausingRules" style="color: black;">
+                                                    <b style="color: rgb(243, 104, 104);">{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
+                                                    <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0" [preRules]="stateCausingRule.preRules">
+                                                    </app-rule-recursive>
+                                                  </li>
+                                            </div>
                                         </ul>
-                                        <b style="color: black;margin-left: 20px;">can cause </b><b style="color:#36648B ;">&nbsp;{{deviceConflictStatesCauseRules.deviceName}}&nbsp;</b><b style="color: black;">'states {{getStates(deviceConflictStatesCauseRules)}} conflict</b>
+                                        <b style="color: black;margin-left: 20px;font-size: large;">can cause </b>
+                                            <b style="color:#36648B ;font-size: large;">&nbsp;{{deviceConflictConflusion.deviceName}}&nbsp;</b>
+
+                                            <b *ngIf="deviceConflictConflusion!=null" style="color: rgb(247, 36, 36);font-size: large;">'s states {{getStates(deviceConflictConflusion.causingRules)}} </b>
+                                            <b style="color: black;">conflict</b>
                                     </div>
                                 </div>
                             </div>
-                            <div *ngIf="devicesAllSceneConflictRule!=null&&devicesAllSceneConflictRule.length==0" style="margin-left: 20px;margin-top: 20px;">
-                                <b style="color: black;font-size: x-large;margin-top: 10px;" >Rules will not cause device's states conflict</b>
+                            <div *ngIf="!hasConflict">
+                                <b style="color: black;font-size: x-large;margin-top: 10px;" >No rule will cause device's states conflict</b>
                             </div>
+                        
+                            
                             
                         </div>
                     </div>
@@ -115,52 +130,65 @@
             </div>
             <div class="scope_c3">
                 <div class="rule_cause_fast_change">
-                    <div [style.display]="allRuleCanBeTriggered" class="class_scope">
-                        <b style="font-size: x-large;color: brown;">Rules can cause device's states change frequently:</b>
+                    <div [style.display]="showResult" class="class_scope">
+                        <b style="font-size: x-large;color: brown;">Rules can cause device jitter:</b>
                         <div class="scroll_bar">
-                            <div *ngIf="devicesScenesFastChangeCauseRule!=null&&devicesScenesFastChangeCauseRule.length>0">
-                                <div *ngFor="let deviceScenesFastChangeCauseRule of devicesScenesFastChangeCauseRule;index as i">                                    
-                                    <ul *ngFor="let scenesStateCauseRule of deviceScenesFastChangeCauseRule.scenesFastChangeCauseRules;index as j" style="color: black;">
-                                        <b style="font-size: larger;color: black;">Group {{getFastChangeCauseRulesGroup(devicesScenesFastChangeCauseRule,i,j)}}</b>
-                                        <li *ngFor="let stateCauseRule of scenesStateCauseRule.fastChangeStateCauseRuleCountList">
-                                            <ul style="list-style-type: none;">
-                                                <li *ngFor="let ruleCount of stateCauseRule.rulesCount">
-                                                    <b>{{ruleCount.causeRule.selfRule.ruleName}}: </b>{{getRuleContent(ruleCount.causeRule.selfRule.ruleContent)}}
-                                                </li>
-                                            </ul>                                    
-                                        </li>
-                                        <li>
-                                            can cause <b>{{deviceScenesFastChangeCauseRule.deviceName}}</b>'s states {{getFastChangeStates(scenesStateCauseRule.fastChangeStateCauseRuleCountList)}} change frequently<br>
-                                            at scenes:
-                                            <ul style="display: flex;list-style-type: none;flex-wrap: wrap;">
-                                                <li *ngFor="let sceneName of scenesStateCauseRule.sceneNames" style="margin-left: 10px;" (click)="toSceneDetail(sceneName)">
-                                                    {{getSceneName(sceneName)}}
+                            <div *ngIf="hasJitter">
+                                <div *ngFor="let deviceAnalysisSyntheticResult of deviceAnalysisSyntheticResults;index as i">
+                                    <div *ngIf="deviceAnalysisSyntheticResult.jitterCauseRulesCounts.length>0">
+                                        <b style="color: rgb(230, 61, 39);font-size: larger;margin-top: 10px;">{{deviceAnalysisSyntheticResult.deviceName}}</b>
+                                        <div *ngFor="let jitterCauseRulesCount of deviceAnalysisSyntheticResult.jitterCauseRulesCounts;index as j">
+                                            <b style="color: rgb(40, 111, 179);font-size: larger;margin-left: 10px;">Group {{j+1}}</b>
+                                            <ul *ngFor="let causingRule of jitterCauseRulesCount.causingRules" style="color: black;">                                                
+                                                <div *ngIf="causingRule.stateCausingRules.length>0">
+                                                    <li *ngFor="let stateCausingRule of causingRule.stateCausingRules">
+                                                        <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
+                                                        <!-- <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0" [preRules]="stateCausingRule.preRules">
+                                                        </app-rule-recursive> -->
+                                                      </li>
+                                                </div>
+                                              </ul>
+                                            <div style="color: black;margin-left: 30px;">time: {{jitterCauseRulesCount.count}}
+                                            </div>
+                                            <b style="color: black;margin-left: 20px;font-size: large;">can cause </b>
+                                            <b style="color:#36648B ;font-size: large;">&nbsp;{{deviceAnalysisSyntheticResult.deviceName}}&nbsp;</b>
+
+                                            <b *ngIf="jitterCauseRulesCount!=null" style="color: rgb(247, 36, 36);font-size: large;">'s states {{getStates(jitterCauseRulesCount.causingRules)}}</b>
+                                            <b style="color: black;font-size: large;"> jitter at scenes:</b>
+                                            <ul style="display: flex;list-style-type: none;flex-wrap: wrap;" *ngIf="jitterCauseRulesCount!=null">
+                                                <li *ngFor="let scenarioName of jitterCauseRulesCount.exsitScenes" style="margin-left: 10px;" (click)="toSceneDetail(scenarioName)">
+                                                    <b style="color: black;">{{getSceneName(scenarioName)}}&nbsp;</b>
                                                 </li>
                                             </ul>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                        
+                                    </div>
                                 </div>
-                                <div>
-                                    <b style="font-size: larger;color: brown;">Conclusion:</b>
-                                    <div *ngFor="let deviceFastChangeStatesCauseRules of devicesFastChangeStatesCauseRules;index as i">
-                                        <b style="font-size: larger;color: black;margin-top: 50px;">Group {{i+1}}</b>
-                                        <ul style="color: black;">
-                                            <li *ngFor="let stateCauseRule of deviceFastChangeStatesCauseRules.statesRules">
-                                                <ul>
-                                                    <li *ngFor="let causeRule of stateCauseRule.causeRules">
-                                                        <b>{{causeRule.selfRule.ruleName}}: </b>{{getRuleContent(causeRule.selfRule.ruleContent)}}
-                                                    </li>
-                                                </ul>
-                                            </li>
+                                <b style="font-size: larger;color: brown;display: flex; flex-wrap: wrap;">Conclusion:</b>
+                                <div *ngFor="let deviceJitterConflusion of deviceJitterConflusions">
+                                    <div *ngIf="deviceJitterConflusion.causingRules.length>0">
+                                        <b style="color: rgb(40, 111, 179);font-size: larger;margin-top: 10px;">{{deviceJitterConflusion.deviceName}}</b>
+                                        <ul *ngFor="let causingRule of deviceJitterConflusion.causingRules;index as k">
+                                            <b style="color: black;">{{k+1}}</b>
+                                            <div *ngIf="causingRule.stateCausingRules.length>0">
+                                                <li *ngFor="let stateCausingRule of causingRule.stateCausingRules" style="color: black;">
+                                                    <b style="color: rgb(243, 104, 104);">{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
+                                                    <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0" [preRules]="stateCausingRule.preRules">
+                                                    </app-rule-recursive>
+                                                  </li>
+                                            </div>
                                         </ul>
-                                        <b style="color: black;margin-left: 20px;">can cause </b><b style="color:#36648B ;">&nbsp;{{deviceFastChangeStatesCauseRules.deviceName}}&nbsp;</b><b style="color: black;">'states {{getStates(deviceFastChangeStatesCauseRules)}} change frequently</b>
+                                        <b style="color: black;margin-left: 20px;font-size: large;">can cause </b>
+                                            <b style="color:#36648B ;font-size: large;">&nbsp;{{deviceJitterConflusion.deviceName}}&nbsp;</b>
+                                            <b *ngIf="deviceJitterConflusion!=null" style="color: rgb(247, 36, 36);font-size: large;">'s states {{getStates(deviceJitterConflusion.causingRules)}} </b>
+                                            <b style="color: black;">jitter</b>
                                     </div>
                                 </div>
                             </div>
-                            <div *ngIf="devicesScenesFastChangeCauseRule!=null&&devicesScenesFastChangeCauseRule.length==0" style="margin-left: 20px;margin-top: 20px;">
-                                <b style="color: black;font-size: x-large;margin-top: 10px;" >Rules will not cause device's states change frequently</b>
+                            <div *ngIf="!hasJitter">
+                                <b style="color: black;font-size: x-large;margin-top: 10px;" >No rule will cause device jitter</b>
                             </div>
-                            
+                           
                         </div>
                     </div>
                     
@@ -188,7 +216,14 @@
                     type="number" min="100" oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> s
                 </label>
             </div>
-            <button class="button" (click)="showRulesAnalysisResult()">Analysis Result</button>
+            <div class="property_">
+                <label style="color: rgb(43, 42, 42);font-size: small;">Add your unwanted reachable specifications:
+                    <input [(ngModel)]="property" class="property_class" 
+                    placeholder="The format is like: number=0 & Window.wopen"> 
+                </label>
+            </div>
+            <button (click)="addProperty()" class="addButton">Add Property</button>
+            <button class="button" (click)="showAnalysisResult()">Analysis Result</button>
             <!-- <button class="button" (click)="showIFD()">Show IFD</button> -->
         </div>
     </div>

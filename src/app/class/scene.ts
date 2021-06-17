@@ -1,18 +1,20 @@
 import { StringMap } from "@angular/compiler/src/compiler_facade_interface";
+import { ITS_JUST_ANGULAR } from "@angular/core/src/r3_symbols";
+import { ScenesTree } from "./scenes-tree";
 
-export interface Scene{
-    sceneName:string;
-    datasTimeValue:Array<DataTimeValue>;
-    nameDataFunctions:Array<NameDataFunction>;
-    devicesAnalysResults:Array<DeviceAnalysResult>;
-    triggeredRulesName:Array<DataTimeValue>;
-    cannotTriggeredRulesName:Array<string>;
+// export interface Scene{
+//     sceneName:string;
+//     datasTimeValue:Array<DataTimeValue>;
+//     nameDataFunctions:Array<NameDataFunction>;
+//     devicesAnalysResults:Array<DeviceAnalysResult>;
+//     triggeredRulesName:Array<DataTimeValue>;
+//     cannotTriggeredRulesName:Array<string>;
 
-}
+// }
 
 export interface DataTimeValue{
     name:string;
-    timeValue:Array<number[]>;
+    timeValues:Array<number[]>;
 
 }
 
@@ -103,7 +105,6 @@ export interface StateNameRelativeRule{
 export interface Rule{
     ruleName:string;
     ruleContent:string;
-    triggers:string;
     trigger:Array<string>;
     action:Array<string>;
 }
@@ -233,6 +234,7 @@ export interface DeviceNotOff{
 export interface AllScenesAnalysisInput{
     scenes:Array<Scene>;
     rules:Array<Rule>;
+    properties:Array<string>;
 }
 
 
@@ -291,7 +293,7 @@ export interface StateCauseRule{
 
 export interface DeviceSceneFastChangeCauseRule{
     deviceName:string;
-    scenesFastChangeCauseRule:Array<SceneFastChangeCauseRule>;
+    scenesFastChangeCauseRule:Array<SceneFastChangeCauseRule>;//每个场景frequent change的情况
 }
 
 export interface SceneFastChangeCauseRule{
@@ -306,12 +308,12 @@ export interface DeviceScenesFastChangeCauseRule{
 
 export interface ScenesFastChangeCauseRule{
     sceneNames:Array<string>;
-    fastChangeStateCauseRuleCountList:Array<StateCauseRuleCount>;
+    fastChangeStateCauseRuleCountList:Array<StateCauseRuleCount>;//////////某段frenquent change 的states及相应rules
 }
 
 export interface StateCauseRuleCount{
     stateName:string;
-    rulesCount:Array<RuleCount>;
+    rulesCount:Array<RuleCount>; ////////////在这一段引起frequent change中的某一状态发生的规则及其发生次数
 }
 
 export interface RuleCount{
@@ -351,6 +353,7 @@ export interface AllRuleAnalysisResult{
     devicesAllSceneFastChangeRule:Array<DeviceAllSceneFastChangeRule>;
     devicesSceneConflictCauseRule:Array<DeviceSceneConflictCauseRule>;
     devicesSceneFastChangeCauseRule:Array<DeviceSceneFastChangeCauseRule>;
+    propertyAnalysis:Array<PropertyAnalysis>;
 }
 
 export interface RuleCauseRuleInput{
@@ -366,4 +369,177 @@ export interface DeviceStatesCauseRules{
 export interface StateCauseRules{
     stateName:string;
     causeRules:Array<RuleAndCause>
+}
+
+export interface PropertyAnalysis{
+    property:string;
+    reachable:boolean;
+    reachableScenes:Array<string>
+}
+
+
+/////静态分析结构
+export interface StaticAnalysisResult{
+    incorrectRules:Array<ErrorReason>;
+    unusedRules:Array<ErrorReason>;
+    redundantRules:Array<Array<Rule>>;
+    incompleteness:Array<string>;
+    usableRules:Array<Rule>;
+    totalRules:Array<Rule>
+}
+
+export interface ErrorReason{
+    rule:Rule;
+    reason:string;
+}
+
+/////环境模型
+export interface EnvironmentModel{
+    devices:Array<DeviceDetail>;
+    sensors:Array<SensorType>;
+    biddables:Array<BiddableType>;
+    deviceTypes:Array<DeviceType>;
+}
+
+export interface DeviceDetail{
+    deviceName:string;
+    location:string;
+    deviceType:DeviceType;
+    constructionNum:Number;
+}
+
+export interface Entity{
+    name:string;
+}
+
+export interface DeviceType extends Entity{
+    stateActionValues:Array<string[]>;
+    deviceNumber:Number;
+}
+
+export interface BiddableType extends Entity{
+    stateAttributeValues:Array<string[]>;
+}
+
+export interface SensorType extends Entity{
+    attribute:string;
+    style:string
+}
+/////静态分析结果输出结构
+export interface EnvironmentStatic{
+    environmentModel:EnvironmentModel;
+    staticAnalysisResult:StaticAnalysisResult
+}
+
+/////生成仿真模型输入结构
+export interface EnvironmentRule{
+    environmentModel:EnvironmentModel;
+    rules:Array<Rule>
+}
+
+
+export interface Scene{
+    scenarioName:string;
+    dataTimeValues:Array<DataTimeValue>;
+    triggeredRulesName:Array<DataTimeValue>;
+    cannotTriggeredRulesName:Array<string>;    
+    deviceAnalysisResults:Array<DeviceAnalysisResult>
+}
+
+export interface SceneTreeDevice{
+    devices:Array<DeviceDetail>;
+    scenesTree:ScenesTree
+}
+
+
+export interface SceneEnvironmentProperty{
+    scenes:Array<Scene>;
+    properties:Array<string>;
+    rules:Array<Rule>;
+    environmentModel:EnvironmentModel;
+}
+
+export interface DeviceAnalysisResult{
+    deviceStateName: any;
+    deviceName:string;
+    conflictReasons:Array<ConflictReason>;
+    jitterReasons:Array<JitterReason>
+}
+
+export interface ConflictReason{
+    conflict:Conflict;
+    causingRules:Array<CauseRule>
+}
+
+export interface JitterReason{
+    jitter:Array<Number[]>;
+    causingRules:Array<CauseRule>
+}
+export interface Conflict{
+    time:Number;
+    conflictValues:Array<Number>
+}
+
+export interface CauseRule{
+    state:string;
+    value:Number;
+    stateCausingRules:Array<RuleNode>
+}
+
+export interface RuleNode{
+    rule:Rule;
+    preRules:Array<RuleNode>
+}
+
+
+export interface SceneEnvironmentRule{
+    scene:Scene;
+    environmentModel:EnvironmentModel;
+    rules:Array<Rule>
+}
+
+/////综合原因，并计数
+export interface CauseRulesCount{
+    count:number;
+    causingRules:Array<CauseRule>
+    ////表示有哪些场景有这种情况
+    exsitScenes:Array<string>
+}
+export interface DeviceAnalysisSyntheticResult{
+    deviceName:string;
+    jitterCauseRulesCounts:Array<CauseRulesCount>;
+    conflictCauseRulesCounts:Array<CauseRulesCount>;
+}
+
+export interface DeviceCauseRuleConclusion{
+    deviceName:string;
+    causingRules:Array<CauseRule>
+}
+
+
+export interface ScenePropertyResult{
+    scenes:Array<Scene>;
+    propertyVerifyResults:Array<PropertyVerifyResult>;
+}
+
+export interface PropertyVerifyResult{
+    property:string;
+    reachable:boolean;
+    reachableReasons:Array<ReachableReason>;
+    hasCorrespondRule:boolean;
+    correspondingRules:Array<Rule>
+}
+
+export interface ReachableReason{
+    satisfyIntervalTime:Number[];
+    scenarioName:string;
+    causingRules:Array<CauseRule>;
+}
+
+export interface PropertyReachableSyntheticResult{
+    property:string
+    reachableCauseRulesCounts:Array<CauseRulesCount>
+    reachable:boolean
+    hasCorrespondRule:boolean;
+    correspondingRules:Array<Rule>
 }

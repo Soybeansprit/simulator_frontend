@@ -1,5 +1,5 @@
 import { Component, OnInit,Input } from '@angular/core';
-import { RuleAndCause } from '../class/scene';
+import { RuleAndCause, RuleNode } from '../class/scene';
 
 @Component({
   selector: 'app-rule-recursive',
@@ -8,7 +8,7 @@ import { RuleAndCause } from '../class/scene';
 })
 export class RuleRecursiveComponent implements OnInit {
 
-  @Input() causeRules:Array<RuleAndCause>=[];
+  @Input() preRules:Array<RuleNode>=[];
   constructor() { }
 
   ngOnInit(): void {

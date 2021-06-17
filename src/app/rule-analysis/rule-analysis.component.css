@@ -297,10 +297,28 @@ img{
     margin-left: 20px;
     width: 150px;
   }
+
+  .property_{
+    margin-left: 20px;
+    width: 400px;
+  }
+
+  .property_class{
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 400px;
+  }
+
+  .addButton{
+    margin-left: 20px;
+    margin-top: 28px;
+    width: auto;
+    height: fit-content;
+  }
   .button-group{
     height: 50px;
     display: flex;
-}
+  }
 
 li:hover {
   color: #ffffff;
