@@ -11,156 +11,15 @@ import * as echarts from 'echarts';
 })
 export class SceneService {
 
-  address = "http://localhost:8083/";
   constructor(public http: HttpClient) { }
 
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
-/////////////////所有场景
-  analysisAllScenesStatesConflict(scenes:Array<Scene>,deviceName:string,rules:Array<Rule>,initFileName:string)
-  :Observable<Array<Array<StateAndRuleAndCauseRule>>>{
-    var allScenesAnalysisInput:AllScenesAnalysisInput={
-      scenes:scenes,
-      rules:rules,
-      properties:[]
-    }
-    var url=`http://localhost:8083/str/getAllScenesConflictCauseAnalysisResult?deviceName=${deviceName}&initModelName=${initFileName}`;
-    return this.http.post<Array<Array<StateAndRuleAndCauseRule>>>(url,allScenesAnalysisInput,this.httpOptions);
-  }
 
-  ////////////单个场景
-  analysisAllStatesConflict(conflictStateTimes:Array<ConflictTime>,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName,rules:Array<Rule>,
-    initFileName:string):Observable<Array<Array<StateAndRuleAndCauseRule>>>{
-      var allCauseRuleInput:AllCauseRuleInput={
-        conflictStateTimes:conflictStateTimes,
-        triggeredRulesName:triggeredRulesName,
-        deviceStateName:deviceStateName,
-        rules:rules
-      }
-      var url=`http://localhost:8083/str/getAllConflictCauseAnalysisResult?initModelName=${initFileName}`;
-      
-      return this.http.post<Array<Array<StateAndRuleAndCauseRule>>>(url,allCauseRuleInput,this.httpOptions);
-
-    }
-////////////////单个场景的单个冲突
-  analysisStatesConflict(conflictStateTime:ConflictTime,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName,rules:Array<Rule>,
-    initFileName:string):Observable<Array<StateAndRuleAndCauseRule>>{
-    var causeRuleInput:CauseRuleInput={
-      conflictStateTime:conflictStateTime,
-      triggeredRulesName:triggeredRulesName,
-      deviceStateName:deviceStateName,
-      rules:rules
-    }
-    console.log(conflictStateTime);
-    console.log(triggeredRulesName);
-    console.log(deviceStateName);
-    console.log(rules);
-    var url=`http://localhost:8083/str/getConflictCauseAnalysisResult?initModelName=${initFileName}`;
-
-    return this.http.post<Array<StateAndRuleAndCauseRule>>(url,causeRuleInput,this.httpOptions);
-  }
-  
-  /////////////所有场景所有fast change
-  analysisAllScenesFastChange(scenes:Array<Scene>,deviceName:string):Observable<Array<Array<StateChangeCauseRules>>>{
-   
-    var url=`http://localhost:8083/str/getAllScenesFastChangeCauseAnalysisResult?deviceName=${deviceName}`;
-    return this.http.post<Array<Array<StateChangeCauseRules>>>(url,scenes,this.httpOptions);
-  }
-
-  ///////////////单个场景所有fast Change和单个fast change
-  analysisStatesChangeFrequently(stateChangeFasts:Array<StateChangeFast>,stateChangeFast:StateChangeFast,triggeredRulesName:Array<DataTimeValue>,deviceStateName:DeviceStateName):Observable<WholeAndCurrentChangeCauseRule>{
-    var stateChangeCauseRuleInput:StateChangeCauseRuleInput={
-      stateChangeFast:stateChangeFast,
-      stateChangeFasts:stateChangeFasts,
-      triggeredRulesName:triggeredRulesName,
-      deviceStateName:deviceStateName
-    }
-    console.log(stateChangeFasts);
-    console.log(stateChangeFast);    
-    console.log(triggeredRulesName);
-    console.log(deviceStateName);
-    var url='http://localhost:8083/str/getStateChangeFastCauseAnalysisResult';
-    return this.http.post<WholeAndCurrentChangeCauseRule>(url,stateChangeCauseRuleInput,this.httpOptions);
-
-  }
-  analysisDeviceCannotOff(scene:Scene){
-
-  }
   
 
 
-  getDeviceAnalysisResult(scene:Scene,rules:Array<Rule>,simulationTime:string,
-    initModelName:string,equivalentTime:string,intervalTime:string):Observable<Scene>{
-      var rulesSceneSimulationTime:RulesSceneSimulationTime={
-        rules:rules,
-        scene:scene,
-        simulationTime:simulationTime
-      };
-      
-      var url=`http://localhost:8083/str/getDeviceAnalysisResult?initModelName=${initModelName}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
-
-      return this.http.post<Scene>(url,rulesSceneSimulationTime,this.httpOptions);
-  }
-
-  getAllDeviceAnalysisResult(scenes:Array<Scene>,rules:Array<Rule>,simulationTime:string,
-    initModelName:string,equivalentTime:string,intervalTime:string):Observable<Array<Scene>>{
-
-      var rulesAllScenesSimulationTime:RulesAllScenesSimulationTime={
-        rules:rules,
-        scenes:scenes,
-        simulationTime:simulationTime
-      }
-      var url=`http://localhost:8083/str/getAllDeviceAnalysisResult?initModelName=${initModelName}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
-
-      return this.http.post<Array<Scene>>(url,rulesAllScenesSimulationTime,this.httpOptions);
-    }
-
-
-
-
-
-  getSelectedScene(sceneName: string): Observable<Scene> {
-    var url = this.address + "/getSceneAnalysisResult";
-    var filePath = "D:%5C%5Cexp";
-
-    var initModelName = "exp0108";
-    url = `http://localhost:8083/file/getSceneAnalysisResult?filePath=${filePath}&initModelName=${initModelName}&sceneName=${sceneName}`;
-
-    return this.http.get<Scene>(url);
-
-  }
-
-
-
-
-
-  // getScene():Observable<Scene>{
-  //   var url=this.fileUrl+"/getAnalysisResult";
-  //   // var filePath="D:\\\\exp";
-  //   // var initModelName="exp0108";
-  //   // url = `${url}?filePath=${filePath}&initModelName=${initModelName}&sceneName=${sceneName}`;
-
-  //   return this.http.get<Scene>(url);
-
-  // }
-
-  getScene(): Observable<Scene> {
-    var url = this.address + "/getAnalysisResult";
-
-    return this.http.get<Scene>(url);
-
-  }
-
-
-  getAllScenes(scenesTree: ScenesTree): Observable<Array<Scene>> {
-    var treeSize = scenesTree.children.length;
-    var filePath = "D:%5C%5Cexp";
-
-    var initModelName = "exp0108";
-    var url = `http://localhost:8083/file/getAllSceneAnalysisResult?filePath=${filePath}&initModelName=${initModelName}&treeSize=${treeSize}`;
-    return this.http.get<Array<Scene>>(url);
-  }
 
   getScenesRulesData(scenes: Array<Scene>,rules:Array<Rule>){
     return new Observable((observer)=>{

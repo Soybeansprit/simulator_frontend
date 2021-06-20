@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AllScenesService } from '../service/all-scenes.service';
 import { ScenesTree } from '../class/scenes-tree';
 import { SceneService } from '../service/scene.service';
 import { EnvironmentModel, Rule, Scene, StaticAnalysisResult } from '../class/scene';
 import * as echarts from 'echarts';
 import { UploadFileService } from '../service/upload-file.service';
-import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { FileUploader } from 'ng2-file-upload';
 import { MainData } from '../provider/main-data';
 import { Router, NavigationExtras } from "@angular/router";
@@ -40,7 +38,7 @@ export class MainComponent implements OnInit {
   /////propertyFile
   propertyFileName:string="";
 
-  address:string='http://1.117.155.93:8083/';
+  address:string='http://localhost:8083/';
 
   environmentModel:EnvironmentModel|null=null;
   staticAnalysisResult:StaticAnalysisResult|null=null;
@@ -68,7 +66,7 @@ export class MainComponent implements OnInit {
 
   onSimulation:boolean=false;
 
-  constructor(public allScenesService: AllScenesService, public sceneService: SceneService, public uploadFileService: UploadFileService,
+  constructor( public sceneService: SceneService, public uploadFileService: UploadFileService,
     public mainData: MainData, public router: Router,
     private staticAnalysisService:StaticAnalysisService,private dynamicAnalysisService:DynamicAnalysisService) {
     this.simulationTime = this.mainData.storage.simulationTime;
@@ -89,7 +87,7 @@ export class MainComponent implements OnInit {
 
 
     console.log("chart")
-    const scenesTreeChart = echarts.init(document.getElementById("scenesTreeid"));
+    const scenesTreeChart = echarts.init(document.getElementById("scenesTreeid")!);
 
 
     var selectedSceneName: string = "";

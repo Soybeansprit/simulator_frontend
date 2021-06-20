@@ -95,7 +95,7 @@ export class DeviceDetailsComponent implements OnInit {
     // this.getConflictOption();
 
     if(this.selectedDevice.conflictReasons.length>0){
-      const conflictChart = echarts.init(document.getElementById("conflictOptionId"));
+      const conflictChart = echarts.init(document.getElementById("conflictOptionId")!);
       console.log(conflictChart)
   
       conflictChart.on('click', function (params: any) {
@@ -189,105 +189,6 @@ export class DeviceDetailsComponent implements OnInit {
   }
 
 
- 
-
-  // getFrequentChangeAnalysisOption(timeStateRelativeRulesListList: Array<Array<TimeStateRelativeRules>>) {
-  //   var dataNodes = [];
-  //   var dataLinks = [];
-  //   var legendData = [];
-  //   var categories = [];
-  //   for (let n = 0; n < this.selectedDevice.deviceStateName.stateNames.length; n++) {
-  //     var category = this.selectedDevice.deviceStateName.stateNames[n].stateName;
-  //     legendData.push(category);
-  //     categories.push({
-  //       name: category
-  //     })
-  //   }
-  //   console.log(legendData)
-  //   for (let i = 0; i < timeStateRelativeRulesListList.length; i++) {
-  //     var timeStateRelativeRulesList = timeStateRelativeRulesListList[i];
-
-  //     for (let j = 0; j < timeStateRelativeRulesList.length; j++) {
-  //       var name = timeStateRelativeRulesList[j].time.toFixed(2) + '\n' + timeStateRelativeRulesList[j].stateName;
-  //       var stateName = timeStateRelativeRulesList[j].stateName;
-  //       var categoryNum = 0;
-  //       cateNum:
-  //       for (let l = 0; l < legendData.length; l++) {
-  //         if (stateName === legendData[l]) {
-  //           categoryNum = l;
-  //           break cateNum;
-  //         }
-  //       }
-  //       dataNodes.push({
-  //         name: name,
-  //         x: j,
-  //         y: i + 1,
-  //         lable: {
-  //           fontSize: 3
-  //         },
-  //         category: categoryNum
-  //       })
-  //       if (j > 0) {
-  //         var lastName = timeStateRelativeRulesList[j - 1].time.toFixed(2) + '\n' + timeStateRelativeRulesList[j - 1].stateName;
-  //         dataLinks.push({
-  //           source: lastName,
-  //           target: name,
-  //           label: {
-  //             formatter: function () {
-  //               var label = ""
-  //               for (let k = 0; k < timeStateRelativeRulesList[j].relativeRules.length; k++) {
-  //                 label = label + timeStateRelativeRulesList[j].relativeRules[k].ruleName + "\n";
-  //                 console.log("j:" + j + "k:" + k + label)
-  //               }
-  //               return label;
-  //             },
-  //             show: true,
-  //             fontSize: 10
-  //           }
-  //         })
-  //       }
-  //     }
-  //   }
-
-  //   this.frequentChangeAnalysisOption = {
-  //     title: {
-  //       text: 'Graph 简单示例'
-  //     },
-  //     tooltip: {},
-  //     legend: {
-  //       data: legendData
-  //     },
-  //     animationDurationUpdate: 100,
-  //     animationEasingUpdate: 'quinticInOut',
-  //     series: [
-  //       {
-  //         type: 'graph',
-  //         layout: 'none',
-  //         symbolSize: 10,
-  //         label: {
-  //           show: false
-  //         },
-  //         roam: true,
-  //         edgeSymbol: ['circle', 'arrow'],
-  //         edgeSymbolSize: [1, 5],
-
-
-  //         data: dataNodes,
-  //         links: dataLinks,
-  //         lineStyle: {
-  //           opacity: 0.9,
-  //           width: 1,
-  //           curveness: 0
-  //         },
-  //         categories: categories
-
-
-
-  //       }
-  //     ]
-  //   }
-
-  // }
 
   getRuleContent(ruleContent:string):string{
     return ruleContent.substring(ruleContent.indexOf("IF"));
