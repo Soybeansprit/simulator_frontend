@@ -1,17 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router'
 import * as echarts from 'echarts';
 import {
-  Scene, DeviceAnalysResult, DeviceConflict, StatesChange, DeviceStateTime, DeviceCannotOff, DeviceStateName,
-  ConflictTime, StateChangeFast, StateLastTime, StateNameRelativeRule, Rule, DeviceAnalysisResult, EnvironmentModel, StaticAnalysisResult, CauseRule, CauseRulesCount, RuleNode
-} from "../class/scene";
+  Scene,  DeviceAnalysisResult, EnvironmentModel, StaticAnalysisResult, CauseRule, CauseRulesCount, RuleNode} from "../class/scene";
 import { SceneService } from "../service/scene.service";
-import { GenerateModelParameters } from '../class/generate-model-parameters';
 import { MainData } from '../provider/main-data';
 import { Router, NavigationExtras } from "@angular/router";
 import { ScenesTree } from '../class/scenes-tree';
-import { EchartsAllScenesComponent } from '../echarts-all-scenes/echarts-all-scenes.component';
 import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 
 @Component({
@@ -53,8 +47,7 @@ export class SceneDetailsComponent implements OnInit {
   jitterCauseRulesCounts:Array<CauseRulesCount>=[];
   conflictCauseRulesCounts:Array<CauseRulesCount>=[];
 
-  constructor(private location: Location, public sceneService: SceneService,
-    private routeInfo: ActivatedRoute, public mainData: MainData, public router: Router,
+  constructor( public sceneService: SceneService, public mainData: MainData, public router: Router,
     private dynamicAnalysisService: DynamicAnalysisService) {
     this.simulationTime = this.mainData.storage.simulationTime;
     this.scenes = this.mainData.storage.scenes;
@@ -209,25 +202,12 @@ export class SceneDetailsComponent implements OnInit {
           this.deviceAnalysisResults = this.scene.deviceAnalysisResults;
         })
 
-        // this.sceneService.getDeviceAnalysisResult(this.scene,this.generateModelParameters.rules,this.simulationTime,this.uploadedFileName,this.equivalentTime,this.intervalTime).subscribe(scene=>{
-        //   this.scene=scene;
-        //   console.log(scene);
-        //   this.devices=this.scene.deviceAnalysisResults;
-        // })
+
       }
 
     }
   }
 
-  // analysDevice(){
-  //   if(this.scene!=null && this.generateModelParameters!=null){
-  //     this.sceneService.getDeviceAnalysisResult(this.scene,this.generateModelParameters.rules,this.simulationTime,this.uploadedFileName,"24","300").subscribe(scene=>{
-  //       this.scene=scene;
-  //       console.log(scene);
-  //     })
-  //   }
-
-  // }
 
   onSelect(device: DeviceAnalysisResult) {
     if (this.selectedDeviceAnalysisResult === device) {
@@ -248,7 +228,6 @@ export class SceneDetailsComponent implements OnInit {
     var deviceStatesData: number[][] = [];
     /////jitter情况
     var frequentChangeData = [];
-    // var frequentChangeContent: StateChangeFast[] = [];
     /////显示的位置数
     var frequentValue: number
     var stateActionValues: string[][]
@@ -261,7 +240,6 @@ export class SceneDetailsComponent implements OnInit {
           break;
         }
       }
-    // var frequentValue:number=(this.selectedDevice?.deviceStateName.stateNames.length!-1)/2
     if (this.selectedDeviceAnalysisResult != null) {
       for (let i = 0; i < this.scene?.dataTimeValues.length!; i++) {
         if (this.scene?.dataTimeValues[i].name === this.selectedDeviceAnalysisResult.deviceName) {
@@ -269,11 +247,6 @@ export class SceneDetailsComponent implements OnInit {
           break;
         }
       }
-      // for(let i=0;i<this.selectedDevice.statesChange.stateChangeFasts.length;i++){
-      //   var startTime=this.selectedDevice.statesChange.stateChangeFasts[i].startTimeValue[0];
-      //   frequentChangeData.push([startTime,frequentValue!]);
-      //   frequentChangeContent.push(this.selectedDevice.statesChange.stateChangeFasts[i]);
-      // }
       for (let i = 0; i < this.selectedDeviceAnalysisResult.jitterReasons.length; i++) {
         for (let j = 0; j < this.selectedDeviceAnalysisResult.jitterReasons[i].jitter.length; j++) {
           var startTime = this.selectedDeviceAnalysisResult.jitterReasons[i].jitter[j][0];
@@ -282,9 +255,6 @@ export class SceneDetailsComponent implements OnInit {
       }
       console.log("frequentChangeData:"+frequentChangeData)
     }
-
-    // var deviceStateName=this.selectedDevice.deviceStateName.stateNames;
-
 
     this.changeFrequentOption = {
       title: {

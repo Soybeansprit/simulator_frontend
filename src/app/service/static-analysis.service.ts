@@ -12,6 +12,7 @@ export class StaticAnalysisService {
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
+  address:string="http://1.117.155.93:8083/";
 
   
   getStaticAnalysisResult(ruleText:string,initModelFileName:string,propertyFileName:string):Observable<EnvironmentStatic>{
@@ -28,7 +29,7 @@ export class StaticAnalysisService {
       ruleTextLines=ruleText.split("\n");
     }
     
-    var url=`http://localhost:8083/analysis/getStaticAnalysisResult?initModelFileName=${initModelFileName}&propertyFileName=${propertyFileName}`;
+    var url=this.address+`analysis/getStaticAnalysisResult?initModelFileName=${initModelFileName}&propertyFileName=${propertyFileName}`;
     return this.http.post<EnvironmentStatic>(url,ruleTextLines,this.httpOptions);
   }
 

@@ -11,7 +11,7 @@ import * as echarts from 'echarts';
 })
 export class SceneService {
 
-  fileUrl = "http://localhost:8083/file";
+  address = "http://localhost:8083/";
   constructor(public http: HttpClient) { }
 
   httpOptions = {
@@ -121,7 +121,7 @@ export class SceneService {
 
 
   getSelectedScene(sceneName: string): Observable<Scene> {
-    var url = this.fileUrl + "/getSceneAnalysisResult";
+    var url = this.address + "/getSceneAnalysisResult";
     var filePath = "D:%5C%5Cexp";
 
     var initModelName = "exp0108";
@@ -146,7 +146,7 @@ export class SceneService {
   // }
 
   getScene(): Observable<Scene> {
-    var url = this.fileUrl + "/getAnalysisResult";
+    var url = this.address + "/getAnalysisResult";
 
     return this.http.get<Scene>(url);
 

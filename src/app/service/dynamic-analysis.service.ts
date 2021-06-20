@@ -13,6 +13,7 @@ export class DynamicAnalysisService {
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
+  address:string="http://1.117.155.93:8083/";
 
   generateAllScenarioModels(environmentModel:EnvironmentModel,rules:Array<Rule>,initModelFileName:string,simulationTime:string):Observable<ScenesTree>{
     console.log(environmentModel)
@@ -21,7 +22,7 @@ export class DynamicAnalysisService {
       environmentModel:environmentModel,
       rules:rules
     }
-    var url=`http://localhost:8083/analysis/generateAllScenarioModels?initModelFileName=${initModelFileName}&simulationTime=${simulationTime}`;
+    var url=this.address+`analysis/generateAllScenarioModels?initModelFileName=${initModelFileName}&simulationTime=${simulationTime}`;
     return this.http.post<ScenesTree>(url,environmentRule,this.httpOptions);
   }
 
@@ -31,7 +32,7 @@ export class DynamicAnalysisService {
       devices:devices,
       scenesTree:scenesTree
     }
-    var url=`http://localhost:8083/analysis/simulateAllScenarioModels?initModelFileName=${initModelFileName}`;
+    var url=this.address+`analysis/simulateAllScenarioModels?initModelFileName=${initModelFileName}`;
     return this.http.post<Array<Scene>>(url,sceneTreeDevice,this.httpOptions);
   }
 
@@ -43,7 +44,7 @@ export class DynamicAnalysisService {
       properties:properties,
       rules:rules
     }
-    var url=`http://localhost:8083/analysis/getAllDynamicAnalysisResult?simulationTime=${simulationTime}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
+    var url=this.address+`analysis/getAllDynamicAnalysisResult?simulationTime=${simulationTime}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
     return this.http.post<ScenePropertyResult>(url,sceneEnvironmentProperty,this.httpOptions);
   }
 
@@ -53,7 +54,7 @@ export class DynamicAnalysisService {
       environmentModel:environmentModel,
       rules:rules
     }
-    var url=`http://localhost:8083/analysis/getSingleDynamicAnalysisResult?simulationTime=${simulationTime}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
+    var url=this.address+`analysis/getSingleDynamicAnalysisResult?simulationTime=${simulationTime}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
     return this.http.post<Scene>(url,sceneEnvironmentRule,this.httpOptions);
   }
 }

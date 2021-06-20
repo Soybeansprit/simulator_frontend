@@ -7,12 +7,8 @@ import * as echarts from 'echarts';
 import { UploadFileService } from '../service/upload-file.service';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { FileUploader } from 'ng2-file-upload';
-import { GenerateAllModelsService } from '../service/generate-all-models.service';
-import { GenerateModelParameters } from '../class/generate-model-parameters';
-import { newArray } from '@angular/compiler/src/util';
 import { MainData } from '../provider/main-data';
 import { Router, NavigationExtras } from "@angular/router";
-import { RuleAnalysisService } from '../service/rule-analysis.service';
 import { StaticAnalysisService } from '../service/static-analysis.service';
 import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 
@@ -44,23 +40,24 @@ export class MainComponent implements OnInit {
   /////propertyFile
   propertyFileName:string="";
 
+  address:string='http://1.117.155.93:8083/';
 
   environmentModel:EnvironmentModel|null=null;
   staticAnalysisResult:StaticAnalysisResult|null=null;
 
   uploader: FileUploader = new FileUploader({
-    url: 'http://localhost:8083/analysis/upload',
+    url: this.address+'analysis/upload',
     method: 'POST',
     itemAlias: 'file'
   });
   
   modelUploader: FileUploader = new FileUploader({
-    url: 'http://localhost:8083/analysis/upload',
+    url: this.address+'analysis/upload',
     method: 'POST',
     itemAlias: 'file'
   });
   propertyUploader: FileUploader = new FileUploader({
-    url: 'http://localhost:8083/analysis/upload',
+    url: this.address+'analysis/upload',
     method: 'POST',
     itemAlias: 'file'
   });
@@ -68,12 +65,11 @@ export class MainComponent implements OnInit {
   fileUploaded: boolean = false;
   simulationTime: string = "300";
   simulationTimeFinal: string = "";
-  generateModelParameters: GenerateModelParameters | null = null;
 
   onSimulation:boolean=false;
 
   constructor(public allScenesService: AllScenesService, public sceneService: SceneService, public uploadFileService: UploadFileService,
-    public generateAllModelsService: GenerateAllModelsService, public mainData: MainData, public router: Router,public ruleAnalysisService:RuleAnalysisService,
+    public mainData: MainData, public router: Router,
     private staticAnalysisService:StaticAnalysisService,private dynamicAnalysisService:DynamicAnalysisService) {
     this.simulationTime = this.mainData.storage.simulationTime;
     this.scenes = this.mainData.storage.scenes;
@@ -86,9 +82,6 @@ export class MainComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // document.getElementById("rule-time")!.style.display="none";
-    // document.getElementById("device-time")!.style.display="none";
-
     document.getElementById("simulation")!.style.display="none";
     document.getElementById("all_scenes_tree")!.style.display = this.show_tree;
     document.getElementById("scenes_rules")!.style.display = this.show_scenes_rules;
@@ -117,7 +110,6 @@ export class MainComponent implements OnInit {
           //////点击跳转到某个场景细节页面
           console.log("toSceneDetail scene:" + this.scenes)
             this.mainData.storage = {
-              generateModelParameters: this.generateModelParameters,
               scenes: this.scenes,
               selectedSceneName: this.selectedSceneName,
               simulationTime: this.simulationTime,
@@ -212,26 +204,11 @@ export class MainComponent implements OnInit {
       })
     }
   }
-
-
-
-
-
-
-
   /////显示仿真结果
   simulationResults(){
     document.getElementById("static")!.style.display="none";
     document.getElementById("simulation")!.style.display="block";
   }
-
-
-
-
-
-
-
-
   showIFD() {
     var path = "./assets/IFD.png";
     this.ifdPath = path;

@@ -1,14 +1,10 @@
-import { ThisReceiver } from '@angular/compiler';
+
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { GenerateModelParameters } from '../class/generate-model-parameters';
-import { AllRuleAnalysisResult, AllScenesAnalysisInput, CauseRule, CauseRulesCount, ConflictStateAndRules, CountStatesCauseRule, DeviceAllSceneConflictRule, DeviceAllSceneFastChangeRule, DeviceAnalysisResult, DeviceAnalysisSyntheticResult, DeviceCauseRuleConclusion, DeviceConflictCauseRule, DeviceFastChangeCause, DeviceNotOff, DeviceSceneConflictCauseRule, DeviceSceneFastChangeCauseRule, DeviceScenesFastChangeCauseRule, DeviceStateReachable, DeviceStatesCauseRules, EnvironmentModel, PropertyReachableSyntheticResult, PropertyVerifyResult, ReachableReason, Rule, RuleAndCause, RuleCount, RuleNode, Scene, StateAndRuleAndCauseRule, StateCauseRule, StateCauseRuleCount, StateCauseRuleCountSceneName, StateCauseRules, StateReachable, StateRules, StaticAnalysisResult, TimeStateRelativeRules } from '../class/scene';
+import { AllRuleAnalysisResult, CauseRule, CauseRulesCount,DeviceAnalysisResult, DeviceAnalysisSyntheticResult, DeviceCauseRuleConclusion,  EnvironmentModel, PropertyReachableSyntheticResult, PropertyVerifyResult, ReachableReason,  RuleNode, Scene,   StaticAnalysisResult} from '../class/scene';
 import { ScenesTree } from '../class/scenes-tree';
 import { MainData } from '../provider/main-data';
-import { DeviceAnalysisService } from '../service/device-analysis.service';
 import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
-import { RuleAnalysisService } from '../service/rule-analysis.service';
-import { SceneService } from '../service/scene.service';
 
 @Component({
   selector: 'app-rule-analysis',
@@ -34,16 +30,7 @@ export class RuleAnalysisComponent implements OnInit {
   property:string="";
   properties:Array<string>=[];
 
-  // rulesNeverTriggered:Array<RuleAndCause>|null=null;
-  // devicesAllSceneConflictRule:Array<DeviceAllSceneConflictRule>|null=null
-  // devicesAllSceneFastChangeRule:Array<DeviceAllSceneFastChangeRule>=[]
-  // devicesSceneConflictCauseRule:Array<DeviceSceneConflictCauseRule>=[];
-  // devicesSceneFastChangeCauseRule:Array<DeviceSceneFastChangeCauseRule>=[];
-  // devicesScenesFastChangeCauseRule:Array<DeviceScenesFastChangeCauseRule>|null=null;
-  // devicesNotOff:Array<DeviceNotOff>=[]
-  // devicesWithUnreachableState:Array<DeviceStateReachable>=[]
-  // devicesConflictStatesCauseRules:Array<DeviceStatesCauseRules>=[]
-  // devicesFastChangeStatesCauseRules:Array<DeviceStatesCauseRules>=[]
+
   
   ////显示结果
   showResult="none";
@@ -65,7 +52,7 @@ export class RuleAnalysisComponent implements OnInit {
   deviceConflictConflusions:Array<DeviceCauseRuleConclusion>=[]
   deviceJitterConflusions:Array<DeviceCauseRuleConclusion>=[]
 
-  constructor(public mainData:MainData,public router:Router,public sceneService:SceneService,public deviceAnalysisService:DeviceAnalysisService,public ruleAnalysisService:RuleAnalysisService,
+  constructor(public mainData:MainData,public router:Router,
     private dynamicAnalysisService:DynamicAnalysisService) { 
     this.simulationTime=this.mainData.storage.simulationTime;
     this.scenes=this.mainData.storage.scenes;
@@ -116,14 +103,6 @@ export class RuleAnalysisComponent implements OnInit {
         }
         this.router.navigate(["scene-details"]);
       }
-
-      // showRulesAnalysisResult(){
-      //   console.log("analysis start time:")
-      //   var time=new Date()
-      //   console.log(time.getTime())
-      //   this.allRuleCanBeTriggered="block"
-      //   this.getAllRuleAnalysis(this.scenes,this.generateModelParameters.rules,this.uploadedFileName,this.simulationTime,this.equivalentTime,this.intervalTime)
-      // }
 
 
       ///////展示分析结果
