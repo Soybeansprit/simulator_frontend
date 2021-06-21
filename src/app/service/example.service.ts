@@ -12,11 +12,6 @@ export class ExampleService {
 
  
 
-  getStudent(): Observable<any>{
-		console.log('getStudent')
-		const url = `http://localhost:8083/file/getStudents`;
-		var students = this.http.get<any>(url);
-		return students;
-	}
+
 
 }

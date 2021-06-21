@@ -38,7 +38,7 @@ export class MainComponent implements OnInit {
   /////propertyFile
   propertyFileName:string="";
 
-  address:string='http://localhost:8083/';
+  address:string='http://1.117.155.93:8083/';
 
   environmentModel:EnvironmentModel|null=null;
   staticAnalysisResult:StaticAnalysisResult|null=null;

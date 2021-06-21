@@ -1,5 +1,5 @@
 import { Component, OnInit,Input } from '@angular/core';
-import { RuleAndCause, RuleNode } from '../class/scene';
+import { RuleNode } from '../class/scene';
 
 @Component({
   selector: 'app-rule-recursive',

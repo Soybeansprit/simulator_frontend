@@ -182,7 +182,7 @@ export class SceneDetailsComponent implements OnInit {
       })
     }
 
-    const ruleBarChart = echarts.init(document.getElementById("rule_bar"));
+    const ruleBarChart = echarts.init(document.getElementById("rule_bar")!);
     ruleBarChart.on('click', function (params) {
       console.log(ruleBarChart.getOption())
     })

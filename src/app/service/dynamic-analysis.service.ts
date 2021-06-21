@@ -13,7 +13,7 @@ export class DynamicAnalysisService {
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
-  address:string="http://localhost:8083/";
+  address:string="http://1.117.155.93:8083/";
 
   generateAllScenarioModels(environmentModel:EnvironmentModel,rules:Array<Rule>,initModelFileName:string,simulationTime:string):Observable<ScenesTree>{
     console.log(environmentModel)
