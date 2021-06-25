@@ -38,7 +38,7 @@ export class MainComponent implements OnInit {
   /////propertyFile
   propertyFileName:string="";
 
-  address:string='http://1.117.155.93:8083/';
+  address:string='http://localhost:8083/';
 
   environmentModel:EnvironmentModel|null=null;
   staticAnalysisResult:StaticAnalysisResult|null=null;
@@ -115,7 +115,8 @@ export class MainComponent implements OnInit {
               ruleText: this.ruleText,
               staticAnalysisResult:this.staticAnalysisResult,
               environmentModel:this.environmentModel,
-              initModelFileName:this.initModelFileName
+              initModelFileName:this.initModelFileName,
+              propertyFileName:this.propertyFileName
             }
             this.router.navigate(["scene-details"]);
         } else {
@@ -179,6 +180,33 @@ export class MainComponent implements OnInit {
     })
   }
 
+  /////获得最佳场景分析结果
+  getBestScenarioAnalysis(){
+    
+    console.log(this.environmentModel)
+    console.log(this.staticAnalysisResult)
+    if(this.staticAnalysisResult!=null&&this.environmentModel!=null){
+      console.log("???")
+      this.dynamicAnalysisService.generateBestScenarioModelAndSimulate(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scene=>{
+        
+        console.log(scene)
+        this.mainData.storage = {
+          selectedSceneName:"",
+          scenes: this.scenes,
+          scene: scene,
+          simulationTime: this.simulationTime,
+          scenesTree: this.scenesTree,
+          ruleText: this.ruleText,
+          staticAnalysisResult:this.staticAnalysisResult,
+          environmentModel:this.environmentModel,
+          initModelFileName:this.initModelFileName,
+          propertyFileName:this.propertyFileName
+        }
+        this.router.navigate(["scene-details"]);
+      })
+    }
+  }
+
   /////动态分析，生成所有仿真场景模型
   generateAllSystemModels(){
     document.getElementById("static")!.style.display="none";
@@ -186,6 +214,9 @@ export class MainComponent implements OnInit {
     console.log("generateAllModels start time:")
     var time = new Date();
     console.log(time.getTime())
+    
+    console.log(this.environmentModel)
+    console.log(this.staticAnalysisResult)
     if(this.staticAnalysisResult!=null&&this.environmentModel!=null){
       this.dynamicAnalysisService.generateAllScenarioModels(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scenesTree=>{
         this.scenesTree=scenesTree;

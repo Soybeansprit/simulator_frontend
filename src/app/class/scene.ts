@@ -399,6 +399,7 @@ export interface EnvironmentModel{
     sensors:Array<SensorType>;
     biddables:Array<BiddableType>;
     deviceTypes:Array<DeviceType>;
+    attributes:Array<Attribute>
 }
 
 export interface DeviceDetail{
@@ -414,7 +415,13 @@ export interface Entity{
 
 export interface DeviceType extends Entity{
     stateActionValues:Array<string[]>;
+    stateEffects:Array<StateEffect>;
     deviceNumber:Number;
+}
+
+export interface StateEffect{
+    state:string;
+    effects:Array<string[]>
 }
 
 export interface BiddableType extends Entity{
@@ -543,3 +550,10 @@ export interface PropertyReachableSyntheticResult{
     hasCorrespondRule:boolean;
     correspondingRules:Array<Rule>
 }
+
+export interface Attribute{
+    content:string;
+    attribute:string;
+    delta:string
+}
+

@@ -79,6 +79,7 @@ export class RuleAnalysisComponent implements OnInit {
           scenesTree:this.scenesTree,
           ruleText:this.ruleText,
           environmentModel:this.environmentModel,
+          selectedSceneName: "",
           staticAnalysisResult:this.staticAnalysisResult,
           initModelFileName:this.initModelFileName,
           propertyFileName:this.propertyFileName

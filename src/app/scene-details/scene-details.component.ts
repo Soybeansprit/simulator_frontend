@@ -57,7 +57,9 @@ export class SceneDetailsComponent implements OnInit {
     this.environmentModel = this.mainData.storage.environmentModel;
     this.staticAnalysisResult = this.mainData.storage.staticAnalysisResult
     this.initModelFileName = this.mainData.storage.initModelFileName
-    this.propertyFileName=mainData.storage.propertyFileName
+    this.propertyFileName=mainData.storage.propertyFileName;
+    this.scene=this.mainData.storage.scene;
+    console.log(this.scene);
   }
 
   ngOnInit(): void {
@@ -65,6 +67,7 @@ export class SceneDetailsComponent implements OnInit {
     // document.getElementById("device-time")!.style.display="none";
 
     if (this.selectedSceneName != "") {
+      console.log(this.selectedSceneName)
       console.log(this.scenes)
       this.sceneNum = getSceneNum(this.selectedSceneName);
       for (let i = 0; i < this.scenes.length; i++) {
@@ -73,6 +76,11 @@ export class SceneDetailsComponent implements OnInit {
           break;
         }
       }
+      console.log(this.scene)
+    }else if(this.scene!=null){
+      this.sceneNum=getSceneNum(this.scene.scenarioName);
+      document.getElementById("overallAnalysisButton")!.style.display="none";
+      console.log(this.scene);
     }
     document.getElementById("ifd")!.style.display = "none";
     document.getElementById("scene")!.style.display = "flex";
@@ -155,7 +163,7 @@ export class SceneDetailsComponent implements OnInit {
   toRuleAnalysis() {
     this.mainData.storage = {
       scenes: this.scenes,
-      selectedSceneName: this.selectedSceneName,
+      selectedSceneName: "",
       simulationTime: this.simulationTime,
       scenesTree: this.scenesTree,
       ruleText: this.ruleText,

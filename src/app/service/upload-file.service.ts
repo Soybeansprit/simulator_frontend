@@ -9,7 +9,7 @@ import {FileUploader} from 'ng2-file-upload';
 export class UploadFileService {
 
   public uploader: FileUploader = new FileUploader({
-    url: 'http://1.117.155.93/:8083/analysis/upload',
+    url: 'http://localhost:8083/analysis/upload',
     method: 'POST',
     itemAlias: 'file'
   });
@@ -24,7 +24,7 @@ export class UploadFileService {
   //     params: params,
   //     reportProgress: true,
   //   };
-  //   const req = new HttpRequest('POST', 'http://1.117.155.93:8083/str/upload', formData, options);
+  //   const req = new HttpRequest('POST', 'http://localhost:8083/str/upload', formData, options);
   //   // const req = new HttpRequest('POST', 'http://47.52.116.116:8081/api/upload', formData, options);
   //   return this.httpClient.request(req);
   // }

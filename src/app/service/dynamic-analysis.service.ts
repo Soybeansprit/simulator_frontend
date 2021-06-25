@@ -13,7 +13,7 @@ export class DynamicAnalysisService {
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
-  address:string="http://1.117.155.93:8083/";
+  address:string="http://localhost:8083/";
 
   generateAllScenarioModels(environmentModel:EnvironmentModel,rules:Array<Rule>,initModelFileName:string,simulationTime:string):Observable<ScenesTree>{
     console.log(environmentModel)
@@ -56,5 +56,14 @@ export class DynamicAnalysisService {
     }
     var url=this.address+`analysis/getSingleDynamicAnalysisResult?simulationTime=${simulationTime}&equivalentTime=${equivalentTime}&intervalTime=${intervalTime}`;
     return this.http.post<Scene>(url,sceneEnvironmentRule,this.httpOptions);
+  }
+
+  generateBestScenarioModelAndSimulate(environmentModel:EnvironmentModel,rules:Array<Rule>,initModelFileName:string,simulationTime:string):Observable<Scene>{
+    var environmentRule:EnvironmentRule={
+      environmentModel:environmentModel,
+      rules:rules
+    }
+    var url=this.address+`analysis/generateBestScenarioModelAndSimulate?initModelFileName=${initModelFileName}&simulationTime=${simulationTime}`;
+    return this.http.post<Scene>(url,environmentRule,this.httpOptions);
   }
 }
