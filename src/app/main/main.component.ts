@@ -134,6 +134,10 @@ export class MainComponent implements OnInit {
   ////上传环境本体文件
   uploadModelFile(event:any){
     this.initModelFileName=event.target.files[0].name;
+    if(!this.initModelFileName.endsWith(".xml")){
+      alert("Please upload the .xml file!")
+      return
+    }
     console.log(event);
     ////上传
     this.upload(this.modelUploader,this.initModelFileName);
@@ -141,6 +145,10 @@ export class MainComponent implements OnInit {
   /////上传property文件
   uploadPropertyFile(event:any){
     this.propertyFileName=event.target.files[0].name;
+    if(!this.propertyFileName.endsWith(".properties")){
+      alert("Please upload the .properties file!")
+      return 
+    }
     console.log(event);
     //////上传
     this.upload(this.propertyUploader,this.propertyFileName);
@@ -153,6 +161,7 @@ export class MainComponent implements OnInit {
         // 上传文件后获取服务器返回的数据
         const tempRes = response;
         console.log(response);
+        alert("File uploaded!")
       } else {
         // 上传文件后获取服务器返回的数据错误
         alert(fileName + '上传失败');
@@ -173,10 +182,14 @@ export class MainComponent implements OnInit {
     document.getElementById("static")!.style.display="block";
     document.getElementById("simulation")!.style.display="none";
     this.ruleText=this.ruleText.trim();
+    var t1=new Date().getTime();
+    this.staticAnalysisResult=null;
     this.staticAnalysisService.getStaticAnalysisResult(this.ruleText,this.initModelFileName,this.propertyFileName).subscribe(environmentStatic=>{
       console.log(environmentStatic)
       this.staticAnalysisResult=environmentStatic.staticAnalysisResult
       this.environmentModel=environmentStatic.environmentModel;
+      var staticTime=new Date().getTime()-t1;
+      console.log("staticTime:"+staticTime);
     })
   }
 
@@ -186,7 +199,7 @@ export class MainComponent implements OnInit {
     console.log(this.environmentModel)
     console.log(this.staticAnalysisResult)
     if(this.staticAnalysisResult!=null&&this.environmentModel!=null){
-      console.log("???")
+      
       this.dynamicAnalysisService.generateBestScenarioModelAndSimulate(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scene=>{
         
         console.log(scene)
@@ -212,24 +225,35 @@ export class MainComponent implements OnInit {
     document.getElementById("static")!.style.display="none";
     document.getElementById("simulation")!.style.display="block";
     console.log("generateAllModels start time:")
-    var time = new Date();
-    console.log(time.getTime())
+    var t1=new Date().getTime();
     
     console.log(this.environmentModel)
     console.log(this.staticAnalysisResult)
     if(this.staticAnalysisResult!=null&&this.environmentModel!=null){
       this.dynamicAnalysisService.generateAllScenarioModels(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scenesTree=>{
         this.scenesTree=scenesTree;
+        alert("Scenario models generated!")
         console.log(this.scenesTree)
+        var generateTime=new Date().getTime()-t1;
+      console.log("generateTime:"+generateTime);
       })
     }
   }
   /////仿真
   scenariosSimulation(){
     if(this.scenesTree!=null&&this.environmentModel!=null){
+      var t1=new Date().getTime();
       this.dynamicAnalysisService.simulateAllScenarios(this.environmentModel.devices,this.scenesTree,this.initModelFileName).subscribe(scenes=>{
         this.scenes=scenes;
+        if(scenes==null){
+          alert("Simulation error.")
+          return
+        }else{
+          alert("Simulation succeed!")
+        }
         console.log(this.scenes)
+        var simulationTime=new Date().getTime()-t1;
+        console.log("simulationTime:"+simulationTime);
       })
     }
   }

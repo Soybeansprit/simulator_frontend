@@ -7,20 +7,23 @@
                     <h2><b>Please Enter Trigger Action Programs:</b></h2>
 
                     <textarea class="textarea"
-                        placeholder="Please enter 'IF...THEN...', such as 'IF Door.dopen THEN M.heatoffPulse '"
+                        placeholder="Please enter 'IF...THEN...', such as 'IF temperature>30 THEN AirConditioner_0.turn_ac_cool '"
                         [(ngModel)]="ruleText">
                     </textarea>
                     <div class="button-group">
                         <!-- 上传环境本体 -->
-                        <button class="upload button">UploadOntology
+                        <button class="upload button">Upload Ontology
                             <input class="change" type="file" ng2FileSelect [uploader]="modelUploader"
                                 (change)="uploadModelFile($event)" />
                         </button>
                         <!-- 上传location和deviceInformation的property文件 -->
-                        <button class="upload button">UploadProperty
+                        <button class="upload button">Upload Device Property
                             <input class="change" type="file" ng2FileSelect [uploader]="propertyUploader"
                                 (change)="uploadPropertyFile($event)" />
                         </button>
+
+
+                        <button class="analys_button" (click)="getStaticAnalysisResult()">Static Analysis</button>
                         <div class="simulation_time">
                             <label style="color: rgb(43, 42, 42);">simulation time:
                                 <input [(ngModel)]="simulationTime" class="simulation_time_input" type="number"
@@ -29,8 +32,6 @@
                                 s
                             </label>
                         </div>
-
-                        <button class="analys_button" (click)="getStaticAnalysisResult()">Static Analysis</button>
                         <button class="analys_button" (click)="generateAllSystemModels()">Generate Models</button>
                         <button class="analys_button" (click)="scenariosSimulation()">Simulate</button>
                     </div>
@@ -100,6 +101,8 @@
                     <div class="scenes-scope" >
                         <div class="scrollbar">
                             <div *ngIf="staticAnalysisResult!=null">
+                                <b style="font-size: x-large;color: rgb(45, 137, 199);">Static analysis finished!</b><br>
+                                <br>
                                 <div *ngIf="staticAnalysisResult.incorrectRules.length>0">
                                     <b style="font-size: x-large;color: brown;">Incorrect rules:</b>
                                     <ul *ngFor="let incorrectRule of staticAnalysisResult.incorrectRules">
@@ -110,16 +113,16 @@
                                 </div>
                                 <div *ngIf="staticAnalysisResult.unusedRules.length>0">
                                     <b style="font-size: x-large;color: brown;">Unused rules:</b>
-                                    <ul *ngFor="let unusedRule of staticAnalysisResult.unusedRules">
-                                        <li style="list-style-type: none;color: black;"><b>{{unusedRule.rule.ruleName}}</b>: {{unusedRule.rule.ruleContent}} <br>
+                                    <ul *ngFor="let unusedRule of staticAnalysisResult.unusedRules;index as i">
+                                        <li style="list-style-type: none;color: black;"><b>{{i+1}}.{{unusedRule.rule.ruleName}}</b>: {{unusedRule.rule.ruleContent}} <br>
                                             <b style="color: brown;">Reason: {{unusedRule.reason}}</b>
                                         </li>
                                     </ul>
                                 </div>
                                 <div *ngIf="staticAnalysisResult.redundantRules.length>0">
                                     <b style="font-size: x-large;color: brown;">Redundant rules:</b>
-                                    <ul *ngFor="let redundantRules of staticAnalysisResult.redundantRules">
-                                        <li><b>{{redundantRules[0].ruleName}}</b>: {{redundantRules[0].ruleContent}} <b style="color: brown;"> is redundant with</b></li>
+                                    <ul *ngFor="let redundantRules of staticAnalysisResult.redundantRules;index as i">
+                                        <li><b>{{i+1}}.{{redundantRules[0].ruleName}}</b>: {{redundantRules[0].ruleContent}} <b style="color: brown;"> is redundant with</b></li>
                                         
                                         <li *ngFor="let rule of redundantRules;index as i" style="list-style-type: none">
                                             <div *ngIf="i>0">
@@ -131,8 +134,8 @@
                                 </div>
                                 <div *ngIf="staticAnalysisResult.incompleteness.length>0">
                                     <b style="font-size: x-large;color: brown;">Incompleteness:</b>
-                                    <ul *ngFor="let incomplete of staticAnalysisResult.incompleteness">
-                                        <li><b style="color: brown;">{{incomplete}}</b></li>
+                                    <ul *ngFor="let incomplete of staticAnalysisResult.incompleteness;index as i">
+                                        <li><b style="color: brown;">{{i+1}}.{{incomplete}}</b></li>
                                         
                                         
                                         

@@ -74,7 +74,7 @@
             <button class="back" (click)="goBackToMain()">Back</button>
         </div>
         <div class="button-group">
-            <button class="button" (click)="showRules()">Analysis Rules</button>
+            <button class="button" (click)="showRules()">Rules Analysis</button>
             <div class="equivalent_time">
                 <label style="color: rgb(43, 42, 42);font-size: small;">equivalent reality time:
                     <input [(ngModel)]="equivalentTime" class="equivalent_time_input" 
@@ -87,7 +87,7 @@
                     type="number" min="100" oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> s
                 </label>
             </div>
-            <button class="button" (click)="showDevices()">Analysis Devices</button>
+            <button class="button" (click)="showDevices()">Devices Analysis</button>
             <button class="button" (click)="toRuleAnalysis()" id="overallAnalysisButton">Overall Analysis</button>
 
             <!--  -->

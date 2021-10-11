@@ -4,7 +4,7 @@
         <div class="scope">
             <div class="scope_c1">
                 <div class="rule_never_triggered">
-                    <div [style.display]="showResult" class="class_scope"> 
+                    <div [style.display]="showPropertyResult" class="class_scope"> 
                         <div class="scroll_bar">
                             <b style="color: brown;font-size: x-large;">Property verification result:</b>
                             <div *ngIf="properties.length>0">
@@ -30,14 +30,14 @@
                                                 </div>
                                                 
                                             </li>
-                                            <div *ngIf="(!propertyReachableSyntheticResult.hasCorrespondRule) && propertyReachableSyntheticResult.correspondingRules.length>0" style="color: brown;">
-                                                
-                                                <b>You can add one of following rules:</b>
-                                                <li *ngFor="let rule of propertyReachableSyntheticResult.correspondingRules">
-                                                    Rule: {{getRuleContent(rule.ruleContent)}}
-                                                </li>
-                                            </div>
                                             
+                                        </div>
+                                        <div *ngIf="(!propertyReachableSyntheticResult.hasCorrespondRule) && propertyReachableSyntheticResult.correspondingRules.length>0" style="color: brown;">
+                                                
+                                            <b>You can add one of following rules:</b>
+                                            <li *ngFor="let rule of propertyReachableSyntheticResult.correspondingRules">
+                                                Rule: {{getRuleContent(rule.ruleContent)}}
+                                            </li>
                                         </div>
                                     </div>
                                     <div *ngIf="!propertyReachableSyntheticResult.reachable">
@@ -216,6 +216,7 @@
                     type="number" min="100" oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)"> s
                 </label>
             </div>
+            <button class="button" (click)="showAnalysisResult()">Analysis Result</button>
             <div class="property_">
                 <label style="color: rgb(43, 42, 42);font-size: small;">Add your unwanted reachable property:
                     <input [(ngModel)]="property" class="property_class" 
@@ -223,7 +224,7 @@
                 </label>
             </div>
             <button (click)="addProperty()" class="addButton">Add Property</button>
-            <button class="button" (click)="showAnalysisResult()">Analysis Result</button>
+            <button (click)="verifyProperty()" class="addButton">Verify Property</button>
             <!-- <button class="button" (click)="showIFD()">Show IFD</button> -->
         </div>
     </div>

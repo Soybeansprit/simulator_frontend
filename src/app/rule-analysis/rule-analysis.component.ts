@@ -34,6 +34,7 @@ export class RuleAnalysisComponent implements OnInit {
   
   ////显示结果
   showResult="none";
+  showPropertyResult="none"
 
 /////综合分析结果
   deviceAnalysisSyntheticResults:Array<DeviceAnalysisSyntheticResult>=[];
@@ -106,24 +107,98 @@ export class RuleAnalysisComponent implements OnInit {
       }
 
 
-      ///////展示分析结果
+      // ///////展示分析结果
+      // showAnalysisResult(){
+      //   var t1=new Date().getTime();
+      //   this.dynamicAnalysisService.getAllDynamicAnalysisResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules,this.simulationTime,this.equivalentTime,this.intervalTime).subscribe(scenes=>{
+      //     this.scenes=scenePropertyResult.scenes;
+      //     this.propertyVerifyResults=scenePropertyResult.propertyVerifyResults;
+          
+
+
+      //     console.log(this.scenes)
+      //     console.log(scenePropertyResult)
+      //     /////设备冲突
+      //     /////设备抖动
+      //     this.syntheticDeviceReason()
+      //     this.syntheticAllPropertyReachableReason()
+      //     console.log("syntheticResult:")
+      //     console.log(this.deviceAnalysisSyntheticResults)
+      //     console.log(this.propertyReachableSyntheticResults)
+      //     this.showResult="block"
+      //     this.conclusion()
+      //     var analysisTime=new Date().getTime()-t1;
+      //     console.log("analysisTime:"+analysisTime);
+      //   })
+      // }
+            ///////展示分析结果
       showAnalysisResult(){
-        this.dynamicAnalysisService.getAllDynamicAnalysisResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules,this.simulationTime,this.equivalentTime,this.intervalTime).subscribe(scenePropertyResult=>{
-          this.scenes=scenePropertyResult.scenes;
-          this.propertyVerifyResults=scenePropertyResult.propertyVerifyResults;
+        var t1=new Date().getTime();
+        this.dynamicAnalysisService.getAllDynamicAnalysisResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules,this.simulationTime,this.equivalentTime,this.intervalTime).subscribe(scenes=>{
+          this.scenes=scenes;
           console.log(this.scenes)
-          console.log(scenePropertyResult)
           /////设备冲突
           /////设备抖动
           this.syntheticDeviceReason()
-          this.syntheticAllPropertyReachableReason()
           console.log("syntheticResult:")
           console.log(this.deviceAnalysisSyntheticResults)
-          console.log(this.propertyReachableSyntheticResults)
           this.showResult="block"
           this.conclusion()
+          var analysisTime=new Date().getTime()-t1;
+          console.log("analysisTime:"+analysisTime);
         })
       }
+
+      //////验证property
+    verifyProperty(){
+      this.dynamicAnalysisService.getPropertyVerificationResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules).subscribe(propertyVerifyResults=>{
+        this.propertyVerifyResults=propertyVerifyResults;
+        console.log(this.properties)
+        console.log(this.propertyVerifyResults)
+        this.syntheticAllPropertyReachableReason()
+        console.log(this.propertyReachableSyntheticResults)
+        this.showPropertyResult="block"
+      })
+    }
+
+    /////添加property
+    addProperty(){
+      if(this.property.trim()!=""){
+        var exist=false;
+        var conList=this.property.split("&");
+        console.log(conList)
+        for(var i=0;i<this.properties.length;i++){
+          var existConList=this.properties[i].split("&");
+          if(existConList.length!=conList.length){
+            continue;
+          }
+          var existCon;
+          second:
+          for(var j=0;j<conList.length;j++){
+            existCon=false;
+            for(var k=0;k<existConList.length;k++){
+              if(conList[j].trim()===existConList[k].trim()){
+                existCon=true;
+              }
+            }
+            if(!existCon){
+              break second;
+            }
+          }
+          if(!existCon){
+            continue;
+          }else{
+            exist=true;
+            break;
+          }
+        }
+        if(!exist){
+          this.properties.push(this.property);
+        }
+        console.log(this.properties)
+      }
+    }
+
 
       /////找到对应的状态
     getStates(causingRules:Array<CauseRule>):string{
@@ -148,6 +223,7 @@ export class RuleAnalysisComponent implements OnInit {
     }
 
     syntheticAllPropertyReachableReason(){
+      this.propertyReachableSyntheticResults=[];
       for(let i=0;i<this.propertyVerifyResults.length;i++){
         if(this.propertyVerifyResults[i].reachable){
           ////可达，综合原因
@@ -227,6 +303,9 @@ export class RuleAnalysisComponent implements OnInit {
             var conflictCauseRulesCount=this.deviceAnalysisSyntheticResults[i].conflictCauseRulesCounts[j];
             for(let k=0;k<conflictCauseRulesCount.causingRules.length;k++){
               var causingRule=conflictCauseRulesCount.causingRules[k];
+              if(causingRule==null){
+                continue;
+              }
               ////先找到对应的状态,如果不存在就全加进去
               var existState=false;
               for(let m=0;m<deviceConflictConflusion.causingRules.length;m++){
@@ -346,6 +425,7 @@ export class RuleAnalysisComponent implements OnInit {
             break;
           }
         }
+        console.log(this.deviceAnalysisSyntheticResults)
       }
     }
 
@@ -481,43 +561,7 @@ export class RuleAnalysisComponent implements OnInit {
     getRuleContent(ruleContent:string):string{
       return ruleContent.substring(ruleContent.indexOf("IF"));
     }
-    /////添加property
-    addProperty(){
-      if(this.property.trim()!=""){
-        var exist=false;
-        var conList=this.property.split("&");
-        console.log(conList)
-        for(var i=0;i<this.properties.length;i++){
-          var existConList=this.properties[i].split("&");
-          if(existConList.length!=conList.length){
-            continue;
-          }
-          var existCon;
-          second:
-          for(var j=0;j<conList.length;j++){
-            existCon=false;
-            for(var k=0;k<existConList.length;k++){
-              if(conList[j].trim()===existConList[k].trim()){
-                existCon=true;
-              }
-            }
-            if(!existCon){
-              break second;
-            }
-          }
-          if(!existCon){
-            continue;
-          }else{
-            exist=true;
-            break;
-          }
-        }
-        if(!exist){
-          this.properties.push(this.property);
-        }
-        console.log(this.properties)
-      }
-    }
+
 
 
 

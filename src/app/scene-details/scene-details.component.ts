@@ -272,7 +272,7 @@ export class SceneDetailsComponent implements OnInit {
 
       },
       legend: {
-        data: ['state', 'frequent change'],
+        data: ['state', 'jitter'],
         right: 10
       },
       tooltip: {
@@ -364,7 +364,7 @@ export class SceneDetailsComponent implements OnInit {
         zlevel: 0
 
       }, {
-        name: 'frequent change',
+        name: 'jitter',
         data: frequentChangeData,
         type: 'scatter',
         symbol: 'circle',
