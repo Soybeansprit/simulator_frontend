@@ -15,6 +15,10 @@ export class DynamicAnalysisService {
   };
   address:string="http://localhost:8083/";
 
+  generateAllModels(){
+    
+  }
+  
   generateAllScenarioModels(environmentModel:EnvironmentModel,rules:Array<Rule>,initModelFileName:string,simulationTime:string):Observable<ScenesTree>{
     console.log(environmentModel)
     console.log(rules)

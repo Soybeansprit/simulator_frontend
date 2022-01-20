@@ -5,23 +5,24 @@
             <div class="rule_ontology">
                 <div>
                     <h2><b>Please Enter Trigger Action Programs:</b></h2>
-
+                    <!-- 输入TAPs -->
                     <textarea class="textarea"
-                        placeholder="Please enter 'IF...THEN...', such as 'IF temperature>30 THEN AirConditioner_0.turn_ac_cool '"
+                        placeholder="Please enter TAPs in form of 'IF...THEN...', such as 'IF temperature>30 THEN AirConditioner_0.turn_ac_cool '"
                         [(ngModel)]="ruleText">
                     </textarea>
                     <div class="button-group">
-                        <!-- 上传环境本体 -->
+                        <!-- 上传环境本体，生成模型层-->
                         <button class="upload button">Upload Ontology
                             <input class="change" type="file" ng2FileSelect [uploader]="modelUploader"
-                                (change)="uploadModelFile($event)" />
+                                (change)="modelFileSubmit($event)" />
                         </button>
-                        <!-- 上传location和deviceInformation的property文件 -->
-                        <button class="upload button">Upload Device Property
+                        <!-- 上传实例信息文件，生成实例层 -->
+                        <button class="upload button">Upload Instance Information
                             <input class="change" type="file" ng2FileSelect [uploader]="propertyUploader"
-                                (change)="uploadPropertyFile($event)" />
+                                (change)="instanceFileSubmit($event)" />
                         </button>
-
+                        <!-- 自动建模，生成交互环境，给出自动建模的结果 -->
+                        <!-- <button class="analys_button" (click)="generateInteractiveEnvironment()">Automatic Modeling</button> -->
 
                         <button class="analys_button" (click)="getStaticAnalysisResult()">Static Analysis</button>
                         <div class="simulation_time">
@@ -142,6 +143,8 @@
                                     </ul>
                                 </div>
                             </div>
++
+
 
                             
                         </div>

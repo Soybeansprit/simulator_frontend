@@ -9,6 +9,9 @@ import { MainData } from '../provider/main-data';
 import { Router, NavigationExtras } from "@angular/router";
 import { StaticAnalysisService } from '../service/static-analysis.service';
 import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
+import { ModelLayer } from '../class/model';
+import * as $ from "jquery";
+import { InstanceLayer } from '../class/instance';
 
 @Component({
   selector: 'app-main',
@@ -65,6 +68,10 @@ export class MainComponent implements OnInit {
   simulationTimeFinal: string = "";
 
   onSimulation:boolean=false;
+
+
+  modelLayer:ModelLayer=new ModelLayer();
+  instanceLayer:InstanceLayer=new InstanceLayer();
 
   constructor( public sceneService: SceneService, public uploadFileService: UploadFileService,
     public mainData: MainData, public router: Router,
@@ -429,5 +436,107 @@ export class MainComponent implements OnInit {
   }
 
 
+
+  /**
+   * 上传文件，使用ajax
+   * 先上传模型文件，解析出模型层，返回模型层数据
+   * 后上传实例信息文件，并传模型层数据，解析出实例层，返回实例层数据
+   * 
+   */
+
+  modelFileSubmit(event:any){
+    var url=this.address+"analysis/uploadModelFile";
+    var formData=new FormData();
+    formData.append("file",event.target.files[0]);
+    this.initModelFileName=event.target.files[0].name;
+    ////添加locations
+    var locations=new Array<string>();
+    formData.append("locations",JSON.stringify(locations));
+    console.log("传模型文件")
+    console.log(formData)
+
+    $.ajax({
+      url: url,
+      data:  formData,
+      type: "Post",
+      dataType: "json",
+      cache: false,//上传文件无需缓存
+      processData: false,//用于对data参数进行序列化处理 这里必须false
+      contentType: false, //必须
+      async:false,
+      success: function (data) {
+        ///也是接收数据
+        console.log(this.initModelFileName)
+        console.log(data)
+        console.log("success")
+        // if(data.code == 500){
+        //     console.log(data.msg)
+        //     console.info("error");
+        //     $('#file_sqlRes').html("<span>"+data.msg+"</span>")
+        // }else{
+        //     var taskId = data.taskId
+        //     $('#file_sqlRes').html("<span>TaskId为："+taskId+"</span>")
+        // }
+
+      },
+      error: function (data) {
+        
+      }
+    }).done((modelLayer=>{
+      //返回模型层数据
+      console.log(modelLayer)
+      this.modelLayer=modelLayer;
+    }))
+  }
+
+  instanceFileSubmit(event:any){
+    if(this.initModelFileName.indexOf(".xml")>0){
+      var url=this.address+"analysis/uploadInstanceInformationFile";
+      var formData=new FormData();
+      formData.append("file",event.target.files[0]);
+      formData.append("modelLayer",JSON.stringify(this.modelLayer));
+      $.ajax({
+        url: url,
+        data:  formData,
+        type: "Post",
+        dataType: "json",
+        cache: false,//上传文件无需缓存
+        processData: false,//用于对data参数进行序列化处理 这里必须false
+        contentType: false, //必须
+        async:false,
+        success: function (data) {
+          ///也是接收数据
+          console.log(data)
+          console.log("success")
+          // if(data.code == 500){
+          //     console.log(data.msg)
+          //     console.info("error");
+          //     $('#file_sqlRes').html("<span>"+data.msg+"</span>")
+          // }else{
+          //     var taskId = data.taskId
+          //     $('#file_sqlRes').html("<span>TaskId为："+taskId+"</span>")
+          // }
+  
+        },
+        error: function (data) {
+          
+        }
+      }).done((instanceLayer=>{
+        //返回模型层数据
+        console.log(instanceLayer)
+        this.instanceLayer=instanceLayer;
+      }))
+    }
+    
+  }
+
+
+  generateAllScenarioModels(){
+    document.getElementById("static")!.style.display="none";
+    document.getElementById("simulation")!.style.display="block";
+    if(!this.modelLayer&&!this.instanceLayer){
+
+    }
+  }
 
 }
