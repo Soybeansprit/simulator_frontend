@@ -9,7 +9,8 @@
 <ul style="color: black;">
     <b>Prerequisite rules:</b>
     <li *ngFor="let preRule of preRules" >
-        <b>{{preRule.rule.ruleName}}: </b>{{getRuleContent(preRule.rule.ruleContent)}}
+        <b style="color: red;">{{preRule.currentRule.ruleName}}&nbsp;</b>
+        <b style="color: black;">{{preRule.currentRule.ruleContent}}&nbsp;</b>        
         <app-rule-recursive *ngIf="preRule.preRules.length>0" [preRules]="preRule.preRules" ></app-rule-recursive>
     </li>
 </ul>

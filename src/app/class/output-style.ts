@@ -1,10 +1,15 @@
 import { InstanceLayer } from "./instance";
 import { ModelLayer } from "./model";
+import { Rule } from "./rule";
 
-export class  ModelInstanceLayerAndRuleStrs{
-    private modelLayer=new ModelLayer();
-    private instanceLayer=new InstanceLayer();
-    private ruleTestLines=new Array<string>();
-    
-    
+export class InstanceLayerOutput{
+    instanceLayer=new InstanceLayer();
+    modelLayer=new ModelLayer();
 }
+
+export class  InteractiveLayerAndRules{
+    interactiveInstance=new InstanceLayer();
+    rules=new Array<Rule>();
+    ifdFileName="";
+}
+

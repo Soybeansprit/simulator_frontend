@@ -1,171 +1,326 @@
 <div class="main">
 
     <div id="ontology_rules" class="main_ontology_rules">
-        <div class="left">
-            <div class="rule_ontology">
-                <div>
-                    <h2><b>Please Enter Trigger Action Programs:</b></h2>
-                    <!-- 输入TAPs -->
-                    <textarea class="textarea"
-                        placeholder="Please enter TAPs in form of 'IF...THEN...', such as 'IF temperature>30 THEN AirConditioner_0.turn_ac_cool '"
-                        [(ngModel)]="ruleText">
-                    </textarea>
-                    <div class="button-group">
-                        <!-- 上传环境本体，生成模型层-->
-                        <button class="upload button">Upload Ontology
-                            <input class="change" type="file" ng2FileSelect [uploader]="modelUploader"
-                                (change)="modelFileSubmit($event)" />
-                        </button>
-                        <!-- 上传实例信息文件，生成实例层 -->
-                        <button class="upload button">Upload Instance Information
-                            <input class="change" type="file" ng2FileSelect [uploader]="propertyUploader"
-                                (change)="instanceFileSubmit($event)" />
-                        </button>
-                        <!-- 自动建模，生成交互环境，给出自动建模的结果 -->
-                        <!-- <button class="analys_button" (click)="generateInteractiveEnvironment()">Automatic Modeling</button> -->
-
-                        <button class="analys_button" (click)="getStaticAnalysisResult()">Static Analysis</button>
-                        <div class="simulation_time">
-                            <label style="color: rgb(43, 42, 42);">simulation time:
-                                <input [(ngModel)]="simulationTime" class="simulation_time_input" type="number"
-                                    min="100"
-                                    oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)">
-                                s
-                            </label>
-                        </div>
-                        <button class="analys_button" (click)="generateAllSystemModels()">Generate Models</button>
-                        <button class="analys_button" (click)="scenariosSimulation()">Simulate</button>
-                    </div>
-
-                    <!-- <form  method="post" enctype="multipart/form-data" >
-                            <label>choose ontology:</label>
-                            <input type="file" name="file" accept=".xml" class="chooseFile_c"> 
-                            
-                            <input type="submit" class="submit_button"><br>
-                            
-                       </form> -->
-
-
-                </div>
-            </div>
-            <!-- <app-rules-ontology class="rule_ontology"></app-rules-ontology> -->
-        </div>
-
-
-
-        <div class="right">
-            <div id="simulation">
-                <h2><b>Simulation Scenes:</b></h2>
-                <div class="random-range">
-                    <!-- <div echarts [options]="options | async" class="demo-chart"></div> -->
-                    <div class="scenes-scope" id="all_scenes_tree">
-                        <div class="scrollbar">
-                            <!-- <div class="echarts_scale"> -->
-                                <!-- <app-echarts-all-scenes class="scrollbar" [option]="scenesTreeOption"></app-echarts-all-scenes> -->
-                                <div id="scenesTreeid" class="scenes_tree_scale" echarts [options]=scenesTreeOption>
-                                </div>
-                            <!-- </div> -->
-
-                        </div>
-
-
-                    </div>
-                    <div class="scenes-scope" id="scenes_rules">
-                        <!-- <app-echarts-all-scenes-rules-analys></app-echarts-all-scenes-rules-analys> -->
-                        <div id="scenesRulesBarid" echarts [options]="scenesRulesOption" class="scenes_rules_scale">
-                        </div>
-                    </div>
-
-                    <div class="scenes-scope" id="rules_scenes">
-                        <div id="ruleScenesBarid" class="rules_scenes_scale" echarts [options]=rulesScenesOption></div>
-                    </div>
-
-
-                </div>
-                <div class="button-group">
-                    <button class="button" (click)="showScenarioTree()">Show Scenes Tree</button>
+        <div class="up-down">
+            <div class="left-right">
+                <div class="left">
                     
-                    <button class="button" (click)="showScenesRulesResults()">Show Scenes Rules</button>
-                    <button class="button" (click)="showRulesScenesResults()">Show Rules Scenes</button>
-                    <!-- <button class="button" [routerLink]="['/scene-details']" [queryParams]="{selectedSceneName:selectedSceneName,scenes:scenes}" (click)="toSceneDetail()">Scene Details</button> -->
-                    <!-- <button class="button" (click)="toAllSceneDetail()">All Analysis</button> -->
-                    <button class="button" (click)="toRuleAnalysis()">Dynamic Analysis</button>
-                    <!-- <button class="button" routerLink="/ifd-plan">Show IFD</button> -->
-                    <div ng-view></div>
+                    <div id="input-taps" [style.display]="isHomePage?'block':'none'">
+                        <!-- 首页：输入TAP规则 -->
+                        <h2><b>Please Enter Trigger Action Programs (TAPs):</b></h2>
+                        <!-- 输入TAPs -->
+                        <textarea class="textarea"
+                            placeholder="Please enter TAPs in form of 'IF...THEN...', such as 'IF temperature>30 THEN AirConditioner_0.turn_ac_cool '"
+                            [(ngModel)]="ruleText">
+                        </textarea>
+                        
+    
+                        <!-- <form  method="post" enctype="multipart/form-data" >
+                                <label>choose ontology:</label>
+                                <input type="file" name="file" accept=".xml" class="chooseFile_c"> 
+                                
+                                <input type="submit" class="submit_button"><br>
+                                
+                           </form> -->
+    
+    
+                    </div>
+                    <div *ngIf="!isHomePage">
+                        <h2><b>Entered Trigger Action Programs (TAPs):</b></h2>
+                        <div class="textarea">
+                            {{ruleTextFinal}}
+                        </div>
+                    </div>
                 </div>
-
-            </div>
-            <div id="static">
-                <h2><b>Static Analysis Result:</b></h2>
-                <div class="random-range">
-                    <!-- <div echarts [options]="options | async" class="demo-chart"></div> -->
-                    <div class="scenes-scope" >
-                        <div class="scrollbar">
-                            <div *ngIf="staticAnalysisResult!=null">
-                                <b style="font-size: x-large;color: rgb(45, 137, 199);">Static analysis finished!</b><br>
-                                <br>
-                                <div *ngIf="staticAnalysisResult.incorrectRules.length>0">
-                                    <b style="font-size: x-large;color: brown;">Incorrect rules:</b>
-                                    <ul *ngFor="let incorrectRule of staticAnalysisResult.incorrectRules">
-                                        <li style="list-style-type: none;color: black;">{{incorrectRule.rule.ruleName}}: {{incorrectRule.rule.ruleContent}}<br>
-                                            <b style="color: brown;">Reason: {{incorrectRule.reason}}</b>
+        
+        
+        
+                <div class="right">
+                    <div id="interactive-result" [style.display]="isHomePage?'block':'none'">
+                        <!-- 生成交互环境情况，各实例，及个数 -->
+                        <h2><b>Results of Automatic Modeling:</b></h2>
+                        <div class="analysis-related">
+                            
+                            <h2><b style="color: cadetblue;">Interactive instances:</b></h2>
+                            <b>There are {{getInteractiveInstanceNum()}} interactive instances.</b>
+                            <div style="margin-left: 30px;">
+                                <div *ngIf="interactiveInstances.humanInstance.instanceName!=''" style="margin-top: 10px;">
+                                    <b style="color:red">Human instance: &nbsp;</b>
+                                    <b >{{interactiveInstances.humanInstance.instanceName}}</b>
+                                </div>
+                                <div *ngIf="interactiveInstances.attributeEntityInstance.instanceName!=''" style="margin-top: 10px;">
+                                    <b style="color:red">Attribute entity instance: &nbsp;</b>
+                                    <b >{{interactiveInstances.attributeEntityInstance.instanceName}}</b>
+                                </div>
+                                <div *ngIf="interactiveInstances.uncertainEntityInstances.length>0" style="margin-top: 10px;">
+                                    <b style="color:red">Uncertainty entity instances ({{interactiveInstances.uncertainEntityInstances.length}}):</b>
+                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
+                                        <li *ngFor="let uncertainEntityInstance of interactiveInstances.uncertainEntityInstances">
+                                            <b >{{uncertainEntityInstance.instanceName}}&nbsp;&nbsp;</b>
                                         </li>
                                     </ul>
                                 </div>
-                                <div *ngIf="staticAnalysisResult.unusedRules.length>0">
-                                    <b style="font-size: x-large;color: brown;">Unused rules:</b>
-                                    <ul *ngFor="let unusedRule of staticAnalysisResult.unusedRules;index as i">
-                                        <li style="list-style-type: none;color: black;"><b>{{i+1}}.{{unusedRule.rule.ruleName}}</b>: {{unusedRule.rule.ruleContent}} <br>
-                                            <b style="color: brown;">Reason: {{unusedRule.reason}}</b>
+                                <div *ngIf="interactiveInstances.cyberServiceInstances.length>0" style="margin-top: 10px;">
+                                    <b style="color:red">Cyber service instances ({{interactiveInstances.cyberServiceInstances.length}}):</b>
+                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
+                                        <li *ngFor="let cyberServiceInstance of interactiveInstances.cyberServiceInstances">
+                                            <b >{{cyberServiceInstance.instanceName}}&nbsp;&nbsp;</b>
                                         </li>
                                     </ul>
                                 </div>
-                                <div *ngIf="staticAnalysisResult.redundantRules.length>0">
-                                    <b style="font-size: x-large;color: brown;">Redundant rules:</b>
-                                    <ul *ngFor="let redundantRules of staticAnalysisResult.redundantRules;index as i">
-                                        <li><b>{{i+1}}.{{redundantRules[0].ruleName}}</b>: {{redundantRules[0].ruleContent}} <b style="color: brown;"> is redundant with</b></li>
-                                        
-                                        <li *ngFor="let rule of redundantRules;index as i" style="list-style-type: none">
-                                            <div *ngIf="i>0">
-                                                <b>{{rule.ruleName}}</b>: {{rule.ruleContent}}
-                                            </div>
+                                <div *ngIf="interactiveInstances.deviceInstances.length>0" style="margin-top: 10px;">
+                                    <b style="color:red">Device instances ({{interactiveInstances.deviceInstances.length}}):</b>
+                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
+                                        <li *ngFor="let deviceInstance of interactiveInstances.deviceInstances">
+                                            <b >{{deviceInstance.instanceName}}&nbsp;&nbsp;</b>
                                         </li>
-                                        
-                                    </ul>
-                                </div>
-                                <div *ngIf="staticAnalysisResult.incompleteness.length>0">
-                                    <b style="font-size: x-large;color: brown;">Incompleteness:</b>
-                                    <ul *ngFor="let incomplete of staticAnalysisResult.incompleteness;index as i">
-                                        <li><b style="color: brown;">{{i+1}}.{{incomplete}}</b></li>
-                                        
-                                        
-                                        
                                     </ul>
                                 </div>
                             </div>
-+
-
-
-                            
                         </div>
-
-
                     </div>
-                    
+                    <div *ngIf="isStaticAnalysis">
+                        <h2><b>Static Analysis:</b></h2>
+                        <div class="analysis-related">
 
-
-                </div>
-                <div class="button-group">
-                    <button class="button" (click)="simulationResults()">Simulation Results</button>
-                    <button class="button" (click)="getBestScenarioAnalysis()">Best Scenario Analysis</button>
-
-                    <div ng-view></div>
+                        </div>
+                        
+                    </div>
+                    <div *ngIf="isDynamicAnalysis">
+                        <h2><b>Dynamic Analysis:</b>
+                            <b *ngIf="analysisTypeValue=='1'" style="margin-left: 20px;">(Internal Analysis)</b>
+                            <b *ngIf="analysisTypeValue=='2'" style="margin-left: 20px;">(Single-scenario Analysis)</b></h2>
+                        <div class="analysis-related">
+                            <div *ngIf="analysisTypeValue=='1'" class="scenes-scope">
+                                <div class="scenes-scope" id="all_scenes_tree" [style.display]="showGraph==='scenesTree'?'block':'none'">
+                                    <div class="scenes-scope" id="scenesTreeid" class="scenes_tree_scale" echarts [options]=scenesTreeOption>
+                                    </div>
+                                </div>
+                                <div class="scenes-scope" id="scenes_rules" [style.display]="showGraph==='scenesRules'?'block':'none'">
+                                    <div class="scenes-scope" id="scenesRulesBarid" echarts [options]="scenesRulesOption" class="scenes_rules_scale">
+                                    </div>
+                                </div>
+            
+                                <div class="scenes-scope" id="rules_scenes" [style.display]="showGraph==='rulesScenes'?'block':'none'">
+                                    <div class="scenes-scope" id="ruleScenesBarid" class="rules_scenes_scale" echarts [options]=rulesScenesOption></div>
+                                </div>
+                                <!-- 多场景 -->
+                            </div>
+                            <div *ngIf="analysisTypeValue=='2'">
+                                <div *ngIf="attributeValues.length>0">
+                                    <h2><b>The initial value of each attribute:</b></h2>
+                                    <ul *ngFor="let attributeValue of attributeValues">
+                                        <li style="list-style-type: none;color: black;">
+                                            <b style="font-size: 15px; color: red;">Attribute:</b>  {{attributeValue[0]}}<b style="font-size: 15px; color: red;">, initial value=</b>{{attributeValue[1]}}
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!-- 单场景 列出每个属性的初始值-->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div id="simulation">
+                        <h2><b>Simulation Scenes:</b></h2>
+                        <div class="random-range">
+                            <div class="scenes-scope" id="all_scenes_tree">
+                                <div class="scrollbar">
+                                    <div id="scenesTreeid" class="scenes_tree_scale" echarts [options]=scenesTreeOption>
+                                    </div>
+        
+                                </div>
+        
+        
+                            </div>
+                            <div class="scenes-scope" id="scenes_rules">
+                                <div id="scenesRulesBarid" echarts [options]="scenesRulesOption" class="scenes_rules_scale">
+                                </div>
+                            </div>
+        
+                            <div class="scenes-scope" id="rules_scenes">
+                                <div id="ruleScenesBarid" class="rules_scenes_scale" echarts [options]=rulesScenesOption></div>
+                            </div>
+        
+        
+                        </div>
+                        <div class="button-group">
+                            <button class="button" (click)="showScenarioTree()">Show Scenes Tree</button>
+        
+                            <button class="button" (click)="showScenesRulesResults()">Show Scenes Rules</button>
+                            <button class="button" (click)="showRulesScenesResults()">Show Rules Scenes</button>
+                            <button class="button" (click)="toRuleAnalysis()">Dynamic Analysis</button>
+                            <div ng-view></div>
+                        </div>
+        
+                    </div> -->
+                    <!-- <div id="static">
+                        <h2><b>Static Analysis Result:</b></h2>
+                        <div class="random-range">
+                            <div class="scenes-scope">
+                                <div class="scrollbar">
+                                    <div *ngIf="staticAnalysisResult!=null">
+                                        <b style="font-size: x-large;color: rgb(45, 137, 199);">Static analysis
+                                            finished!</b><br>
+                                        <br>
+                                        <div *ngIf="staticAnalysisResult.incorrectRules.length>0">
+                                            <b style="font-size: x-large;color: brown;">Incorrect rules:</b>
+                                            <ul *ngFor="let incorrectRule of staticAnalysisResult.incorrectRules">
+                                                <li style="list-style-type: none;color: black;">{{incorrectRule.rule.ruleName}}:
+                                                    {{incorrectRule.rule.ruleContent}}<br>
+                                                    <b style="color: brown;">Reason: {{incorrectRule.reason}}</b>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div *ngIf="staticAnalysisResult.unusedRules.length>0">
+                                            <b style="font-size: x-large;color: brown;">Unused rules:</b>
+                                            <ul *ngFor="let unusedRule of staticAnalysisResult.unusedRules;index as i">
+                                                <li style="list-style-type: none;color: black;">
+                                                    <b>{{i+1}}.{{unusedRule.rule.ruleName}}</b>: {{unusedRule.rule.ruleContent}}
+                                                    <br>
+                                                    <b style="color: brown;">Reason: {{unusedRule.reason}}</b>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div *ngIf="staticAnalysisResult.redundantRules.length>0">
+                                            <b style="font-size: x-large;color: brown;">Redundant rules:</b>
+                                            <ul *ngFor="let redundantRules of staticAnalysisResult.redundantRules;index as i">
+                                                <li><b>{{i+1}}.{{redundantRules[0].ruleName}}</b>:
+                                                    {{redundantRules[0].ruleContent}} <b style="color: brown;"> is redundant
+                                                        with</b></li>
+        
+                                                <li *ngFor="let rule of redundantRules;index as i"
+                                                    style="list-style-type: none">
+                                                    <div *ngIf="i>0">
+                                                        <b>{{rule.ruleName}}</b>: {{rule.ruleContent}}
+                                                    </div>
+                                                </li>
+        
+                                            </ul>
+                                        </div>
+                                        <div *ngIf="staticAnalysisResult.incompleteness.length>0">
+                                            <b style="font-size: x-large;color: brown;">Incompleteness:</b>
+                                            <ul *ngFor="let incomplete of staticAnalysisResult.incompleteness;index as i">
+                                                <li><b style="color: brown;">{{i+1}}.{{incomplete}}</b></li>
+        
+        
+        
+                                            </ul>
+                                        </div>
+                                    </div>
+        
+        
+        
+                                </div>
+        
+        
+                            </div>
+        
+        
+        
+                        </div>
+        
+                    </div> -->
                 </div>
             </div>
+            
+            <div class="button-group">
+                <button class="back-button" (click)="backToHomePage()" [style.display]="isHomePage?'none':'block'"> 
+                    Home Page
+                </button>
+                <!-- 上传环境本体，生成模型层-->
+                <button class="upload button" [style.display]="isHomePage?'block':'none'">Upload Ontology
+                    <input class="change" type="file" ng2FileSelect [uploader]="modelUploader"
+                        (change)="modelFileSubmit($event)" />
+                </button>
+                <!-- 上传实例信息文件，生成实例层 -->
+                <button class="upload button" [style.display]="isHomePage?'block':'none'">Upload Instance Information
+                    <input class="change" type="file" ng2FileSelect [uploader]="propertyUploader"
+                        (change)="instanceFileSubmit($event)" />
+                </button>
+                <!-- 自动建模，生成交互环境，给出自动建模的结果 -->
+                <button class="auto_modeling_button" (click)="generateInteractiveEnvironment()" [style.display]="isHomePage?'block':'none'">Automatic Modeling</button>
+
+
+    
+                <button class="button" (click)="staticAnalysis()" [style.display]="(!(isHomePage||isDynamicAnalysis))&&isStaticAnalysis?'none':'block'">Static Analysis</button>
+                <button class="button" (click)="dynamicAnalysis()" [style.display]="(!(isHomePage||isStaticAnalysis))&&isDynamicAnalysis?'none':'block'">Dynamic Analysis</button>
+                <div *ngIf="isDynamicAnalysis" class="simulation_time" style="margin-left: 200px;">
+                    <div style="display: flex; flex-direction: row;">
+                        <label style="color: rgb(43, 42, 42);">Simulation time:
+                        </label>
+                        <input [(ngModel)]="simulationTime" class="simulation_time_input" type="number"
+                                min="100"
+                                oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)">
+                        <label style="color: rgb(43, 42, 42); margin-left: 1px;">s
+                        </label>
+                    </div>
+                    <div style="display: flex; flex-direction: row;">
+                        <label style="color: rgb(43, 42, 42);">Equivalent time:
+                        </label>
+                        <input [(ngModel)]="equivalentTime" class="simulation_time_input" type="number"
+                                min="0"
+                                oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
+                        <label style="color: rgb(43, 42, 42); margin-left: 1px;">h
+                        </label>
+                    </div>
+                </div>
+                <div *ngIf="isStaticAnalysis" class="button-group" style="margin-left: 780px; position: absolute;">
+                    <button class="button" (click)="displayStaticAnalysisResults()" [style.display]="isStaticAnalysis?'block':'none'">Display Analysis Results</button>
+                    <button class="button" (click)="displayIFD()" [style.display]="isStaticAnalysis?'block':'none'">Display IFD</button>
+                </div>
+                <div *ngIf="isDynamicAnalysis" class="button-group" style="margin-left: 780px; position: absolute;">
+                    <select id="selectType" class="select_form" [(ngModel)]="analysisTypeValue" (ngModelChange)="selectAnalysisType()" >
+                        <option value="0" selected="selected">--select analysis type--</option>
+                        <option value="1"  >Internal Anlaysis</option>
+                        <option value="2" >Single-scenario Analysis</option>
+                    </select>
+                    <div class="button-group" *ngIf="analysisTypeValue=='1'">
+                        <button class="button" (click)="generateMultipeScenarios()">Generate Scenarios</button>
+                        <button class="button" style="width: fit-content;" (click)="simulateMultiScenarios()">Simulte</button>
+                        <button class="button" (click)="displayScenarioTreeGraph()">Display Scenario-tree Graph</button>
+                        <button class="button">Display Rule-scenario Graph</button>
+                        <button class="button">Displey Scenario-rule Graph</button>
+                        <button class="button" style="width: fit-content;" (click)="verifyPropertis()">Verify properties</button>
+                    </div>
+                    <div class="button-group" *ngIf="analysisTypeValue=='2'" style="margin-left: 10px;margin-top: 0px;">
+                        <div style="flex-direction: column;">
+                            <label style="color: rgb(43, 42, 42); margin-top: 0px;margin-left: 0px;">Set the initial value of each attribute:
+                            </label>
+                            <div style="flex-direction: row;">
+                                <select id="selectAttribute" class="select_form" [(ngModel)]="selectAttributeName" style="margin-top: 0px;">
+                                    <option value="0" selected="selected">--select attribute--</option>
+                                    <option  *ngFor="let attributeName of attributeNames" [value]="attributeName">{{attributeName}}</option>
+                                    
+                                </select>
+                                <input [(ngModel)]="setAttributeValue" class="simulation_time_input" type="number" style="width: 55px;margin-top: 0px;height: 25px;"
+                                    oninput="if(this.value.length>4)this.value=this.value.slice(0,6)">
+                                <button  class="button" style="width: fit-content;height: fit-content;margin-left: 5px;" (click)="addAttributeValue()">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <button class="button" (click)="generateSingleScenario()">Generate Scenario</button>
+                        <button class="button">Generate the Best Scenario</button>
+                        <button class="button" style="width: fit-content;"  (click)="simulateSingleScenario()">Simulte</button>
+                        <button class="button" (click)="getScenarioAnalysisResult()">Get Scenario Analysis Result</button>
+                    </div>
+                </div>
+                <!-- <button class="analys_button" (click)="getStaticAnalysisResult()">Static Analysis</button>
+                <div class="simulation_time">
+                    <label style="color: rgb(43, 42, 42);">simulation time:
+                        <input [(ngModel)]="simulationTime" class="simulation_time_input" type="number"
+                            min="100"
+                            oninput="this.value=this.value.replace(/\D/g);if(this.value.length>4)this.value=this.value.slice(0,4)">
+                        
+                    </label>
+                </div>
+                <button class="analys_button" (click)="generateAllSystemModels()">Generate Models</button>
+                <button class="analys_button" (click)="scenariosSimulation()">Simulate</button> -->
+            </div>
         </div>
+        
 
     </div>
-    
+
 
 
 

@@ -3,7 +3,7 @@
     width: 100%;
     height: 700px;
     
-    display: flex;
+    
     
 }
 
@@ -23,8 +23,8 @@
     border:  #36648B 2px solid;
     border-radius: 10px;
     padding: 10px;
-    width:95%;
-    height:95%;
+    width: 97%;
+    height: 97%;
 }
 .scope_c{
     position: relative;
@@ -75,8 +75,13 @@ img{
 }
 
 .demo-chart{
-    height: 60%;
+  /* background-color:transparent; */
+    
+    /* overflow-y: scroll;
+    overflow-x: auto; */
+    height: 100%;
     width: 96%;
+    position: relative;
 
 }
 .scene-rule-analys{
@@ -98,7 +103,7 @@ img{
 /* device information */
 
 .devices {
-    margin: 0 0 2em 0;
+    margin: 0 0 1em 0;
     list-style-type: none;
     padding: 0;
     
@@ -236,4 +241,96 @@ img{
   .button-group{
     height: 50px;
     display: flex;
+}
+
+.inner_scope{
+  display: flex;
+  flex-direction: column;
+  border:  #36648B 2px solid;
+    border-radius: 10px;
+}
+
+.button_group{
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+}
+
+.select_form{
+  margin-top: 15px;
+  height: 30px;
+}
+
+.simulation_time_input{
+  margin-top: 5px;
+  margin-left: 10px;
+  width: 100px;
+  height: 15px;
+}
+
+.simulation_time{
+    
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+label{
+  padding:7.5px;
+  white-space:nowrap;
+  font-size: 12px;
+  float: left;
+  color: #36648B;
+}
+
+.result_text{
+  font-size: 20px;
+  color: black;
+  
+  width: 60px;
+  height: 30px;
+}
+
+.simulation_time_input{
+  margin-top: 5px;
+  margin-left: 10px;
+  width: 100px;
+  height: 15px;
+}
+
+.simulation_time{
+    
+  margin-left: 20px;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+.conflict_option{
+  position: relative;
+  height: 100px;
+  width: 96%;
+  margin-top: 10px;
+}
+
+.jitter_option{
+  position: relative;
+  height: 150px;
+  width: 96%;
+  margin-top: 10px;
+}
+
+.scroll_bar{
+  color: #ffffff;  
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-face-color: #889B9F;
+  scrollbar-shadow-color: #3D5054;
+  scrollbar-highlight-color: #C3D6DA;
+  scrollbar-3dlight-color: #3D5054;
+  scrollbar-darkshadow-color: #85989C;
+  scrollbar-track-color: #95A6AA;
+  scrollbar-arrow-color: #FFD6DA;
+  position: relative;
+  margin-bottom: 0px;
 }

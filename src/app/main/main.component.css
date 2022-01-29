@@ -12,7 +12,7 @@
     flex-direction: column;
 }
 
-.rule_ontology{
+.tap-related{
     width: 100%;
     position: relative;
     display: flex;
@@ -20,9 +20,26 @@
     height: 100%;
 }
 
+.up-down{
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.left-right{
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
 .right{
     width: 60%;
    position: relative;
+   display: flex;
+    flex-direction: column;
 }
 
 .button{
@@ -33,6 +50,8 @@
     border: solid #000 1px;
     border-radius: 5px;
 }
+
+
 
 /* rules-ontology */
 .textarea{
@@ -45,6 +64,7 @@
     border-radius: 10px;
     padding: 10px;
     font-size: 1em;
+    white-space: pre-line;
 }
 .chooseFile{
     margin-left: 10px; 
@@ -74,10 +94,7 @@
 
 
 
-label{
-    margin-left: 10px;
-    color: #36648B;
-}
+
 
 .my-code-editor .editor-container {
      
@@ -118,6 +135,18 @@ h2{
     margin-top: 10px;
     margin-left: 10px;
     margin-bottom: 10px;
+}
+
+.analysis-related{
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border:  #36648B 2px solid;
+    border-radius: 10px;
+    padding: 10px;
+    width:95%;
+    height: 670px;
+    position: relative;
 }
 
 .random-range{
@@ -218,6 +247,25 @@ scrollbar-arrow-color: #FFD6DA;
     z-index: 5;
   }
 
+  .auto_modeling_button{
+    margin-left: 20px;
+    margin-right: 300px;
+    padding: 1px 6px;
+    width:140px;
+    height: 50px;
+    border: solid #000 1px;
+    border-radius: 5px;
+  }
+
+  .back-button{
+    margin-left: 20px;
+    
+    width:60px;
+    height: 50px;
+    border: solid #000 1px;
+    border-radius: 5px;
+  }
+
   .analys_button{
     margin-left: 20px;
     
@@ -227,16 +275,31 @@ scrollbar-arrow-color: #FFD6DA;
     border-radius: 5px;
   }
 
+  label{
+    padding:7.5px;
+    white-space:nowrap;
+    font-size: 12px;
+    float: left;
+    color: #36648B;
+}
   .simulation_time_input{
-    margin-top: 10px;
+    margin-top: 5px;
     margin-left: 10px;
     width: 100px;
+    height: 15px;
   }
 
   .simulation_time{
       
     margin-left: 20px;
     width: 150px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .select_form{
+    margin-top: 15px;
+    height: 30px;
   }
 
 

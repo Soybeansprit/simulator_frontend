@@ -1,8 +1,12 @@
 
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { InstanceLayer } from '../class/instance';
+import { ModelLayer } from '../class/model';
+import { Rule } from '../class/rule';
 import { AllRuleAnalysisResult, CauseRule, CauseRulesCount,DeviceAnalysisResult, DeviceAnalysisSyntheticResult, DeviceCauseRuleConclusion,  EnvironmentModel, PropertyReachableSyntheticResult, PropertyVerifyResult, ReachableReason,  RuleNode, Scene,   StaticAnalysisResult} from '../class/scene';
-import { ScenesTree } from '../class/scenes-tree';
+
+import { DeviceAnlaysis, DeviceStateAndCausingRules, Scenario, ScenesTree } from '../class/simulation';
 import { MainData } from '../provider/main-data';
 import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 
@@ -14,9 +18,6 @@ import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 export class RuleAnalysisComponent implements OnInit {
 
   scenes: Array<Scene>=new Array<Scene>();
-  simulationTime:string="";
-  scenesTree:ScenesTree;
-  ruleText:string;
   environmentModel:EnvironmentModel|null=null;
   staticAnalysisResult:StaticAnalysisResult|null=null;
   initModelFileName:string="";
@@ -29,6 +30,32 @@ export class RuleAnalysisComponent implements OnInit {
   //////////自定义性质
   property:string="";
   properties:Array<string>=[];
+
+
+
+  scenarios=new Array<Scenario>();
+  singleScenario=new Scenario();
+  ruleTextFinal="";
+  modelLayer=new ModelLayer();
+  instanceLayer=new InstanceLayer();
+  interactiveInstances=new InstanceLayer();
+  rules=new Array<Rule>();
+  simulationTime: string = "";
+  scenesTree:ScenesTree=new ScenesTree();
+  ruleText="";
+  attributeNames=new Array<string>();
+  ifdFileName="";
+
+  existConflict=false;
+  conflictAnalyzed=false;
+
+  existJitter=false;
+  jitterAnalyzed=false;
+
+  deviceAnalysiss=new Array<DeviceAnlaysis>()
+
+  conflictCausingRules=new Array<Array<Array<DeviceStateAndCausingRules>>>();  ///第几个设备、第几段、第几个状态
+	jitterCausingRules=new Array<Array<Array<DeviceStateAndCausingRules>>>();
 
 
   
@@ -55,15 +82,20 @@ export class RuleAnalysisComponent implements OnInit {
 
   constructor(public mainData:MainData,public router:Router,
     private dynamicAnalysisService:DynamicAnalysisService) { 
-    this.simulationTime=this.mainData.storage.simulationTime;
-    this.scenes=this.mainData.storage.scenes;
-    this.scenesTree=this.mainData.storage.scenesTree;
-    this.ruleText=this.mainData.storage.ruleText;
-    this.environmentModel=this.mainData.storage.environmentModel
-    this.staticAnalysisResult=this.mainData.storage.staticAnalysisResult
-
-    this.initModelFileName=this.mainData.storage.initModelFileName
-    this.propertyFileName=mainData.storage.propertyFileName
+      this.simulationTime = this.mainData.storage.simulationTime;
+      this.scenarios = this.mainData.storage.scenarios;
+      this.scenesTree = this.mainData.storage.scenesTree;
+      this.ruleText = this.mainData.storage.ruleText;
+      // this.staticAnalysisResult = this.mainData.storage.staticAnalysisResult;
+      this.initModelFileName = this.mainData.storage.initModelFileName;
+      this.singleScenario=this.mainData.storage.singleScenario;
+      this.ruleTextFinal=this.mainData.storage.ruleTextFinal;
+      this.modelLayer=this.mainData.storage.modelLayer;
+      this.instanceLayer=this.mainData.storage.instanceLayer;
+      this.interactiveInstances=this.mainData.storage.interactiveInstances;
+      this.rules=this.mainData.storage.rules;
+      this.attributeNames=this.mainData.storage.attributeNames;
+      this.ifdFileName=this.mainData.storage.ifdFileName;
   }
 
   ngOnInit(): void {
@@ -74,36 +106,140 @@ export class RuleAnalysisComponent implements OnInit {
 
 
       goBackToMain(){
-        this.mainData.storage={
-          scenes:this.scenes,
-          simulationTime:this.simulationTime,
-          scenesTree:this.scenesTree,
-          ruleText:this.ruleText,
-          environmentModel:this.environmentModel,
-          selectedSceneName: "",
-          staticAnalysisResult:this.staticAnalysisResult,
-          initModelFileName:this.initModelFileName,
-          propertyFileName:this.propertyFileName
-        }
+        // this.mainData.storage={
+        //   scenes:this.scenes,
+        //   simulationTime:this.simulationTime,
+        //   scenesTree:this.scenesTree,
+        //   ruleText:this.ruleText,
+        //   environmentModel:this.environmentModel,
+        //   selectedSceneName: "",
+        //   staticAnalysisResult:this.staticAnalysisResult,
+        //   initModelFileName:this.initModelFileName,
+        //   propertyFileName:this.propertyFileName
+        // }
         this.router.navigate(["main"]);
       }
 
+      searchAllScenariosConflict(){
+        this.dynamicAnalysisService.searchAllScenariosConflict(this.scenarios).subscribe(scenarios=>{
+          console.log(scenarios)
+          this.scenarios=scenarios;
+          ///遍历分析结果，看是否存在冲突
+          for(var i=0;i<this.deviceAnalysiss.length;i++){
+            this.deviceAnalysiss[i].hasConflict=false;
+            this.deviceAnalysiss[i].conflictScenarios=new Array<string>();
+          }
+          for(var i=0;i<this.scenarios.length;i++){
+            for(var j=0;j<this.scenarios[i].deviceConflicts.length;j++){
+              if(this.scenarios[i].deviceConflicts[j].conflictTimeValues.length>0){
+                var exist=false;
+                for(var k=0;k<this.deviceAnalysiss.length;k++){
+                  ///找到对应的设备分析结果
+                  if(this.scenarios[i].deviceConflicts[j].instanceName==this.deviceAnalysiss[k].instanceName){
+                    exist=true;
+                    this.deviceAnalysiss[k].hasConflict=true;
+                    this.deviceAnalysiss[k].conflictScenarios.push(this.scenarios[i].scenarioName);
+                    break;
+                  }
+                }
+                if(!exist){
+                  var deviceAnalysis=new DeviceAnlaysis();
+                  deviceAnalysis.instanceName=this.scenarios[i].deviceConflicts[j].instanceName;
+                  deviceAnalysis.hasConflict=true;
+                  deviceAnalysis.conflictScenarios.push(this.scenarios[i].scenarioName)
+                  this.deviceAnalysiss.push(deviceAnalysis);
+                }
+                this.existConflict=true;
+                
+              }
+            }
+          }
+          this.conflictAnalyzed=true;  ///表示已经分析过是否冲突了
+          console.log(this.deviceAnalysiss)
+
+        })
+      }
+
+      locateAllScenariosConflict(){
+        this.dynamicAnalysisService.locateAllScenariosConflict(this.scenarios,this.instanceLayer.deviceInstances,this.rules,this.ifdFileName).subscribe(allSynthesizedDeviceAllStatesRuleAndPreRules=>{
+          console.log(allSynthesizedDeviceAllStatesRuleAndPreRules);
+          this.conflictCausingRules=allSynthesizedDeviceAllStatesRuleAndPreRules;
+        })
+      }
+
+      searchAllScenariosJitter(){
+        this.dynamicAnalysisService.searchAllScenariosJitter(this.scenarios,this.intervalTime,this.simulationTime,this.equivalentTime).subscribe(scenarios=>{
+          console.log(scenarios)
+          this.scenarios=scenarios;
+          ///遍历分析结果，看是否存在冲突
+          for(var i=0;i<this.deviceAnalysiss.length;i++){
+            this.deviceAnalysiss[i].hasJitter=false;
+            this.deviceAnalysiss[i].jitterScenarios=new Array<string>();
+          }
+          for(var i=0;i<this.scenarios.length;i++){
+            for(var j=0;j<this.scenarios[i].deviceJitters.length;j++){
+              if(this.scenarios[i].deviceJitters[j].jitterTimeValues.length>0){
+                var exist=false;
+                for(var k=0;k<this.deviceAnalysiss.length;k++){
+                  ///找到对应的设备分析结果
+                  if(this.scenarios[i].deviceJitters[j].instanceName==this.deviceAnalysiss[k].instanceName){
+                    exist=true;
+                    this.deviceAnalysiss[k].hasJitter=true;
+                    this.deviceAnalysiss[k].jitterScenarios.push(this.scenarios[i].scenarioName);
+                    break;
+                  }
+                }
+                if(!exist){
+                  var deviceAnalysis=new DeviceAnlaysis();
+                  deviceAnalysis.instanceName=this.scenarios[i].deviceJitters[j].instanceName;
+                  deviceAnalysis.hasJitter=true;
+                  deviceAnalysis.jitterScenarios.push(this.scenarios[i].scenarioName)
+                  this.deviceAnalysiss.push(deviceAnalysis);
+                }
+                this.existJitter=true;
+                
+              }
+            }
+          }
+          this.jitterAnalyzed=true;  ///表示已经分析过是否冲突了
+          console.log(this.deviceAnalysiss)
+
+        })
+      }
+
+      locateAllScenariosJitter(){
+        this.dynamicAnalysisService.locateAllScenariosJitter(this.scenarios,this.instanceLayer.deviceInstances,this.rules,this.ifdFileName).subscribe(allSynthesizedDeviceAllStatesRuleAndPreRules=>{
+          console.log(allSynthesizedDeviceAllStatesRuleAndPreRules);
+          this.jitterCausingRules=allSynthesizedDeviceAllStatesRuleAndPreRules;
+        })
+      }
+
+
+
       ////跳转到特定场景
       toSceneDetail(scenarioName:string){
-        this.mainData.storage = {
-          scenes: this.scenes,
-          selectedSceneName: scenarioName,
-          simulationTime: this.simulationTime,
-          scenesTree: this.scenesTree,
-          ruleText: this.ruleText,
-          staticAnalysisResult:this.staticAnalysisResult,
-          environmentModel:this.environmentModel,
-          equivalentTime:this.equivalentTime,
-          intervalTime:this.intervalTime,
-          initModelFileName:this.initModelFileName,
-          propertyFileName:this.propertyFileName
+        console.log(scenarioName)
+        for(var i=0;i<this.scenarios.length;i++){
+          if(scenarioName==this.scenarios[i].scenarioName){
+            this.mainData.storage.selectedScenario=this.scenarios[i];
+            this.router.navigate(["scene-details"]);
+            break
+          }
         }
-        this.router.navigate(["scene-details"]);
+        // this.mainData.storage = {
+        //   scenes: this.scenes,
+        //   selectedSceneName: scenarioName,
+        //   simulationTime: this.simulationTime,
+        //   scenesTree: this.scenesTree,
+        //   ruleText: this.ruleText,
+        //   staticAnalysisResult:this.staticAnalysisResult,
+        //   environmentModel:this.environmentModel,
+        //   equivalentTime:this.equivalentTime,
+        //   intervalTime:this.intervalTime,
+        //   initModelFileName:this.initModelFileName,
+        //   propertyFileName:this.propertyFileName
+        // }
+        
       }
 
 
@@ -133,32 +269,32 @@ export class RuleAnalysisComponent implements OnInit {
       // }
             ///////展示分析结果
       showAnalysisResult(){
-        var t1=new Date().getTime();
-        this.dynamicAnalysisService.getAllDynamicAnalysisResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules,this.simulationTime,this.equivalentTime,this.intervalTime).subscribe(scenes=>{
-          this.scenes=scenes;
-          console.log(this.scenes)
-          /////设备冲突
-          /////设备抖动
-          this.syntheticDeviceReason()
-          console.log("syntheticResult:")
-          console.log(this.deviceAnalysisSyntheticResults)
-          this.showResult="block"
-          this.conclusion()
-          var analysisTime=new Date().getTime()-t1;
-          console.log("analysisTime:"+analysisTime);
-        })
+        // var t1=new Date().getTime();
+        // this.dynamicAnalysisService.getAllDynamicAnalysisResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules,this.simulationTime,this.equivalentTime,this.intervalTime).subscribe(scenes=>{
+        //   this.scenes=scenes;
+        //   console.log(this.scenes)
+        //   /////设备冲突
+        //   /////设备抖动
+        //   this.syntheticDeviceReason()
+        //   console.log("syntheticResult:")
+        //   console.log(this.deviceAnalysisSyntheticResults)
+        //   this.showResult="block"
+        //   this.conclusion()
+        //   var analysisTime=new Date().getTime()-t1;
+        //   console.log("analysisTime:"+analysisTime);
+        // })
       }
 
       //////验证property
     verifyProperty(){
-      this.dynamicAnalysisService.getPropertyVerificationResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules).subscribe(propertyVerifyResults=>{
-        this.propertyVerifyResults=propertyVerifyResults;
-        console.log(this.properties)
-        console.log(this.propertyVerifyResults)
-        this.syntheticAllPropertyReachableReason()
-        console.log(this.propertyReachableSyntheticResults)
-        this.showPropertyResult="block"
-      })
+      // this.dynamicAnalysisService.getPropertyVerificationResult(this.scenes,this.environmentModel!,this.properties,this.staticAnalysisResult!.usableRules).subscribe(propertyVerifyResults=>{
+      //   this.propertyVerifyResults=propertyVerifyResults;
+      //   console.log(this.properties)
+      //   console.log(this.propertyVerifyResults)
+      //   this.syntheticAllPropertyReachableReason()
+      //   console.log(this.propertyReachableSyntheticResults)
+      //   this.showPropertyResult="block"
+      // })
     }
 
     /////添加property

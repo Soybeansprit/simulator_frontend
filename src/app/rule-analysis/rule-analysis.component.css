@@ -53,6 +53,8 @@
     height:100%;
 }
 
+
+
 .scope_c1{
     position: relative;
     height: 100%;
@@ -354,5 +356,58 @@ li.selected:hover {
 .device_name{
   text-align: center;
   margin-top: 5px;
+  margin-bottom: 0px;
+}
+
+.simulation_time_input{
+  margin-top: 5px;
+  margin-left: 10px;
+  width: 100px;
+  height: 15px;
+}
+
+.simulation_time{
+    
+  margin-left: 20px;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+}
+label{
+  padding:7.5px;
+  white-space:nowrap;
+  font-size: 12px;
+  float: left;
+  color: #36648B;
+}
+
+.inner_scope{
+  border:  #36648B 1px dashed;
+  border-radius: 4px;
+  position: relative;
+  
+}
+.border{
+  position: relative;
+  border:  #36648B 2px solid;
+  border-radius: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 10px;
+  height:100%;
+}
+
+.scroll_bar{
+  color: #ffffff;  
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-face-color: #889B9F;
+  scrollbar-shadow-color: #3D5054;
+  scrollbar-highlight-color: #C3D6DA;
+  scrollbar-3dlight-color: #3D5054;
+  scrollbar-darkshadow-color: #85989C;
+  scrollbar-track-color: #95A6AA;
+  scrollbar-arrow-color: #FFD6DA;
+  position: relative;
   margin-bottom: 0px;
 }

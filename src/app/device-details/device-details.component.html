@@ -110,20 +110,21 @@
             <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">Conclusion</b><br>
             <div *ngFor="let conflictCauseRulesCount of conflictCauseRulesCounts;index as i">
               <b style="color: black; margin-left: 10px;">{{(i+1)}}: states conflict:</b>
-              <ul>
+              <!-- <ul>
                 <li *ngFor="let causingRule of conflictCauseRulesCount.causingRules" style="color: black;">
                   state:<b style="font-size: larger;color:  rgb(21, 105, 184);">{{causingRule.state}}</b>, caused by
                   <div *ngIf="causingRule.stateCausingRules.length>0">
                     <ul>
                       <li *ngFor="let stateCausingRule of causingRule.stateCausingRules">
                         <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
-                        <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0" [preRules]="stateCausingRule.preRules">
+                        <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0"
+                          [preRules]="stateCausingRule.preRules">
                         </app-rule-recursive>
                       </li>
                     </ul>
                   </div>
                 </li>
-              </ul>
+              </ul> -->
               <div style="color: black;margin-left: 30px;">count: {{conflictCauseRulesCount.count}}</div>
             </div>
           </div>
@@ -132,7 +133,7 @@
             <div *ngFor="let conflictReason of selectedDevice.conflictReasons;index as i">
               <b style="color: black; margin-left: 10px;">{{(i+1)}}: states conflict:</b>
               <b style="color: black; margin-left: 15px;"> at time: {{conflictReason.conflict.time.toFixed(2)}}</b>
-              <ul>
+              <!-- <ul>
                 <li style="list-style-type: none;" *ngFor="let causingRule of conflictReason.causingRules;index as j"
                   style="color: black;">
                   state:<b style="font-size: larger;color:  rgb(21, 105, 184);">{{causingRule.state}}</b>, caused by
@@ -140,12 +141,13 @@
                     <ul>
                       <li *ngFor="let stateCausingRule of causingRule.stateCausingRules">
                         <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
-                        <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0" [preRules]="stateCausingRule.preRules">
+                        <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0"
+                          [preRules]="stateCausingRule.preRules">
                         </app-rule-recursive>
                       </li>
                     </ul>
                   </div>
-                                  <!-- <ul>
+                  <ul>
                                     <li *ngIf="stateCause.rulesAndCauseRules.length==0" style="color: brown;">no rule
                                       <ul>
                                         <li *ngFor="let rule of stateCauseRulesList[i][j].rulesAndCauseRules" style="color: black;">
@@ -156,24 +158,24 @@
                                     <li *ngFor="let rule of stateCause.rulesAndCauseRules" style="color: black;">
                                       <b>{{rule.selfRule.ruleName}}</b>: {{getRuleContent(rule.selfRule.ruleContent)}}
                                     </li>
-                                  </ul> -->
+                                  </ul>
                 </li>
-              </ul>
+              </ul> -->
+            </div>
           </div>
         </div>
-      </div>
-      <div *ngIf="selectedDevice.conflictReasons.length==0">
-        <b style="color: rgb(8, 5, 5);font-size: 2em;margin-left: 20px;">Exist no states conflict.</b>
-      </div>
-    </div>
-
-
-    <div id="change_frequent_information" [ngStyle]="{display: frequentChangeDetailShow}">
-      <div>
-        <div echarts [options]="changeFrequentOption" class="change_frequent_option " [autoResize]="true"
-          id="changeFrequentId">
+        <div *ngIf="selectedDevice.conflictReasons.length==0">
+          <b style="color: rgb(8, 5, 5);font-size: 2em;margin-left: 20px;">Exist no states conflict.</b>
         </div>
-        <!-- <div  id="frequency_conclution">
+      </div>
+
+
+      <div id="change_frequent_information" [ngStyle]="{display: frequentChangeDetailShow}">
+        <div>
+          <div echarts [options]="changeFrequentOption" class="change_frequent_option " [autoResize]="true"
+            id="changeFrequentId">
+          </div>
+          <!-- <div  id="frequency_conclution">
                   <div style="margin-left: 30px;margin-right: 30px;">
                     <b style="color: black;">Excluding the state conflicts, the </b><b style="color: brown;">&nbsp;{{selectedDevice.deviceName}}</b>
                     <b style="color: black;">&nbsp;undergoes</b> <b style="color: brown;">&nbsp;{{selectedDevice.statesChange.statesChangeCount}}</b> <b style="color: black;">&nbsp;state
@@ -188,61 +190,63 @@
 
                   </div>
                 </div> -->
-        <div id="frequency_analysis">
-          <div>
-            <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">Conclusion</b><br>
-            <ul *ngFor="let jitterCauseRulesCount of jitterCauseRulesCounts;index as i">
-              <b style="color: black; margin-left: 10px;">{{(i+1)}}: jitter:</b>
-              <li style="list-style-type: none;margin-left: 20px;" *ngFor="let causingRule of jitterCauseRulesCount.causingRules">
-                <b style="color: black;">state: </b>
-                <b style="color:  rgb(21, 105, 184); font-size: larger;">{{causingRule.state}}</b>
-                <b style="color: black;"> caused by</b>
-                <ul>
-                  <li style="color: black;" *ngFor="let stateCausingRule of causingRule.stateCausingRules">
-                    <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
-                    <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0"
-                      [preRules]="stateCausingRule.preRules">
-                    </app-rule-recursive>
-                  </li>
-                </ul>                
-              </li>
-              <div style="color: black;margin-left: 20px;">count: {{jitterCauseRulesCount.count}}</div>
-            </ul>
-            
+          <div id="frequency_analysis">
+            <div>
+              <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">Conclusion</b><br>
+              <!-- <ul *ngFor="let jitterCauseRulesCount of jitterCauseRulesCounts;index as i">
+                <b style="color: black; margin-left: 10px;">{{(i+1)}}: jitter:</b>
+                <li style="list-style-type: none;margin-left: 20px;"
+                  *ngFor="let causingRule of jitterCauseRulesCount.causingRules">
+                  <b style="color: black;">state: </b>
+                  <b style="color:  rgb(21, 105, 184); font-size: larger;">{{causingRule.state}}</b>
+                  <b style="color: black;"> caused by</b>
+                  <ul>
+                    <li style="color: black;" *ngFor="let stateCausingRule of causingRule.stateCausingRules">
+                      <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
+                      <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0"
+                        [preRules]="stateCausingRule.preRules">
+                      </app-rule-recursive>
+                    </li>
+                  </ul>
+                </li>
+                <div style="color: black;margin-left: 20px;">count: {{jitterCauseRulesCount.count}}</div>
+              </ul> -->
 
-          </div>
 
-          <div>
-            <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">individual analysis</b>
-            <ul *ngFor="let jitterReason of selectedDevice.jitterReasons;index as i">
-              <b style="color: black;margin-left: 10px;margin-top: 20px;">{{(i+1)}}: jitter: </b>
-              <b style="color: black;margin-left: 15px;"> at time:
-                {{jitterReason.jitter[0][0].toFixed(2)}}-{{jitterReason.jitter[jitterReason.jitter.length-1][0].toFixed(2)}}</b>
-              <li style="list-style-type: none;margin-left: 20px;" *ngFor="let causingRule of jitterReason.causingRules">
-                <b style="color: black;">state: </b>
-                <b style="color:  rgb(21, 105, 184); font-size: larger;">{{causingRule.state}}</b>
-                <b style="color: black;"> caused by</b>
-                <ul>
-                  <li style="color: black;" *ngFor="let stateCausingRule of causingRule.stateCausingRules">
-                    <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
-                    <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0"
-                      [preRules]="stateCausingRule.preRules">
-                    </app-rule-recursive>
-                  </li>
-                </ul>
+            </div>
 
-              </li>
-            </ul>
+            <div>
+              <b style="color: brown;font-size: x-large;margin-left: 20px;margin-top: 20px;">individual analysis</b>
+              <!-- <ul *ngFor="let jitterReason of selectedDevice.jitterReasons;index as i">
+                <b style="color: black;margin-left: 10px;margin-top: 20px;">{{(i+1)}}: jitter: </b>
+                <b style="color: black;margin-left: 15px;"> at time:
+                  {{jitterReason.jitter[0][0].toFixed(2)}}-{{jitterReason.jitter[jitterReason.jitter.length-1][0].toFixed(2)}}</b>
+                <li style="list-style-type: none;margin-left: 20px;"
+                  *ngFor="let causingRule of jitterReason.causingRules">
+                  <b style="color: black;">state: </b>
+                  <b style="color:  rgb(21, 105, 184); font-size: larger;">{{causingRule.state}}</b>
+                  <b style="color: black;"> caused by</b>
+                  <ul>
+                    <li style="color: black;" *ngFor="let stateCausingRule of causingRule.stateCausingRules">
+                      <b>{{stateCausingRule.rule.ruleName}}</b>: {{getRuleContent(stateCausingRule.rule.ruleContent)}}
+                      <app-rule-recursive *ngIf="stateCausingRule.preRules.length>0"
+                        [preRules]="stateCausingRule.preRules">
+                      </app-rule-recursive>
+                    </li>
+                  </ul>
 
+                </li>
+              </ul> -->
+
+
+            </div>
 
           </div>
 
         </div>
-
       </div>
-    </div>
 
-    <!-- <div id="cannot_off_information" [ngStyle]="{display: cannotOffDetailShow}">
+      <!-- <div id="cannot_off_information" [ngStyle]="{display: cannotOffDetailShow}">
             <div *ngIf="selectedDevice.deviceCannotOff.cannotOff">
               <b style="color: brown;font-size: 2em;margin-left: 20px;">Device cannot Off!</b>
               <p style="color: brown;font-size: 1em;margin-left: 30px;">
@@ -271,7 +275,7 @@
             </ul>
           </div> -->
 
-    <!-- <ul class="devices_detail">
+      <!-- <ul class="devices_detail">
             <li class="conflict_button" [class.selected]="device===selectedDevice" (click)="conflictDetail()">
               <b>States conflict?</b>
               
@@ -293,10 +297,10 @@
             </li>
           </ul> -->
 
-    <!-- </div> -->
+      <!-- </div> -->
 
+    </div>
   </div>
-</div>
 </div>
 
 

@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { observable, Observable, of } from 'rxjs';
-import { AllCauseRuleInput, AllScenesAnalysisInput, CauseRuleInput, ConflictTime, DeviceStateName, Rule, RulesAllScenesSimulationTime, RulesSceneSimulationTime, Scene, StateAndRuleAndCauseRule, StateChangeCauseRuleInput, StateChangeCauseRules, StateChangeFast, StaticAnalysisResult, WholeAndCurrentChangeCauseRule } from '../class/scene';
+import { AllCauseRuleInput, AllScenesAnalysisInput, CauseRuleInput, ConflictTime, DeviceStateName, RulesAllScenesSimulationTime, RulesSceneSimulationTime, Scene, StateAndRuleAndCauseRule, StateChangeCauseRuleInput, StateChangeCauseRules, StateChangeFast, StaticAnalysisResult, WholeAndCurrentChangeCauseRule } from '../class/scene';
 import { ScenesTree } from '../class/scenes-tree';
-import { DataTimeValue } from '../class/scene';
 import * as echarts from 'echarts';
+import { DataTimeValue, Scenario } from '../class/simulation';
+import { Rule } from '../class/rule';
 
 @Injectable({
   providedIn: 'root'
@@ -128,182 +129,182 @@ export class SceneService {
     })
   }
 
-  getRulesScenesData(scenes: Array<Scene>,staticAnalysisResult:StaticAnalysisResult) {
-    return new Observable((observer) => {
-      setTimeout(() => {
+  // getRulesScenesData(scenes: Array<Scene>,staticAnalysisResult:StaticAnalysisResult) {
+  //   return new Observable((observer) => {
+  //     setTimeout(() => {
 
-        console.log(scenes)
-        var rules=staticAnalysisResult.totalRules;
+  //       console.log(scenes)
+  //       var rules=staticAnalysisResult.totalRules;
 
 
-        var xAxisData = [];
-        var triggeredSceneNum:number[] = [];
-        // var max1:number=0;
-        // var max2:number=0;
-        // if(scenes[0].triggeredRulesName.length>0){
-        //   max1=parseInt(scenes[0].triggeredRulesName[scenes[0].triggeredRulesName.length-1].name.substring("rule".length));
-        // }
-        // if(scenes[0].cannotTriggeredRulesName.length>0){
-        //   max2=parseInt(scenes[0].cannotTriggeredRulesName[scenes[0].cannotTriggeredRulesName.length-1].substring("rule".length));
-        // }
-        var ruleNum =rules.length;
-        var triggeredNumMax = scenes.length;
-        var dataShadow = [];
-        for (let i = 0; i < ruleNum; i++) {
+  //       var xAxisData = [];
+  //       var triggeredSceneNum:number[] = [];
+  //       // var max1:number=0;
+  //       // var max2:number=0;
+  //       // if(scenes[0].triggeredRulesName.length>0){
+  //       //   max1=parseInt(scenes[0].triggeredRulesName[scenes[0].triggeredRulesName.length-1].name.substring("rule".length));
+  //       // }
+  //       // if(scenes[0].cannotTriggeredRulesName.length>0){
+  //       //   max2=parseInt(scenes[0].cannotTriggeredRulesName[scenes[0].cannotTriggeredRulesName.length-1].substring("rule".length));
+  //       // }
+  //       var ruleNum =rules.length;
+  //       var triggeredNumMax = scenes.length;
+  //       var dataShadow = [];
+  //       for (let i = 0; i < ruleNum; i++) {
           
-          var triggeredNum = 0;
-          /////规则名为横坐标
-          xAxisData.push(rules[i].ruleName);
-          for (let j = 0; j < triggeredNumMax; j++) {
-            var scene = scenes[j];
-            for (let k = 0; k < scene.triggeredRulesName.length; k++) {
-              var triggeredRule = scenes[j].triggeredRulesName[k].name;
+  //         var triggeredNum = 0;
+  //         /////规则名为横坐标
+  //         xAxisData.push(rules[i].ruleName);
+  //         for (let j = 0; j < triggeredNumMax; j++) {
+  //           var scene = scenes[j];
+  //           for (let k = 0; k < scene.triggeredRulesName.length; k++) {
+  //             var triggeredRule = scenes[j].triggeredRulesName[k].name;
 
-              if (triggeredRule === rules[i].ruleName) {
-                triggeredNum = triggeredNum + 1;
-                break;
-              }
-            }
-          }
-          triggeredSceneNum.push(triggeredNum);
-          dataShadow.push(triggeredNumMax);
-        }
+  //             if (triggeredRule === rules[i].ruleName) {
+  //               triggeredNum = triggeredNum + 1;
+  //               break;
+  //             }
+  //           }
+  //         }
+  //         triggeredSceneNum.push(triggeredNum);
+  //         dataShadow.push(triggeredNumMax);
+  //       }
 
 
-        // tslint:disable-next-line: prefer-for-of
-        var options = {
-          title: {
-            text: "Rule Triggered Scenes Num",
-            x: "center"
-          },
-          tooltip: {
-            trigger: 'item',
-            formatter: function(params:any){
-              var name:string="";
-              var data:number;
-              var rule:Rule;
-              name=params.name;
-              var ruleNum=parseInt(name.substring('rule'.length));
-              // if(params.componentIndex===1){
+  //       // tslint:disable-next-line: prefer-for-of
+  //       var options = {
+  //         title: {
+  //           text: "Rule Triggered Scenes Num",
+  //           x: "center"
+  //         },
+  //         tooltip: {
+  //           trigger: 'item',
+  //           formatter: function(params:any){
+  //             var name:string="";
+  //             var data:number;
+  //             var rule:Rule;
+  //             name=params.name;
+  //             var ruleNum=parseInt(name.substring('rule'.length));
+  //             // if(params.componentIndex===1){
                 
-              //   data=params.data;
-              // }else{
-              //   data=scenes.length-params.data;
-              // }
+  //             //   data=params.data;
+  //             // }else{
+  //             //   data=scenes.length-params.data;
+  //             // }
 
-              for(let i=0;i<rules.length;i++){
-                if(name===rules[i].ruleName){
-                  rule=rules[i];
-                  data=triggeredSceneNum[i];
-                  break;
-                }
-              }
-              var ruleContent=rule!.ruleContent.substring(rule!.ruleContent.indexOf('IF'));
-              return params.marker+'<b>'+data!+'</b>'+' scenes triggered '+'<b>'+name+'</b>'+'<br>'+'<b>'+name+"</b>: "+ruleContent;
-            }
-          },
-          xAxis: {
-            data: xAxisData,
-            axisLabel: {
+  //             for(let i=0;i<rules.length;i++){
+  //               if(name===rules[i].ruleName){
+  //                 rule=rules[i];
+  //                 data=triggeredSceneNum[i];
+  //                 break;
+  //               }
+  //             }
+  //             var ruleContent=rule!.ruleContent.substring(rule!.ruleContent.indexOf('IF'));
+  //             return params.marker+'<b>'+data!+'</b>'+' scenes triggered '+'<b>'+name+'</b>'+'<br>'+'<b>'+name+"</b>: "+ruleContent;
+  //           }
+  //         },
+  //         xAxis: {
+  //           data: xAxisData,
+  //           axisLabel: {
 
-            },
-            axisTick: {
-              show: false,
-            },
-            axisLine: {
-              show: false,
-            },
-            z: 10,
-          },
-          yAxis: {
-            axisLine: {
-              show: false,
-            },
-            axisTick: {
-              show: false,
-            },
-            axisLabel: {
-              textStyle: {
-                color: '#999',
-              },
-            },
-          },
-          dataZoom: [
-            {
-              type: 'inside',
-            },
-          ],
-          series: [
-            {
-              // For shadow
-              type: 'bar',
-              itemStyle: {
-                color: 'rgba(0,0,0,0.05)'
-              },
-              barGap: '-100%',
-              barCategoryGap: '40%',
-              data: dataShadow,
-              animation: false,
-            },
-            {
-              type: 'bar',
-              itemStyle: {
-                color: 'rgba(30, 144 ,255,0.8)',
-              },
-              emphasis: {
-                itemStyle: {
-                  color: 'rgba(0, 0, 205,0.9)',
-                }
-              },
-              data: triggeredSceneNum,
-            },
-          ],
-        };
+  //           },
+  //           axisTick: {
+  //             show: false,
+  //           },
+  //           axisLine: {
+  //             show: false,
+  //           },
+  //           z: 10,
+  //         },
+  //         yAxis: {
+  //           axisLine: {
+  //             show: false,
+  //           },
+  //           axisTick: {
+  //             show: false,
+  //           },
+  //           axisLabel: {
+  //             textStyle: {
+  //               color: '#999',
+  //             },
+  //           },
+  //         },
+  //         dataZoom: [
+  //           {
+  //             type: 'inside',
+  //           },
+  //         ],
+  //         series: [
+  //           {
+  //             // For shadow
+  //             type: 'bar',
+  //             itemStyle: {
+  //               color: 'rgba(0,0,0,0.05)'
+  //             },
+  //             barGap: '-100%',
+  //             barCategoryGap: '40%',
+  //             data: dataShadow,
+  //             animation: false,
+  //           },
+  //           {
+  //             type: 'bar',
+  //             itemStyle: {
+  //               color: 'rgba(30, 144 ,255,0.8)',
+  //             },
+  //             emphasis: {
+  //               itemStyle: {
+  //                 color: 'rgba(0, 0, 205,0.9)',
+  //               }
+  //             },
+  //             data: triggeredSceneNum,
+  //           },
+  //         ],
+  //       };
 
         
-        observer.next(options);
+  //       observer.next(options);
 
 
-      })
+  //     })
 
-    })
-  }
+  //   })
+  // }
 
 
-  getRuleTimeValueData(scene: Scene) {
+  // getRuleTimeValueData(scene: Scene) {
 
+  //   return new Observable((observer) => {
+  //     setTimeout(() => {
+  //       var rulesTimeValue: DataTimeValue[] = [];
+
+  //       for (let i = scene.dataTimeValues.length - 1; i >= 0; i--) {
+  //         var dataTimeValue = scene.dataTimeValues[i];
+  //         if (dataTimeValue.name.indexOf("rule") >= 0) {
+  //           rulesTimeValue.push(dataTimeValue);
+  //         }
+  //       }
+  //       observer.next(rulesTimeValue);
+  //     }, 500)
+  //   })
+  // }
+  getRulesEchartsOption(scenario: Scenario,simulationTime:string,rules:Array<Rule>) {
     return new Observable((observer) => {
       setTimeout(() => {
         var rulesTimeValue: DataTimeValue[] = [];
-
-        for (let i = scene.dataTimeValues.length - 1; i >= 0; i--) {
-          var dataTimeValue = scene.dataTimeValues[i];
-          if (dataTimeValue.name.indexOf("rule") >= 0) {
-            rulesTimeValue.push(dataTimeValue);
-          }
-        }
-        observer.next(rulesTimeValue);
-      }, 500)
-    })
-  }
-  getRulesEchartsOption(scene: Scene,simulationTime:string,rules:Array<Rule>) {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        var rulesTimeValue: DataTimeValue[] = [];
-        for (let i = scene.dataTimeValues.length - 1; i >= 0; i--) {
-          var dataTimeValue = scene.dataTimeValues[i];
-          if (dataTimeValue.name.indexOf("rule") >= 0) {
+        for (let i = 0; i<scenario.dataTimeValues.length; i++) {
+          var dataTimeValue = scenario.dataTimeValues[i];
+          if (dataTimeValue.dataName.indexOf("rule") >= 0) {
             rulesTimeValue.push(dataTimeValue);
           }
         }
         var length = rulesTimeValue.length;
         var data = [];
-        var categories = [];
+        var categories = [];   ///y轴
         var colors = [];
-
+        console.log(rulesTimeValue)
 
         for (let i = 0; i < length; i++) {
-          categories.push(rulesTimeValue[i].name);
+          categories.push(rulesTimeValue[i].dataName);
           colors.push('rgb(' + [
             Math.round(Math.random() * 255),
             Math.round(Math.random() * 255),
@@ -311,6 +312,7 @@ export class SceneService {
           ].join(',') + ')');
         }
 
+        ///计算该规则触发的时间段，开始、结束时间点
         for (let i = 0; i < length; i++) {
 
           var len = rulesTimeValue[i].timeValues.length;
@@ -328,7 +330,7 @@ export class SceneService {
                     endTime = rulesTimeValue[i].timeValues[k - 1][0];
                     data.push(
                       {
-                        name: rulesTimeValue[i].name,
+                        name: rulesTimeValue[i].dataName,
                         value: [
                           i,
                           startTime,
@@ -356,7 +358,7 @@ export class SceneService {
                     endTime = rulesTimeValue[i].timeValues[k - 1][0];
                     data.push(
                       {
-                        name: rulesTimeValue[i].name,
+                        name: rulesTimeValue[i].dataName,
                         value: [
                           i,
                           startTime,
@@ -383,7 +385,7 @@ export class SceneService {
                 endTime = rulesTimeValue[i].timeValues[j][0];
                 data.push(
                   {
-                    name: rulesTimeValue[i].name,
+                    name: rulesTimeValue[i].dataName,
                     value: [
                       i,
                       startTime,
@@ -448,7 +450,7 @@ export class SceneService {
             }
           },
           title: {
-            text: 'Rules Trigger Time',
+            text: 'Rules Triggering over Time',
             left: 'center'
           },
           dataZoom: [{
@@ -456,7 +458,7 @@ export class SceneService {
             filterMode: 'none',
             showDataShadow: false,
             top: 400,
-            height: 30,
+            height: 100,
             borderColor: 'transparent',
             backgroundColor: '#e2e2e2',
             handleIcon: 'M10.7,11.9H9.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4h1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7v-1.2h6.6z M13.3,22H6.7v-1.2h6.6z M13.3,19.6H6.7v-1.2h6.6z', // jshint ignore:line
@@ -471,24 +473,67 @@ export class SceneService {
           }, {
             type: 'inside',
             filterMode: 'weakFilter'
-          }],
-          grid: {
-            height: 300
+          },{
+            type: 'slider',
+            yAxisIndex: 0,
+            zoomLock: true,
+            width: 10,
+            right: 10,
+            top: 70,
+            bottom: 70,
+            start: 0,
+            end: 50,
+            handleSize: 0,
+            showDetail: false
           },
+          {
+            type: 'inside',
+            id: 'insideY',
+            yAxisIndex: 0,
+            start: 0,
+            end: 150,
+            zoomOnMouseWheel: false,
+            moveOnMouseMove: true,
+            moveOnMouseWheel: true
+          }],
+          
           xAxis: {
             show: true,
             min: 0,
             max:Number(simulationTime),
             scale: true,
+            position: 'bottom',
             name:"time/s",
-            axisLabel: {
-              formatter: function (val: number) {
-                return Math.max(0, val - 0);
+            // axisLabel: {
+            //   formatter: function (val: number) {
+            //     return Math.max(0, val - 0);
+            //   }
+            // }
+            splitLine: {
+              lineStyle: {
+                color: ['#E9EDFF']
               }
+            },
+            axisLine: {
+              show: true
+            },
+            axisTick: {
+              lineStyle: {
+                color: '#929ABA'
+              }
+            },
+            axisLabel: {
+              color: '#929ABA',
+              inside: false,
+              align: 'center'
             }
+            
           },
           yAxis: {
-            data: categories
+            inverse:false, //是否是反向坐标轴
+            data: categories,
+            
+            name: "rule"
           },
           series: [{
             type: 'custom',
@@ -736,5 +781,8 @@ export class SceneService {
 
     return attrVal
   }
+
+
+  
 }
 

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ScenesTree } from '../class/scenes-tree';
 import { SceneService } from '../service/scene.service';
-import { EnvironmentModel, Rule, Scene, StaticAnalysisResult } from '../class/scene';
+import { EnvironmentModel, Scene, StaticAnalysisResult } from '../class/scene';
 import * as echarts from 'echarts';
 import { UploadFileService } from '../service/upload-file.service';
 import { FileUploader } from 'ng2-file-upload';
@@ -9,9 +8,15 @@ import { MainData } from '../provider/main-data';
 import { Router, NavigationExtras } from "@angular/router";
 import { StaticAnalysisService } from '../service/static-analysis.service';
 import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
-import { ModelLayer } from '../class/model';
+import { Attribute, ModelLayer } from '../class/model';
 import * as $ from "jquery";
 import { InstanceLayer } from '../class/instance';
+import { Rule } from '../class/rule';
+import { ModelGenerateService } from '../service/model-generate.service';
+import { DataTimeValue, Scenario, ScenesTree } from '../class/simulation';
+import { data } from 'jquery';
+import { from } from 'rxjs';
+import { InteractiveLayerAndRules } from '../class/output-style';
 
 @Component({
   selector: 'app-main',
@@ -26,7 +31,7 @@ export class MainComponent implements OnInit {
   show_scenes_rules: string = "none";
   show_rules_scenes: string = "none";
 
-  scenesTree: ScenesTree | null = null;
+  scenesTree: ScenesTree =new ScenesTree();
   scenes: Array<Scene> = new Array<Scene>();
   scenesTreeOption: any;
   rulesScenesOption: any;
@@ -63,34 +68,82 @@ export class MainComponent implements OnInit {
     itemAlias: 'file'
   });
 
-  fileUploaded: boolean = false;
-  simulationTime: string = "300";
+  modelFileUploaded: boolean = false;
+  informationFileUploaded=false;
+  
   simulationTimeFinal: string = "";
 
   onSimulation:boolean=false;
 
 
-  modelLayer:ModelLayer=new ModelLayer();
-  instanceLayer:InstanceLayer=new InstanceLayer();
+  modelLayer=new ModelLayer();
+  instanceLayer=new InstanceLayer();
+
+  isHomePage:boolean=true;
+  isStaticAnalysis:boolean=false;
+  isDynamicAnalysis:boolean=false;
+  
+  simulationTime: string = "300";
+  equivalentTime="24"
+
+  analysisTypeValue="0"
+
+  attributeValues:Array<Array<string>>=new Array<Array<string>>();
+  attributeNames:Array<string>=new Array<string>();
+  selectAttributeName="0";
+  setAttributeValue="0.0";
+
+  rules:Array<Rule>=new Array<Rule>();
+  interactiveInstances:InstanceLayer=new InstanceLayer();
+  ifdFileName="";
+
+  singleModelFileName="";
+  singleScenario=new Scenario();
+
+  showGraph="";
+
+  scenarios=Array<Scenario>();
 
   constructor( public sceneService: SceneService, public uploadFileService: UploadFileService,
     public mainData: MainData, public router: Router,
-    private staticAnalysisService:StaticAnalysisService,private dynamicAnalysisService:DynamicAnalysisService) {
-    this.simulationTime = this.mainData.storage.simulationTime;
-    this.scenes = this.mainData.storage.scenes;
+    private staticAnalysisService:StaticAnalysisService,private dynamicAnalysisService:DynamicAnalysisService,
+    private modelGenerateService: ModelGenerateService) {
+      this.simulationTime = this.mainData.storage.simulationTime;
+    this.scenarios = this.mainData.storage.scenarios;
     this.scenesTree = this.mainData.storage.scenesTree;
     this.ruleText = this.mainData.storage.ruleText;
-    this.environmentModel=this.mainData.storage.environmentModel;
-    this.staticAnalysisResult=this.mainData.storage.staticAnalysisResult
-    this.initModelFileName=this.mainData.storage.initModelFileName
-    this.propertyFileName=mainData.storage.propertyFileName
+    // this.staticAnalysisResult = this.mainData.storage.staticAnalysisResult;
+    this.initModelFileName = this.mainData.storage.initModelFileName;
+    this.singleScenario=this.mainData.storage.singleScenario;
+    this.ruleTextFinal=this.mainData.storage.ruleTextFinal;
+    this.modelLayer=this.mainData.storage.modelLayer;
+    this.instanceLayer=this.mainData.storage.instanceLayer;
+    this.interactiveInstances=this.mainData.storage.interactiveInstances;
+    this.rules=this.mainData.storage.rules;
+    this.attributeNames=this.mainData.storage.attributeNames;
+    this.attributeValues=this.mainData.storage.attributeValues;
+    this.ifdFileName=this.mainData.storage.ifdFileName;
+    console.log(mainData)
+    // this.simulationTime = this.mainData.storage.simulationTime;
+    // this.scenarios = this.mainData.storage.scenarios;
+    // this.singleScenario=this.mainData.storage.singleScenario;
+    // this.scenesTree = this.mainData.storage.scenesTree;
+    // this.ruleText = this.mainData.storage.ruleText;
+    // this.ruleTextFinal = this.mainData.storage.ruleTextFinal;
+    // this.instanceLayer=this.mainData.storage.instanceLayer;
+    // this.modelLayer=this.mainData.storage.modelLayer;
+    // this.interactiveInstances=this.mainData.storage.interactiveInstances;
+    // // this.staticAnalysisResult=this.mainData.storage.staticAnalysisResult
+    // this.initModelFileName=this.mainData.storage.initModelFileName;
+    // this.rules=this.mainData.storage.rules;
+    // this.attributeNames=this.mainData.storage.attributeNames;
   }
 
   ngOnInit(): void {
-    document.getElementById("simulation")!.style.display="none";
-    document.getElementById("all_scenes_tree")!.style.display = this.show_tree;
-    document.getElementById("scenes_rules")!.style.display = this.show_scenes_rules;
-    document.getElementById("rules_scenes")!.style.display = this.show_rules_scenes;
+    // document.getElementById("simulation")!.style.display="none";
+    // document.getElementById("all_scenes_tree")!.style.display = this.show_tree;
+    // document.getElementById("scenes_rules")!.style.display = this.show_scenes_rules;
+    // document.getElementById("rules_scenes")!.style.display = this.show_rules_scenes;
 
 
     console.log("chart")
@@ -102,6 +155,7 @@ export class MainComponent implements OnInit {
     scenesTreeChart.on('click', function (params: any) {
       console.log(scenesTreeChart)
       if (params.data.name.indexOf("details") >= 0) {
+        console.log("details")
         var sceneName = params.data.name.replace(" details", "").trim();
         selectedSceneName = sceneName;
       }
@@ -110,25 +164,36 @@ export class MainComponent implements OnInit {
       // console.log("sceNameOut"+sceName);
       if (this.selectedSceneName != selectedSceneName) {
         this.selectedSceneName = selectedSceneName;
-        console.log("toSceneDetail selectedName:" + this.selectedSceneName)
-        if (this.scenes.length > 0 ) {
-          //////点击跳转到某个场景细节页面
-          console.log("toSceneDetail scene:" + this.scenes)
-            this.mainData.storage = {
-              scenes: this.scenes,
-              selectedSceneName: this.selectedSceneName,
-              simulationTime: this.simulationTime,
-              scenesTree: this.scenesTree,
-              ruleText: this.ruleText,
-              staticAnalysisResult:this.staticAnalysisResult,
-              environmentModel:this.environmentModel,
-              initModelFileName:this.initModelFileName,
-              propertyFileName:this.propertyFileName
-            }
-            this.router.navigate(["scene-details"]);
-        } else {
-          alert("on simulation...")
+        ////找到对应的scenario
+        var selectedScenario=new Scenario();
+        for(var i=0;i<this.scenarios.length;i++){
+          if(this.scenarios[i].scenarioName===this.selectedSceneName){
+            selectedScenario=this.scenarios[i];
+            break;
+          }
         }
+        console.log("toSceneDetail selectedName:" + this.selectedSceneName)
+        if(selectedScenario.scenarioName!=""){
+          this.goToSingleScenarioAnalysis(selectedScenario);
+        }
+        // if (this.scenes.length > 0 ) {
+        //   //////点击跳转到某个场景细节页面
+        //   console.log("toSceneDetail scene:" + this.scenes)
+        //     this.mainData.storage = {
+        //       scenes: this.scenes,
+        //       selectedSceneName: this.selectedSceneName,
+        //       simulationTime: this.simulationTime,
+        //       scenesTree: this.scenesTree,
+        //       ruleText: this.ruleText,
+        //       staticAnalysisResult:this.staticAnalysisResult,
+        //       environmentModel:this.environmentModel,
+        //       initModelFileName:this.initModelFileName,
+        //       propertyFileName:this.propertyFileName
+        //     }
+        //     this.router.navigate(["scene-details"]);
+        // } else {
+        //   alert("on simulation...")
+        // }
         this.selectedSceneName="";
         selectedSceneName=""
       }
@@ -207,23 +272,17 @@ export class MainComponent implements OnInit {
     console.log(this.staticAnalysisResult)
     if(this.staticAnalysisResult!=null&&this.environmentModel!=null){
       
-      this.dynamicAnalysisService.generateBestScenarioModelAndSimulate(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scene=>{
+      // this.dynamicAnalysisService.generateBestScenarioModelAndSimulate(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scene=>{
         
-        console.log(scene)
-        this.mainData.storage = {
-          selectedSceneName:"",
-          scenes: this.scenes,
-          scene: scene,
-          simulationTime: this.simulationTime,
-          scenesTree: this.scenesTree,
-          ruleText: this.ruleText,
-          staticAnalysisResult:this.staticAnalysisResult,
-          environmentModel:this.environmentModel,
-          initModelFileName:this.initModelFileName,
-          propertyFileName:this.propertyFileName
-        }
-        this.router.navigate(["scene-details"]);
-      })
+      //   console.log(scene)
+      //   // this.mainData.storage = {
+      //   //   simulationTime: this.simulationTime,
+      //   //   scenesTree: this.scenesTree,
+      //   //   ruleText: this.ruleText,
+      //   //   initModelFileName:this.initModelFileName
+      //   // }
+      //   this.router.navigate(["scene-details"]);
+      // })
     }
   }
 
@@ -237,13 +296,13 @@ export class MainComponent implements OnInit {
     console.log(this.environmentModel)
     console.log(this.staticAnalysisResult)
     if(this.staticAnalysisResult!=null&&this.environmentModel!=null){
-      this.dynamicAnalysisService.generateAllScenarioModels(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scenesTree=>{
-        this.scenesTree=scenesTree;
-        alert("Scenario models generated!")
-        console.log(this.scenesTree)
-        var generateTime=new Date().getTime()-t1;
-      console.log("generateTime:"+generateTime);
-      })
+      // this.dynamicAnalysisService.generateAllScenarioModels(this.environmentModel,this.staticAnalysisResult.usableRules,this.initModelFileName,this.simulationTime).subscribe(scenesTree=>{
+      //   this.scenesTree=scenesTree;
+      //   alert("Scenario models generated!")
+      //   console.log(this.scenesTree)
+      //   var generateTime=new Date().getTime()-t1;
+      // console.log("generateTime:"+generateTime);
+      // })
     }
   }
   /////仿真
@@ -298,7 +357,7 @@ export class MainComponent implements OnInit {
     this.show_rules_scenes = "none";
     // const scenesRulesChart=echarts.init(document.getElementById("scenesRulesBarid"));
     // scenesRulesChart.showLoading();
-    this.getScenesRulesOption()
+    // this.getScenesRulesOption()
   }
 
   showRulesScenesResults() {
@@ -310,7 +369,7 @@ export class MainComponent implements OnInit {
     this.show_rules_scenes = "block";
     // const rulesScenesChart=echarts.init(document.getElementById("ruleScenesBarid"));
     // rulesScenesChart.showLoading();
-    this.getRulesScenesoption();
+    // this.getRulesScenesoption();
   }
 
 
@@ -319,18 +378,14 @@ export class MainComponent implements OnInit {
   /////总的分析
   toRuleAnalysis(){
     if (this.scenes.length > 0 && !this.onSimulation) {
-      this.mainData.storage = {
-        scenes: this.scenes,
-        simulationTime: this.simulationTime,
-        scenesTree: this.scenesTree,
-        ruleText: this.ruleText,
-        staticAnalysisResult:this.staticAnalysisResult,
-        environmentModel:this.environmentModel,
-        equivalentTime:"24",
-        intervalTime:"300",
-        initModelFileName:this.initModelFileName,
-        propertyFileName:this.propertyFileName
-      }
+      // this.mainData.storage = {
+      //   simulationTime: this.simulationTime,
+      //   scenesTree: this.scenesTree,
+      //   ruleText: this.ruleText,
+      //   equivalentTime:"24",
+      //   intervalTime:"300",
+      //   initModelFileName:this.initModelFileName,
+      // }
       this.router.navigate(["rule-analysis"]);
     } else {
       alert("on simulation...")
@@ -338,25 +393,25 @@ export class MainComponent implements OnInit {
   }
 
 
-  getRulesScenesoption() {
-    if (this.scenes.length > 0 ) {
-      this.sceneService.getRulesScenesData(this.scenes,this.staticAnalysisResult!).subscribe(option => {
-        this.rulesScenesOption = option;
-      })
-    } else {
-      alert("on simulation...")
-    }
-  }
+  // getRulesScenesoption() {
+  //   if (this.scenes.length > 0 ) {
+  //     this.sceneService.getRulesScenesData(this.scenes,this.staticAnalysisResult!).subscribe(option => {
+  //       this.rulesScenesOption = option;
+  //     })
+  //   } else {
+  //     alert("on simulation...")
+  //   }
+  // }
 
-  getScenesRulesOption() {
-    if (this.scenes.length > 0 ) {
-      this.sceneService.getScenesRulesData(this.scenes,this.staticAnalysisResult!.totalRules).subscribe(option => {
-        this.scenesRulesOption = option;
-      })
-    } else {
-      alert("on simulation...")
-    }
-  }
+  // getScenesRulesOption() {
+  //   if (this.scenes.length > 0 ) {
+  //     this.sceneService.getScenesRulesData(this.scenes,this.staticAnalysisResult!.totalRules).subscribe(option => {
+  //       this.scenesRulesOption = option;
+  //     })
+  //   } else {
+  //     alert("on simulation...")
+  //   }
+  // }
 
   getScenesTreeOption() {
     if (this.scenesTree!= null) {
@@ -466,8 +521,6 @@ export class MainComponent implements OnInit {
       async:false,
       success: function (data) {
         ///也是接收数据
-        console.log(this.initModelFileName)
-        console.log(data)
         console.log("success")
         // if(data.code == 500){
         //     console.log(data.msg)
@@ -486,6 +539,17 @@ export class MainComponent implements OnInit {
       //返回模型层数据
       console.log(modelLayer)
       this.modelLayer=modelLayer;
+      if(this.modelLayer!=null){
+        var attributeEntityType=this.modelLayer.attributeEntity;
+        ////将添加环境属性
+        for(var i=0;i<attributeEntityType.attributes.length;i++){
+          var attribute=attributeEntityType.attributes[i];
+          console.log(attribute)
+          this.attributeNames.push(attribute.attribute);
+        }
+        console.log(this.attributeNames)
+      }
+      
     }))
   }
 
@@ -521,22 +585,250 @@ export class MainComponent implements OnInit {
         error: function (data) {
           
         }
-      }).done((instanceLayer=>{
+      }).done((interactiveLayerAndRules=>{
         //返回模型层数据
-        console.log(instanceLayer)
-        this.instanceLayer=instanceLayer;
+        console.log(interactiveLayerAndRules)
+        this.instanceLayer=interactiveLayerAndRules.instanceLayer;
+        this.modelLayer=interactiveLayerAndRules.modelLayer
       }))
     }
     
   }
 
-
+////自动建模，根据规则和实例层模型层生成交互环境模型
   generateAllScenarioModels(){
-    document.getElementById("static")!.style.display="none";
-    document.getElementById("simulation")!.style.display="block";
-    if(!this.modelLayer&&!this.instanceLayer){
+    
+    if(!this.modelLayer&&!this.instanceLayer&&this.ruleTextFinal!=this.ruleText){
+      this.ruleTextFinal=this.ruleText;
 
     }
   }
+
+  generateInteractiveEnvironment(){
+    if(this.modelLayer==null){
+      alert("Please upload the environment ontology file!")
+    }else
+    if(this.instanceLayer==null){
+      alert("Please upload the instance information file!")
+    }else
+    if(this.ruleTextFinal!=this.ruleText){
+      this.ruleTextFinal=this.ruleText;
+      this.modelGenerateService.genererateInteractiveEnvironment(this.ruleTextFinal,this.modelLayer,this.instanceLayer).subscribe(instanceAndRules=>{
+        console.log(instanceAndRules)
+        this.rules=instanceAndRules.rules;
+        this.interactiveInstances=instanceAndRules.interactiveInstance
+        this.ifdFileName=instanceAndRules.ifdFileName;
+      })
+    }
+  }
+
+  getInteractiveInstanceNum():number{
+    var sum=0;
+    if(this.interactiveInstances.humanInstance.instanceName!=""){
+      sum++;
+    }
+    if(this.interactiveInstances.attributeEntityInstance.instanceName!=""){
+      sum++;
+    }
+    sum+=this.interactiveInstances.cyberServiceInstances.length;
+    sum+=this.interactiveInstances.uncertainEntityInstances.length;
+    sum+=this.interactiveInstances.deviceInstances.length;
+    return sum;
+  }
+
+  backToHomePage(){
+    this.isHomePage=true;
+    this.isDynamicAnalysis=false;
+    this.isStaticAnalysis=false;
+  }
+
+  staticAnalysis(){
+    this.isHomePage=false;
+    this.isDynamicAnalysis=false;
+    this.isStaticAnalysis=true;
+  }
+
+  displayStaticAnalysisResults(){
+    alert("static")
+  }
+  displayIFD(){
+    alert("ifd")
+  }
+
+  dynamicAnalysis(){
+    this.isHomePage=false;
+    this.isDynamicAnalysis=true;
+    this.isStaticAnalysis=false;
+
+
+    // this.attributeNames.push("temperature");
+    // this.attributeNames.push("humidity");
+  }
+  selectAnalysisType(){
+    
+  }
+
+  addAttributeValue(){
+    //设置attribute的取值，先判断是否已经存在，如果存在直接将值重新设置，如果不存在则添加
+    if(this.selectAttributeName==="0"){
+      return;
+    }
+    for(var i=0;i<this.attributeValues.length;i++){
+      if(this.selectAttributeName===this.attributeValues[i][0]){
+        var value=parseFloat(this.setAttributeValue+"").toFixed(1);
+        this.attributeValues[i][1]=value;
+        console.log(this.attributeValues)
+        return;
+      }
+    }
+    var attributeValue=new Array<string>();
+    attributeValue.push(this.selectAttributeName);
+    var value=parseFloat(this.setAttributeValue+"").toFixed(1);
+    attributeValue.push(value);
+    this.attributeValues.push(attributeValue);
+
+    console.log(this.attributeValues)
+
+  }
+
+  generateSingleScenario(){
+    if(this.modelLayer==null){
+      alert("Please upload the environment ontology file!")
+    }else
+    if(this.instanceLayer==null){
+      alert("Please upload the instance information file!")
+    }else if(this.interactiveInstances==null){
+      alert("Please click automatic modeling button!")
+    }else{
+      this.modelGenerateService.generateSingleScenario(this.initModelFileName,this.modelLayer,this.instanceLayer,this.interactiveInstances,this.rules,this.simulationTime,this.attributeValues).subscribe(singleModelFileName=>{
+        console.log(singleModelFileName)
+        this.singleModelFileName=singleModelFileName[0];
+      })
+    }
+    
+  }
+
+  simulateSingleScenario(){
+    if(this.singleModelFileName!=""&&this.instanceLayer!=null){
+      console.log("...")
+      this.modelGenerateService.simulateSingleScenario(this.singleModelFileName,this.instanceLayer).subscribe(scenario=>{
+        console.log(scenario)
+        this.singleScenario=scenario;
+        
+      })
+    }
+  }
+
+
+  generateMultipeScenarios(){
+    if(this.modelLayer==null){
+      alert("Please upload the environment ontology file!")
+    }else
+    if(this.instanceLayer==null){
+      alert("Please upload the instance information file!")
+    }else if(this.interactiveInstances==null){
+      alert("Please click automatic modeling button!")
+    }else{
+      this.modelGenerateService.genereteMultipleScenarios(this.initModelFileName,this.modelLayer,this.instanceLayer,this.interactiveInstances,this.rules,this.simulationTime).subscribe(scenesTree=>{
+        console.log(scenesTree)
+        this.scenesTree=scenesTree;
+        ///场景树的图
+        this.getScenesTreeOption();
+        ///每个场景触发的规则数
+
+        ///
+      })
+    }
+  }
+
+  simulateMultiScenarios(){
+    if(this.modelLayer==null){
+      alert("Please upload the environment ontology file!")
+    }else
+    if(this.instanceLayer==null){
+      alert("Please upload the instance information file!")
+    }else if(this.interactiveInstances==null){
+      alert("Please click automatic modeling button!")
+    }else if(this.scenesTree?.children.length==0){
+      alert("Please generate all scenario models!")
+    }else{
+      console.log("ssd")
+      this.modelGenerateService.simulateAllScenarios(this.initModelFileName,this.instanceLayer,this.scenesTree).subscribe(scenarios=>{
+        console.log(scenarios)
+        this.scenarios=scenarios;
+      })
+    }
+  }
+
+  displayScenarioTreeGraph(){
+    this.getScenesTreeOption();
+    this.showGraph="scenesTree";
+    
+  }
+
+  verifyPropertis(){
+    ////跳转到综合分析界面
+    this.mainData.storage.ruleText=this.ruleText;
+    this.mainData.storage.ruleTextFinal=this.ruleTextFinal;
+    this.mainData.storage.modelLayer=this.modelLayer;
+    this.mainData.storage.instanceLayer=this.instanceLayer;
+    this.mainData.storage.interactiveInstances=this.interactiveInstances;
+    this.mainData.storage.rules=this.rules;
+    this.mainData.storage.scenarios=this.scenarios;
+    this.mainData.storage.scenesTree=this.scenesTree;
+    this.mainData.storage.simulationTime=this.simulationTime;
+    this.mainData.storage.singleScenario=this.singleScenario;
+    this.mainData.storage.attributeNames=this.attributeNames;
+    this.mainData.storage.initModelFileName=this.initModelFileName;
+    this.mainData.storage.equivalentTime=this.equivalentTime;
+    this.mainData.storage.attributeValues=this.attributeValues;
+    this.mainData.storage.ifdFileName=this.ifdFileName;
+    this.router.navigate(["rule-analysis"]);
+  }
+
+  ////跳转到单场景分析界面
+  getScenarioAnalysisResult(){
+    this.goToSingleScenarioAnalysis(this.singleScenario);
+  }
+
+  ////跳转到单场景分析界面,并记住各属性取值
+  goToSingleScenarioAnalysis(scenario:Scenario){
+    this.mainData.storage.ruleText=this.ruleText;
+    this.mainData.storage.ruleTextFinal=this.ruleTextFinal;
+    this.mainData.storage.modelLayer=this.modelLayer;
+    this.mainData.storage.instanceLayer=this.instanceLayer;
+    this.mainData.storage.interactiveInstances=this.interactiveInstances;
+    this.mainData.storage.rules=this.rules;
+    this.mainData.storage.scenarios=this.scenarios;
+    this.mainData.storage.scenesTree=this.scenesTree;
+    this.mainData.storage.selectedScenario=scenario;
+    this.mainData.storage.simulationTime=this.simulationTime;
+    this.mainData.storage.singleScenario=this.singleScenario;
+    this.mainData.storage.attributeNames=this.attributeNames;
+    this.mainData.storage.initModelFileName=this.initModelFileName;
+    this.mainData.storage.equivalentTime=this.equivalentTime;
+    this.mainData.storage.attributeValues=this.attributeValues;
+    this.mainData.storage.ifdFileName=this.ifdFileName;
+    // this.mainData.storage = {
+      
+    //   scenarios:this.scenarios,
+    //   selectedScenario: scenario,
+    //   singleScenario:this.singleScenario,
+    //   simulationTime: this.simulationTime,
+    //   equivalentTime: this.equivalentTime,
+    //   scenesTree: this.scenesTree,
+    //   ruleText:this.ruleText,
+    //   ruleTextFinal: this.ruleTextFinal,
+    //   staticAnalysisResult:this.staticAnalysisResult,
+    //   modelLayer:this.modelLayer,
+    //   instanceLayer:this.instanceLayer,
+    //   interactiveInstances:this.interactiveInstances,
+    //   initModelFileName:this.initModelFileName,
+    //   rules:this.rules
+
+    // }
+    this.router.navigate(["scene-details"]);
+  }
+  
 
 }

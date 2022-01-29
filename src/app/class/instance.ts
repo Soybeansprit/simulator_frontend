@@ -4,12 +4,12 @@ import { AttributeEntityType, CyberServiceType, DeviceType, Human, SensorType, U
  * 实例层
  * */
 export class InstanceLayer {
-    private humanInstance=new HumanInstance();
-    private attributeEntityInstance=new AttributeEntityInstance();
-    private uncertainEntityInstances=new Array<UncertainEntityInstance>();
-    private cyberServiceInstances=new Array<CyberServiceInstance>();
-    private deviceInstances=new Array<DeviceInstance>();
-    private sensorInstances=new Array<SensorInstance>();
+     humanInstance=new HumanInstance();
+     attributeEntityInstance=new AttributeEntityInstance();
+     uncertainEntityInstances=new Array<UncertainEntityInstance>();
+     cyberServiceInstances=new Array<CyberServiceInstance>();
+     deviceInstances=new Array<DeviceInstance>();
+     sensorInstances=new Array<SensorInstance>();
 
     public getHumanInstance() {
         return this.humanInstance;
@@ -61,8 +61,8 @@ export class InstanceLayer {
 }
 
 export class Instance {
-    private instanceName="";
-    private entityTypeName="";
+     instanceName="";
+     entityTypeName="";
 
     public  getInstanceName() {
         return this.instanceName;
@@ -82,9 +82,9 @@ export class Instance {
 }
 
 export class DeviceInstance extends Instance{
-    private location="";
-    private sequenceNumber=0;
-    private deviceType=new DeviceType();
+     location="";
+     sequenceNumber=0;
+     deviceType=new DeviceType();
 
     public getLocation() {
         return this.location;
@@ -112,7 +112,7 @@ export class DeviceInstance extends Instance{
 }
 
 export class CyberServiceInstance extends Instance{
-    private cyberServiceType=new CyberServiceType();
+     cyberServiceType=new CyberServiceType();
 
     public getCyberServiceType() {
         return this.cyberServiceType;
@@ -124,7 +124,7 @@ export class CyberServiceInstance extends Instance{
 }
 
 export class SensorInstance extends Instance{
-    private sensorType=new SensorType();
+     sensorType=new SensorType();
 
     public getSensorType() {
         return this.sensorType;
@@ -136,7 +136,7 @@ export class SensorInstance extends Instance{
 }
 
 export class UncertainEntityInstance extends Instance{
-    private uncertainEntityType=new UncertainEntityType();
+     uncertainEntityType=new UncertainEntityType();
 
     public getUncertainEntityType() {
         return this.uncertainEntityType;
@@ -147,7 +147,7 @@ export class UncertainEntityInstance extends Instance{
     }
 }
 export class HumanInstance extends Instance{
-    private human=new Human();
+     human=new Human();
 
     public getHuman() {
         return this.human;
@@ -158,7 +158,7 @@ export class HumanInstance extends Instance{
     }
 }
 export class AttributeEntityInstance extends Instance{
-    private attributeEntityType=new AttributeEntityType();
+     attributeEntityType=new AttributeEntityType();
 
     public getAttributeEntityType() {
         return this.attributeEntityType;

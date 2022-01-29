@@ -3,12 +3,12 @@
  * 包括 人、不确定实体、包含各环境属性的实体（air）、设备、传感器
  * */
  export class ModelLayer {
-    private human=new Human();  ///一个人类型模型
-    private attributeEntity=new AttributeEntityType();  ///一个具有各环境属性的实体类型模型
-    private uncertainEntityTypes=new Array<UncertainEntityType>();  ///不确定实体类型
-    private deviceTypes=new Array<DeviceType>();   ///设备类型
-    private sensorTypes=new Array<SensorType>();   ///传感器类型
-    private cyberServiceTypes=new Array<CyberServiceType>();  ///cyber service类型
+     human=new Human();  ///一个人类型模型
+     attributeEntity=new AttributeEntityType();  ///一个具有各环境属性的实体类型模型
+     uncertainEntityTypes=new Array<UncertainEntityType>();  ///不确定实体类型
+     deviceTypes=new Array<DeviceType>();   ///设备类型
+     sensorTypes=new Array<SensorType>();   ///传感器类型
+     cyberServiceTypes=new Array<CyberServiceType>();  ///cyber service类型
 
     public getHuman() {
         return this.human;
@@ -60,8 +60,8 @@
 }
 
 export class EntityType{
-    private typeName:string=""; ///类型名
-    private identifier=""; ///状态标识符
+     typeName:string=""; ///类型名
+     identifier=""; ///状态标识符
 
     public getTypeName() {
         return this.typeName;
@@ -85,8 +85,8 @@ export class EntityType{
  * 设备类型名，状态标识符，【设备状态名、信号通道、状态标识符取值以及对各个属性的影响值】
  * */
 export class DeviceType extends EntityType{
-    private instanceNumber=0;  ///实例数
-    private stateSyncValueEffects:Array<StateSyncValueEffect>=new Array<StateSyncValueEffect>();  //各状态信息
+     instanceNumber=0;  ///实例数
+     stateSyncValueEffects:Array<StateSyncValueEffect>=new Array<StateSyncValueEffect>();  //各状态信息
     public getStateSyncValueEffects() {
 		return this.stateSyncValueEffects;
 	}
@@ -98,11 +98,11 @@ export class DeviceType extends EntityType{
 }
 
 export class StateSyncValueEffect {
-    private stateName="";  ///状态名
-    private stateId="";    ///对应xml文件中的节点id
-    private synchronisation="";   ///对应同步信号通道
-    private value="";  ///identifier取值
-    private effects=new Array<String[]>();  ///effect[0]=attribute, effect[1]=delta（对于会对总变化率产生影响的）, effect[2]=影响值
+     stateName="";  ///状态名
+     stateId="";    ///对应xml文件中的节点id
+     synchronisation="";   ///对应同步信号通道
+     value="";  ///identifier取值
+     effects=new Array<String[]>();  ///effect[0]=attribute, effect[1]=delta（对于会对总变化率产生影响的）, effect[2]=影响值
 
     public getStateName() {
         return this.stateName;
@@ -153,7 +153,7 @@ export class StateSyncValueEffect {
  * 直接把time声明在human模型下，作为局部变量
  * */
 export class Human extends EntityType{
-    private stateValues=new Array<string[]>();  //////stateValue[0]=状态名,stateValue[1]=状态id,stateValue[2]=状态标识符取值
+     stateValues=new Array<string[]>();  //////stateValue[0]=状态名,stateValue[1]=状态id,stateValue[2]=状态标识符取值
     public getStateValues() {
         return this.stateValues;
     }
@@ -169,12 +169,12 @@ export class Human extends EntityType{
  * 传感器类型名，检测属性，检测属性类型
  * */
  export class SensorType extends EntityType{
-	private monitoredEntityType=""; //检测属性所属模型类型
-	private attribute="";  ///传感器检测什么属性
+	 monitoredEntityType=""; //检测属性所属模型类型
+	 attribute="";  ///传感器检测什么属性
 
 
-	private style="";   ///该属性所属实体的类型 "causal" or "biddable"
-	private name="";
+	 style="";   ///该属性所属实体的类型 "causal" or "biddable"
+	 name="";
 
 	public getStyle() {
 		return this.style;
@@ -212,7 +212,7 @@ export class Human extends EntityType{
  * 实体类型名，状态标识符，【状态名、状态标识符取值】
  * */
  export class UncertainEntityType extends EntityType{
-    private stateValues=new Array<string[]>();  ///stateValue[0]=状态名,stateValue[1]=状态id,stateValue[2]=状态标识符取值
+     stateValues=new Array<string[]>();  ///stateValue[0]=状态名,stateValue[1]=状态id,stateValue[2]=状态标识符取值
 
 
 
@@ -229,7 +229,7 @@ export class Human extends EntityType{
  * cyber service类型。类型名，【状态、信号通道】
  * */
  export class CyberServiceType extends EntityType{
-    private stateSyncs=new Array<string[]>();  ///stateSync[0]=stateId,stateSync[1]=synchronization
+     stateSyncs=new Array<string[]>();  ///stateSync[0]=stateId,stateSync[1]=synchronization
 
 
     public getStateSyncs() {
@@ -246,7 +246,7 @@ export class Human extends EntityType{
  * 实体类型名,【内容、属性名、属性总变化率变量名】
  * */
  export class AttributeEntityType extends EntityType{
-    private attributes=new Array<Attribute>();
+     attributes=new Array<Attribute>();
 
 
     public getAttributes() {
@@ -261,9 +261,9 @@ export class Human extends EntityType{
 }
 
 export class Attribute{
-    private content="";  ///内容 temperature'==dtemper   更改了模型，添加了一个Attribute模型，用来表示各个属性的变化
-    private attribute="";  ////temperature
-    private delta="";  ////dtemper
+     content="";  ///内容 temperature'==dtemper   更改了模型，添加了一个Attribute模型，用来表示各个属性的变化
+     attribute="";  ////temperature
+     delta="";  ////dtemper
     public getContent() {
         return this.content;
     }

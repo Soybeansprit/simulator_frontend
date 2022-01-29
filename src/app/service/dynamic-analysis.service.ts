@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
-import { EnvironmentModel, Rule ,EnvironmentRule, DeviceDetail, Scene, SceneTreeDevice, SceneEnvironmentProperty, SceneEnvironmentRule, ScenePropertyResult, PropertyVerifyResult} from '../class/scene';
+import { EnvironmentModel ,EnvironmentRule, DeviceDetail, Scene, SceneTreeDevice, SceneEnvironmentProperty, SceneEnvironmentRule, ScenePropertyResult, PropertyVerifyResult} from '../class/scene';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { observable, Observable, of } from 'rxjs';
 import { ScenesTree } from '../class/scenes-tree';
+import { DeviceStateAndCausingRules, Scenario } from '../class/simulation';
+import { DeviceInstance, InstanceLayer } from '../class/instance';
+import { Rule } from '../class/rule';
+import { LocationInput } from '../class/input-style';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +19,37 @@ export class DynamicAnalysisService {
   };
   address:string="http://localhost:8083/";
 
+  searchAllScenariosConflict(scenarios:Array<Scenario>):Observable<Array<Scenario>>{
+    var url=this.address+`analysis/searchAllScenariosConflict`;
+    return this.http.post<Array<Scenario>>(url,scenarios,this.httpOptions);
+  }
+  
+  searchAllScenariosJitter(scenarios:Array<Scenario>,intervalTime:string,simulationTime:string,equivalentTime:string):Observable<Array<Scenario>>{
+    var url=this.address+`analysis/searchAllScenariosJitter?intervalTime=${intervalTime}&simulationTime=${simulationTime}&equivalentTime=${equivalentTime}`;
+    return this.http.post<Array<Scenario>>(url,scenarios,this.httpOptions);
+  }
+  
+  locateAllScenariosConflict(scenarios:Array<Scenario>,deviceInstances:Array<DeviceInstance>,rules:Array<Rule>,ifdFileName:string):Observable<Array<Array<Array<DeviceStateAndCausingRules>>>>{
+    var locationInput=new LocationInput();
+    locationInput.deviceInstances=deviceInstances;
+    locationInput.scenarios=scenarios;
+    locationInput.rules=rules;
+    locationInput.ifdFileName=ifdFileName;
+    var url=this.address+`analysis/locateAllScenariosConflict`;
+    return this.http.post<Array<Array<Array<DeviceStateAndCausingRules>>>>(url,locationInput,this.httpOptions);
+  }
+
+  locateAllScenariosJitter(scenarios:Array<Scenario>,deviceInstances:Array<DeviceInstance>,rules:Array<Rule>,ifdFileName:string):Observable<Array<Array<Array<DeviceStateAndCausingRules>>>>{
+    var locationInput=new LocationInput();
+    locationInput.deviceInstances=deviceInstances;
+    locationInput.scenarios=scenarios;
+    locationInput.rules=rules;
+    locationInput.ifdFileName=ifdFileName;
+    var url=this.address+`analysis/locateAllScenariosJitter`;
+    return this.http.post<Array<Array<Array<DeviceStateAndCausingRules>>>>(url,locationInput,this.httpOptions);
+  }
+  
+  
   generateAllModels(){
     
   }
