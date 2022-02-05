@@ -3,8 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { observable, Observable, of } from 'rxjs';
 import { ModelLayer } from '../class/model';
 import { InstanceLayer } from '../class/instance';
-import { InteractiveLayerAndRules } from '../class/output-style';
-import { ModelInstanceLayerAndRuleStrs, MultiScenarioGenerateInput, MultiScenarioSimulateInput, SingleScenarioGenerateInput } from '../class/input-style';
+import { BestScenarioOutput, InteractiveLayerAndRules } from '../class/output-style';
+import { BestScenarioGenerateInput, ModelInstanceLayerAndRuleStrs, MultiScenarioGenerateInput, MultiScenarioSimulateInput, SingleScenarioGenerateInput } from '../class/input-style';
 import { Rule } from '../class/rule';
 import { DataTimeValue, Scenario, ScenesTree } from '../class/simulation';
 
@@ -56,8 +56,22 @@ export class ModelGenerateService {
     return this.http.post<Array<string>>(url,singleScenarioGenerateInput,this.httpOptions);
   }
 
-  ////生成最佳仿真场景
 
+
+  ////生成最佳仿真场景
+  generateBestScenario(modelFileName:string,modelLayer:ModelLayer,instanceLayer:InstanceLayer,interactiveInstance:InstanceLayer,rules:Array<Rule>,simulationTime:string,ifdFileName:string):Observable<BestScenarioOutput>{
+    var bestScenarioGenerateInput:BestScenarioGenerateInput={
+      modelFileName:modelFileName,
+      modelLayer:modelLayer,
+      instanceLayer:instanceLayer,
+      interactiveInstance:interactiveInstance,
+      rules:rules,
+      simulationTime:simulationTime,
+      ifdFileName:ifdFileName
+    }
+    var url=this.address+`analysis/generateBestScenario`;
+    return this.http.post<BestScenarioOutput>(url,bestScenarioGenerateInput,this.httpOptions);
+  }
 
   ////仿真单个场景,并返回仿真路径
   simulateSingleScenario(modelFileName:string,instanceLayer:InstanceLayer):Observable<Scenario>{

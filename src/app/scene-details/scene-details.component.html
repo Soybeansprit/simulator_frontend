@@ -7,7 +7,20 @@
                     <div echarts [options]="rulesOptions" [autoResize]="true" theme="macarons" class="demo-chart">
                     </div>
                 </div>
-                <div class="inner_scope" style="height: 25%;margin-top: 10px;">
+                <div class="inner_scope" style="height: 25%;margin-top: 10px;display:flex;flex-direction:column;">
+                    <div style="display:flex;flex-direction:row;">
+                        <h2 style="font-size: 20px;color: black;">Simulation trace of attributes:</h2>
+                        <select class="select_form" [(ngModel)]="selectAttributeNameGraph"
+                                style=" margin-left: 10px;margin-top: 5px;">
+                                <option value="0" selected="selected">--select attribute--</option>
+                                <option *ngFor="let attributeName of attributeNames" [value]="attributeName">
+                                    {{attributeName}}</option>
+    
+                        </select>
+                        <button style="margin-top: 5px;margin-left: 10px; height: 30px;" (click)="showAttributeGraph()">Show Graph</button>
+                    </div>
+                    <div echarts [options]="attributeOption" [autoResize]="true"  class="demo-chart" style="height: 100px;">
+                    </div>
 
                 </div>
                 <div class="inner_scope" style="height: 20%;margin-top: 10px;">
@@ -18,7 +31,7 @@
                             <option value="0" selected="selected">--select attribute--</option>
                             <option *ngFor="let attributeName of attributeNames" [value]="attributeName">
                                 {{attributeName}}</option>
-
+                            
                         </select>
                         <div class="simulation_time" style="margin-left: 20px;width: 200px;">
                             <b style="font-size: 15px;color: black;margin-left: 10px;">Expected range:</b>

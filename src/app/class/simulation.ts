@@ -116,3 +116,16 @@ export class RuleAndPreRule{
     currentRule=new Rule();
     preRules=new Array<RuleAndPreRule>();
 }
+
+
+
+
+
+
+export class PropertyAnalysisResult {
+    property="";
+	reachable=false;
+    relatedRules=new Array<Rule>();
+    addRuleContents=new Array<string>();
+
+}

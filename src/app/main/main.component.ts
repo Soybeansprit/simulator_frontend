@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SceneService } from '../service/scene.service';
-import { EnvironmentModel, Scene, StaticAnalysisResult } from '../class/scene';
+import { EnvironmentModel, Scene } from '../class/scene';
 import * as echarts from 'echarts';
 import { UploadFileService } from '../service/upload-file.service';
 import { FileUploader } from 'ng2-file-upload';
@@ -11,7 +11,7 @@ import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 import { Attribute, ModelLayer } from '../class/model';
 import * as $ from "jquery";
 import { InstanceLayer } from '../class/instance';
-import { Rule } from '../class/rule';
+import { Rule, StaticAnalysisResult } from '../class/rule';
 import { ModelGenerateService } from '../service/model-generate.service';
 import { DataTimeValue, Scenario, ScenesTree } from '../class/simulation';
 import { data } from 'jquery';
@@ -49,7 +49,6 @@ export class MainComponent implements OnInit {
   address:string='http://localhost:8083/';
 
   environmentModel:EnvironmentModel|null=null;
-  staticAnalysisResult:StaticAnalysisResult|null=null;
 
   uploader: FileUploader = new FileUploader({
     url: this.address+'analysis/upload',
@@ -96,6 +95,8 @@ export class MainComponent implements OnInit {
   rules:Array<Rule>=new Array<Rule>();
   interactiveInstances:InstanceLayer=new InstanceLayer();
   ifdFileName="";
+  staticAnalysisResult=new StaticAnalysisResult();
+  showStaticResultOrIFD="staticResult";
 
   singleModelFileName="";
   singleScenario=new Scenario();
@@ -250,20 +251,20 @@ export class MainComponent implements OnInit {
 
 
   //////静态分析
-  getStaticAnalysisResult(){
-    document.getElementById("static")!.style.display="block";
-    document.getElementById("simulation")!.style.display="none";
-    this.ruleText=this.ruleText.trim();
-    var t1=new Date().getTime();
-    this.staticAnalysisResult=null;
-    this.staticAnalysisService.getStaticAnalysisResult(this.ruleText,this.initModelFileName,this.propertyFileName).subscribe(environmentStatic=>{
-      console.log(environmentStatic)
-      this.staticAnalysisResult=environmentStatic.staticAnalysisResult
-      this.environmentModel=environmentStatic.environmentModel;
-      var staticTime=new Date().getTime()-t1;
-      console.log("staticTime:"+staticTime);
-    })
-  }
+  // getStaticAnalysisResult(){
+  //   document.getElementById("static")!.style.display="block";
+  //   document.getElementById("simulation")!.style.display="none";
+  //   this.ruleText=this.ruleText.trim();
+  //   var t1=new Date().getTime();
+  //   this.staticAnalysisResult=null;
+  //   this.staticAnalysisService.getStaticAnalysisResult(this.ruleText,this.initModelFileName,this.propertyFileName).subscribe(environmentStatic=>{
+  //     console.log(environmentStatic)
+  //     this.staticAnalysisResult=environmentStatic.staticAnalysisResult
+  //     this.environmentModel=environmentStatic.environmentModel;
+  //     var staticTime=new Date().getTime()-t1;
+  //     console.log("staticTime:"+staticTime);
+  //   })
+  // }
 
   /////获得最佳场景分析结果
   getBestScenarioAnalysis(){
@@ -646,13 +647,17 @@ export class MainComponent implements OnInit {
     this.isHomePage=false;
     this.isDynamicAnalysis=false;
     this.isStaticAnalysis=true;
+    this.staticAnalysisService.getStaticAnalysis(this.rules,this.interactiveInstances).subscribe(staticAnalysis=>{
+      console.log(staticAnalysis)
+      this.staticAnalysisResult=staticAnalysis;
+    })
   }
 
   displayStaticAnalysisResults(){
-    alert("static")
+    this.showStaticResultOrIFD="staticResult";
   }
   displayIFD(){
-    alert("ifd")
+    this.showStaticResultOrIFD="ifd"
   }
 
   dynamicAnalysis(){
@@ -706,6 +711,23 @@ export class MainComponent implements OnInit {
       })
     }
     
+  }
+
+  generateBestScenario(){
+    if(this.modelLayer==null){
+      alert("Please upload the environment ontology file!")
+    }else
+    if(this.instanceLayer==null){
+      alert("Please upload the instance information file!")
+    }else if(this.interactiveInstances==null){
+      alert("Please click automatic modeling button!")
+    }else{
+      this.modelGenerateService.generateBestScenario(this.initModelFileName,this.modelLayer,this.instanceLayer,this.interactiveInstances,this.rules,this.simulationTime,this.ifdFileName).subscribe(bestScenario=>{
+        console.log(bestScenario)
+        this.attributeValues=bestScenario.attributeValues;
+        this.singleModelFileName=bestScenario.bestScenarioFileName;
+      })
+    }
   }
 
   simulateSingleScenario(){

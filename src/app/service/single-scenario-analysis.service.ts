@@ -5,7 +5,7 @@ import { ModelLayer } from '../class/model';
 import { DeviceInstance, InstanceLayer } from '../class/instance';
 import { Rule } from '../class/rule';
 import { DataTimeValue, DeviceConflict, DeviceJitter, DeviceStateAndCausingRules, Scenario, ScenesTree } from '../class/simulation';
-import { ConsumptionInput, LocationInput } from '../class/input-style';
+import { ConsumptionInput, LocationInput, SatisfactionInput } from '../class/input-style';
 
 @Injectable({
   providedIn: 'root'
@@ -72,5 +72,17 @@ export class SingleScenarioAnalysisService {
     
     var url=this.address+`analysis/calculateDeviceStatesDuration`;
     return this.http.post<Array<Array<string>>>(url,consumptionInput,this.httpOptions);
+  }
+
+  ///计算舒适度
+  getAttributeSatisfaction(attribute:string,lowValue:string,highValue:string,dataTimeValues:Array<DataTimeValue>):Observable<number>{
+    var satisfactionInput:SatisfactionInput={
+      attribute:attribute,
+      lowValue:lowValue,
+      highValue:highValue,
+      dataTimeValues:dataTimeValues
+    }
+    var url=this.address+`analysis/getAttributeSatisfaction`;
+    return this.http.post<number>(url,satisfactionInput,this.httpOptions);
   }
 }

@@ -1,12 +1,14 @@
 
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { List } from 'echarts';
 import { InstanceLayer } from '../class/instance';
 import { ModelLayer } from '../class/model';
+import { OtherAnalysisOutput } from '../class/output-style';
 import { Rule } from '../class/rule';
 import { AllRuleAnalysisResult, CauseRule, CauseRulesCount,DeviceAnalysisResult, DeviceAnalysisSyntheticResult, DeviceCauseRuleConclusion,  EnvironmentModel, PropertyReachableSyntheticResult, PropertyVerifyResult, ReachableReason,  RuleNode, Scene,   StaticAnalysisResult} from '../class/scene';
 
-import { DeviceAnlaysis, DeviceStateAndCausingRules, Scenario, ScenesTree } from '../class/simulation';
+import { DeviceAnlaysis, DeviceStateAndCausingRules,  PropertyAnalysisResult,  Scenario, ScenesTree } from '../class/simulation';
 import { MainData } from '../provider/main-data';
 import { DynamicAnalysisService } from '../service/dynamic-analysis.service';
 
@@ -57,7 +59,14 @@ export class RuleAnalysisComponent implements OnInit {
   conflictCausingRules=new Array<Array<Array<DeviceStateAndCausingRules>>>();  ///第几个设备、第几段、第几个状态
 	jitterCausingRules=new Array<Array<Array<DeviceStateAndCausingRules>>>();
 
+  otherAnalyzed=false;
+  propertyAnalyzed=false;
 
+  otherAnalysisResult=new OtherAnalysisOutput();
+  neverTriggeredRules=new Array<Rule>()
+
+  propertyToBeAnalyzed=false
+  propertyAnalysisResults=Array<PropertyAnalysisResult>()
   
   ////显示结果
   showResult="none";
@@ -214,6 +223,23 @@ export class RuleAnalysisComponent implements OnInit {
         })
       }
 
+      getOtherAnalysis(){
+        
+        this.dynamicAnalysisService.getOtherAnalysis(this.scenarios).subscribe(otherAnalysis=>{
+          this.otherAnalyzed=true;
+          console.log(otherAnalysis)
+          this.otherAnalysisResult=otherAnalysis
+          this.neverTriggeredRules=new Array<Rule>()
+          for(let i=0;i<otherAnalysis.notTriggeredRulesInAll.length;i++){
+            for(let j=0;j<this.rules.length;j++){
+              if(otherAnalysis.notTriggeredRulesInAll[i]==this.rules[j].ruleName){
+                this.neverTriggeredRules.push(this.rules[j]);
+                break
+              }
+            }
+          }
+        })
+      }
 
 
       ////跳转到特定场景
@@ -295,10 +321,22 @@ export class RuleAnalysisComponent implements OnInit {
       //   console.log(this.propertyReachableSyntheticResults)
       //   this.showPropertyResult="block"
       // })
+      if(this.properties.length>0){
+        ////验证性质
+        this.dynamicAnalysisService.getPropertiesAnalysis(this.scenarios,this.rules,this.properties,this.instanceLayer).subscribe(results=>{
+          console.log(results)
+          this.propertyAnalysisResults=results
+          this.propertyToBeAnalyzed=false
+          this.propertyAnalyzed=true
+        })
+      }
     }
 
     /////添加property
     addProperty(){
+      if(!this.propertyToBeAnalyzed){
+        this.properties=[];
+      }
       if(this.property.trim()!=""){
         var exist=false;
         var conList=this.property.split("&");
@@ -331,6 +369,7 @@ export class RuleAnalysisComponent implements OnInit {
         if(!exist){
           this.properties.push(this.property);
         }
+        this.propertyToBeAnalyzed=true
         console.log(this.properties)
       }
     }

@@ -1,3 +1,5 @@
+import { DeviceInstance } from "./instance";
+
 export class Trigger {
 	 triggerContent="";  ///trigger内容                                                    ///////temperature>=30         //////Bulb_0.bon     ///Emma.lobby(人在客厅)
 	 triggerId="";   ///对应IFD中trigger节点的id                                            ///////trigger1                //////trigger2       ///trigger3
@@ -148,4 +150,18 @@ export class Rule {
 	}
 
 
+}
+
+
+export class StaticAnalysisResult {
+    unusedRuleAndReasons=new Array<UnusedRuleAndReason>();
+    redundantRules=new Array<Array<Rule>>();
+    cannotOffDevices=new Array<	DeviceInstance>();
+    usableRules=new Array<Rule>();
+
+}
+
+export class UnusedRuleAndReason{
+	unusedRule=new Rule();
+    reason="";
 }

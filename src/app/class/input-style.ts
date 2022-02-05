@@ -46,3 +46,35 @@ export class LocationInput{
     scenarios=new Array<Scenario>();
     ifdFileName="";
 }
+
+export class StaticAnalysisInput{
+    rules=new Array<Rule>();
+    instanceLayer=new InstanceLayer();
+}
+
+export class BestScenarioGenerateInput{
+    modelFileName="";
+    modelLayer=new ModelLayer();
+    instanceLayer=new InstanceLayer();
+    interactiveInstance=new InstanceLayer();
+    rules=new Array<Rule>();
+    simulationTime="";
+    ifdFileName="";
+
+}
+
+export class PropertyAnalysisInput{
+    scenarios=new Array<Scenario>();
+    rules=new Array<Rule>();
+    properties=new Array<string>();
+    instanceLayer=new InstanceLayer();
+
+}
+
+
+export class SatisfactionInput{
+	attribute="";
+	lowValue="";
+	highValue="";
+	dataTimeValues=new Array<DataTimeValue>();
+}

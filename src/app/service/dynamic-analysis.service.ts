@@ -3,10 +3,11 @@ import { EnvironmentModel ,EnvironmentRule, DeviceDetail, Scene, SceneTreeDevice
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { observable, Observable, of } from 'rxjs';
 import { ScenesTree } from '../class/scenes-tree';
-import { DeviceStateAndCausingRules, Scenario } from '../class/simulation';
+import { DeviceStateAndCausingRules,  PropertyAnalysisResult,  Scenario } from '../class/simulation';
 import { DeviceInstance, InstanceLayer } from '../class/instance';
 import { Rule } from '../class/rule';
-import { LocationInput } from '../class/input-style';
+import { LocationInput, PropertyAnalysisInput } from '../class/input-style';
+import { OtherAnalysisOutput } from '../class/output-style';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,17 @@ export class DynamicAnalysisService {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
   address:string="http://localhost:8083/";
+
+  getPropertiesAnalysis(scenarios:Array<Scenario>,rules:Array<Rule>,properties:Array<string>,instanceLayer:InstanceLayer):Observable<Array<PropertyAnalysisResult>>{
+    var propertyAnalysisInput:PropertyAnalysisInput={
+      scenarios:scenarios,
+      rules:rules,
+      properties:properties,
+      instanceLayer:instanceLayer
+    }
+    var url=this.address+`analysis/getPropertiesAnalysis`;
+    return this.http.post<Array<PropertyAnalysisResult>>(url,propertyAnalysisInput,this.httpOptions);
+  }
 
   searchAllScenariosConflict(scenarios:Array<Scenario>):Observable<Array<Scenario>>{
     var url=this.address+`analysis/searchAllScenariosConflict`;
@@ -47,6 +59,11 @@ export class DynamicAnalysisService {
     locationInput.ifdFileName=ifdFileName;
     var url=this.address+`analysis/locateAllScenariosJitter`;
     return this.http.post<Array<Array<Array<DeviceStateAndCausingRules>>>>(url,locationInput,this.httpOptions);
+  }
+
+  getOtherAnalysis(scenarios:Array<Scenario>):Observable<OtherAnalysisOutput>{
+    var url=this.address+`analysis/getOtherAnalysis`;
+    return this.http.post<OtherAnalysisOutput>(url,scenarios,this.httpOptions);
   }
   
   

@@ -13,3 +13,14 @@ export class  InteractiveLayerAndRules{
     ifdFileName="";
 }
 
+export class BestScenarioOutput{
+    attributeValues=new Array<Array<string>>();
+    bestScenarioFileName="";
+
+}
+
+export class OtherAnalysisOutput{
+	deviceCannotBeTurnedOffList=new Array<string>();
+	notTriggeredRulesInAll=new Array<string>();
+
+}

@@ -39,7 +39,7 @@ export class SceneDetailsComponent implements OnInit {
   
   conflictOption: any=null;
   jitterOption: any=null;
-
+  attributeOption:any=null;
 
 
   scenes: Array<Scene> = new Array<Scene>();
@@ -63,6 +63,7 @@ export class SceneDetailsComponent implements OnInit {
   ifdFileName = "";
 
   selectAttributeName = "0";
+  selectAttributeNameGraph="0"
 
   highValue = "";
   lowValue = "";
@@ -263,6 +264,50 @@ export class SceneDetailsComponent implements OnInit {
     }
   }
 
+  showAttributeGraph(){
+    this.attributeOption=null
+    if(this.selectAttributeNameGraph!="0"){
+      for(var i=0;i<this.selectedScenario.dataTimeValues.length;i++){
+        var dataTimeValue=this.selectedScenario.dataTimeValues[i];
+        if(dataTimeValue.dataName==this.selectAttributeNameGraph){
+          ///计算attributeOption
+          this.getAttributeOption(dataTimeValue)
+          break
+        }
+      }
+    }
+    console.log(this.attributeOption)
+
+  }
+
+  getAttributeOption(dataTimeValue:DataTimeValue){
+    this.attributeOption = {
+      tooltip: {
+        show: true,
+        trigger: 'item',
+        triggerOn: 'mousemove',
+        formatter: function (params: any) {
+          return params.marker + '<b>'+dataTimeValue.dataName+'</b> : <br/>  ' + '<b>time:' + params.value[0].toFixed(2) + ',</b>'+'<b>value:' + params.value[1].toFixed(2) + '</b>';
+        }
+      },
+      xAxis: {
+        name: 'time/s',
+        min: 0,
+        max: parseFloat(this.simulationTime),
+
+      },
+      yAxis: {
+        name: 'value',
+        type: 'value'
+      },
+      series: [
+        {
+          data: dataTimeValue.timeValues,
+          type: 'line'
+        }
+      ]
+    };
+  }
 
 
   getJitterOption(selectedDeviceJitter: DeviceJitter,dataTimeValue:DataTimeValue) {
@@ -613,7 +658,10 @@ export class SceneDetailsComponent implements OnInit {
     if (parseFloat(this.highValue) < parseFloat(this.lowValue)) {
       alert("Highest value should higher than lowest value!")
     } else {
-
+      this.singleScenarioAnlaysisService.getAttributeSatisfaction(this.selectAttributeName,this.lowValue,this.highValue,this.selectedScenario.dataTimeValues).subscribe(satis=>{
+        console.log(satis)
+        this.comfotLevel=satis*100+"";
+      })
     }
 
   }

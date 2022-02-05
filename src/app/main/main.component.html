@@ -82,6 +82,44 @@
                     <div *ngIf="isStaticAnalysis">
                         <h2><b>Static Analysis:</b></h2>
                         <div class="analysis-related">
+                            <div class="scrollbar" style="width: 100%;height: 100%;" *ngIf="showStaticResultOrIFD=='staticResult'">
+                                <div *ngIf="staticAnalysisResult.unusedRuleAndReasons.length>0">
+                                    <b style="color: red;font-size: 20px;">Unused rules{{staticAnalysisResult.unusedRuleAndReasons.length}}:</b>
+                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
+                                        <li *ngFor="let unusedRuleAndReason of staticAnalysisResult.unusedRuleAndReasons">
+                                            <b style="color: red;">{{unusedRuleAndReason.unusedRule.ruleName}}</b><b > : {{unusedRuleAndReason.unusedRule.ruleContent}}&nbsp;&nbsp;</b>
+                                            <br>
+                                            <b style="color: red;">&nbsp;&nbsp;reason:&nbsp;&nbsp; </b><b>{{unusedRuleAndReason.reason}}</b>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div *ngIf="staticAnalysisResult.redundantRules.length>0">
+                                    <b style="color: red;font-size: 20px;">Redundant rules{{staticAnalysisResult.redundantRules.length}}:</b>
+                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
+                                        <li *ngFor="let redundantRule of staticAnalysisResult.redundantRules">
+                                            <b style="color: red;">{{redundantRule[0].ruleName}}</b><b > : {{redundantRule[0].ruleContent}}&nbsp;&nbsp; redundant with</b> 
+                                            <br>
+                                            <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
+                                                <li *ngFor="let otherRule of redundantRule;index as i">
+                                                    <b *ngIf="i>0">{{otherRule.ruleName}} : {{otherRule.ruleContent}}</b> 
+                                                    
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div *ngIf="staticAnalysisResult.cannotOffDevices.length>0">
+                                    <b style="color: red;font-size: 20px;">Incompleteness{{staticAnalysisResult.cannotOffDevices.length}}:</b>
+                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
+                                        <li *ngFor="let cannotOffDevice of staticAnalysisResult.cannotOffDevices">
+                                            <b >No rule to turn off&nbsp;</b> <b style="color: rgb(44, 171, 175);">{{cannotOffDevice.instanceName}}</b>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div *ngIf="showStaticResultOrIFD=='ifd'">
+                                
+                            </div>
 
                         </div>
                         
@@ -299,7 +337,7 @@
                             </div>
                         </div>
                         <button class="button" (click)="generateSingleScenario()">Generate Scenario</button>
-                        <button class="button">Generate the Best Scenario</button>
+                        <button class="button" (click)="generateBestScenario()">Generate the Best Scenario</button>
                         <button class="button" style="width: fit-content;"  (click)="simulateSingleScenario()">Simulte</button>
                         <button class="button" (click)="getScenarioAnalysisResult()">Get Scenario Analysis Result</button>
                     </div>
