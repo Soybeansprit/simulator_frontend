@@ -28,7 +28,10 @@
                     <div *ngIf="!isHomePage">
                         <h2><b>Entered Trigger Action Programs (TAPs):</b></h2>
                         <div class="textarea">
-                            {{ruleTextFinal}}
+                            <div class="scrollbar" style="height: 100%;width: 100%;">
+                                {{ruleTextFinal}}
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -39,44 +42,54 @@
                     <div id="interactive-result" [style.display]="isHomePage?'block':'none'">
                         <!-- 生成交互环境情况，各实例，及个数 -->
                         <h2><b>Results of Automatic Modeling:</b></h2>
-                        <div class="analysis-related">
-                            
-                            <h2><b style="color: cadetblue;">Interactive instances:</b></h2>
-                            <b>There are {{getInteractiveInstanceNum()}} interactive instances.</b>
-                            <div style="margin-left: 30px;">
-                                <div *ngIf="interactiveInstances.humanInstance.instanceName!=''" style="margin-top: 10px;">
-                                    <b style="color:red">Human instance: &nbsp;</b>
-                                    <b >{{interactiveInstances.humanInstance.instanceName}}</b>
-                                </div>
-                                <div *ngIf="interactiveInstances.attributeEntityInstance.instanceName!=''" style="margin-top: 10px;">
-                                    <b style="color:red">Attribute entity instance: &nbsp;</b>
-                                    <b >{{interactiveInstances.attributeEntityInstance.instanceName}}</b>
-                                </div>
-                                <div *ngIf="interactiveInstances.uncertainEntityInstances.length>0" style="margin-top: 10px;">
-                                    <b style="color:red">Uncertainty entity instances ({{interactiveInstances.uncertainEntityInstances.length}}):</b>
-                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
-                                        <li *ngFor="let uncertainEntityInstance of interactiveInstances.uncertainEntityInstances">
-                                            <b >{{uncertainEntityInstance.instanceName}}&nbsp;&nbsp;</b>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div *ngIf="interactiveInstances.cyberServiceInstances.length>0" style="margin-top: 10px;">
-                                    <b style="color:red">Cyber service instances ({{interactiveInstances.cyberServiceInstances.length}}):</b>
-                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
-                                        <li *ngFor="let cyberServiceInstance of interactiveInstances.cyberServiceInstances">
-                                            <b >{{cyberServiceInstance.instanceName}}&nbsp;&nbsp;</b>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div *ngIf="interactiveInstances.deviceInstances.length>0" style="margin-top: 10px;">
-                                    <b style="color:red">Device instances ({{interactiveInstances.deviceInstances.length}}):</b>
-                                    <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
-                                        <li *ngFor="let deviceInstance of interactiveInstances.deviceInstances">
-                                            <b >{{deviceInstance.instanceName}}&nbsp;&nbsp;</b>
-                                        </li>
-                                    </ul>
+                        <div class="analysis-related" style="position: relative;">
+                            <div *ngIf="interactiveGenerated">
+                                <h2><b style="color: cadetblue;">Interactive instances:</b></h2>
+                                <b>There are {{getInteractiveInstanceNum()}} interactive instances.</b>
+                                <div style="height: 80%;width: 95%;" class="scrollbar">
+                                    <div *ngIf="interactiveInstances.humanInstance.instanceName!=''" style="margin-top: 10px;">
+                                        <b style="color:red">Human instance: &nbsp;</b>
+                                        <b >{{interactiveInstances.humanInstance.instanceName}}</b>
+                                    </div>
+                                    <div *ngIf="interactiveInstances.attributeEntityInstance.instanceName!=''" style="margin-top: 10px;">
+                                        <b style="color:red">Attribute entity instance: &nbsp;</b>
+                                        <b >{{interactiveInstances.attributeEntityInstance.instanceName}}</b>
+                                    </div>
+                                    <div *ngIf="interactiveInstances.uncertainEntityInstances.length>0" style="margin-top: 10px;">
+                                        <b style="color:red">Uncertainty entity instances ({{interactiveInstances.uncertainEntityInstances.length}}):</b>
+                                        <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
+                                            <li *ngFor="let uncertainEntityInstance of interactiveInstances.uncertainEntityInstances;index as i">
+                                                <b style="color: rgb(245, 113, 6);">{{i+1}}.</b> <b>{{uncertainEntityInstance.instanceName}}&nbsp;&nbsp;</b>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div *ngIf="interactiveInstances.cyberServiceInstances.length>0" style="margin-top: 10px;">
+                                        <b style="color:red">Cyber service instances ({{interactiveInstances.cyberServiceInstances.length}}):</b>
+                                        <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
+                                            <li *ngFor="let cyberServiceInstance of interactiveInstances.cyberServiceInstances;index as i">
+                                                <b style="color: rgb(245, 113, 6);">{{i+1}}.</b><b >{{cyberServiceInstance.instanceName}}&nbsp;&nbsp;</b>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div *ngIf="interactiveInstances.deviceInstances.length>0" style="margin-top: 10px;">
+                                        <b style="color:red">Device instances ({{interactiveInstances.deviceInstances.length}}):</b>
+                                        <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
+                                            <li *ngFor="let deviceInstance of interactiveInstances.deviceInstances;index as i">
+                                                <b style="color: rgb(245, 113, 6);">{{i+1}}.</b><b >{{deviceInstance.instanceName}}&nbsp;&nbsp;</b>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div *ngIf="interactiveInstances.sensorInstances.length>0" style="margin-top: 10px;">
+                                        <b style="color:red">Sensor instances ({{interactiveInstances.sensorInstances.length}}):</b>
+                                        <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: row;">
+                                            <li *ngFor="let sensorInstance of interactiveInstances.sensorInstances;index as i">
+                                                <b style="color: rgb(245, 113, 6);">{{i+1}}.</b><b >{{sensorInstance.instanceName}}&nbsp;&nbsp;</b>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                     <div *ngIf="isStaticAnalysis">
@@ -84,7 +97,7 @@
                         <div class="analysis-related">
                             <div class="scrollbar" style="width: 100%;height: 100%;" *ngIf="showStaticResultOrIFD=='staticResult'">
                                 <div *ngIf="staticAnalysisResult.unusedRuleAndReasons.length>0">
-                                    <b style="color: red;font-size: 20px;">Unused rules{{staticAnalysisResult.unusedRuleAndReasons.length}}:</b>
+                                    <b style="color: red;font-size: 20px;">Unused rules {{staticAnalysisResult.unusedRuleAndReasons.length}}:</b>
                                     <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
                                         <li *ngFor="let unusedRuleAndReason of staticAnalysisResult.unusedRuleAndReasons">
                                             <b style="color: red;">{{unusedRuleAndReason.unusedRule.ruleName}}</b><b > : {{unusedRuleAndReason.unusedRule.ruleContent}}&nbsp;&nbsp;</b>
@@ -94,7 +107,7 @@
                                     </ul>
                                 </div>
                                 <div *ngIf="staticAnalysisResult.redundantRules.length>0">
-                                    <b style="color: red;font-size: 20px;">Redundant rules{{staticAnalysisResult.redundantRules.length}}:</b>
+                                    <b style="color: red;font-size: 20px;">Redundant rules {{staticAnalysisResult.redundantRules.length}}:</b>
                                     <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
                                         <li *ngFor="let redundantRule of staticAnalysisResult.redundantRules">
                                             <b style="color: red;">{{redundantRule[0].ruleName}}</b><b > : {{redundantRule[0].ruleContent}}&nbsp;&nbsp; redundant with</b> 
@@ -108,8 +121,21 @@
                                         </li>
                                     </ul>
                                 </div>
+                                <div *ngIf="staticAnalysisResult.loopRules.length>0">
+                                    <b style="color: red;font-size: 20px;">Loop rules {{staticAnalysisResult.loopRules.length}}:</b>
+                                    <ul style="display: flex;list-style-type: decimal;flex-wrap: wrap;flex-direction: column;">
+                                        <li *ngFor="let loopRules of staticAnalysisResult.loopRules">                                            
+                                            <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
+                                                <li *ngFor="let rule of loopRules">
+                                                    <b style="color: red;">{{rule.ruleName}}</b><b > : {{rule.ruleContent}}</b> 
+                                                    
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
                                 <div *ngIf="staticAnalysisResult.cannotOffDevices.length>0">
-                                    <b style="color: red;font-size: 20px;">Incompleteness{{staticAnalysisResult.cannotOffDevices.length}}:</b>
+                                    <b style="color: red;font-size: 20px;">Incompleteness {{staticAnalysisResult.cannotOffDevices.length}}:</b>
                                     <ul style="display: flex;list-style-type: none;flex-wrap: wrap;flex-direction: column;">
                                         <li *ngFor="let cannotOffDevice of staticAnalysisResult.cannotOffDevices">
                                             <b >No rule to turn off&nbsp;</b> <b style="color: rgb(44, 171, 175);">{{cannotOffDevice.instanceName}}</b>
@@ -315,8 +341,8 @@
                         <button class="button" (click)="generateMultipeScenarios()">Generate Scenarios</button>
                         <button class="button" style="width: fit-content;" (click)="simulateMultiScenarios()">Simulte</button>
                         <button class="button" (click)="displayScenarioTreeGraph()">Display Scenario-tree Graph</button>
-                        <button class="button">Display Rule-scenario Graph</button>
-                        <button class="button">Displey Scenario-rule Graph</button>
+                        <!-- <button class="button">Display Rule-scenario Graph</button>
+                        <button class="button">Displey Scenario-rule Graph</button> -->
                         <button class="button" style="width: fit-content;" (click)="verifyPropertis()">Verify properties</button>
                     </div>
                     <div class="button-group" *ngIf="analysisTypeValue=='2'" style="margin-left: 10px;margin-top: 0px;">
@@ -339,7 +365,7 @@
                         <button class="button" (click)="generateSingleScenario()">Generate Scenario</button>
                         <button class="button" (click)="generateBestScenario()">Generate the Best Scenario</button>
                         <button class="button" style="width: fit-content;"  (click)="simulateSingleScenario()">Simulte</button>
-                        <button class="button" (click)="getScenarioAnalysisResult()">Get Scenario Analysis Result</button>
+                        <button class="button" (click)="getScenarioAnalysisResult()">Single Scenario Analysis</button>
                     </div>
                 </div>
                 <!-- <button class="analys_button" (click)="getStaticAnalysisResult()">Static Analysis</button>

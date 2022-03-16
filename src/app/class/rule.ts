@@ -158,6 +158,7 @@ export class StaticAnalysisResult {
     redundantRules=new Array<Array<Rule>>();
     cannotOffDevices=new Array<	DeviceInstance>();
     usableRules=new Array<Rule>();
+	loopRules=new Array<Array<Rule>>();
 
 }
 

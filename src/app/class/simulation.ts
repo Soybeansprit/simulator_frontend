@@ -115,6 +115,7 @@ export class DeviceStateAndCausingRules{
 export class RuleAndPreRule{
     currentRule=new Rule();
     preRules=new Array<RuleAndPreRule>();
+	isCurrentTraversed=false;
 }
 
 

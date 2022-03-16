@@ -154,6 +154,29 @@
                                         <b style="color: red;">{{deviceCannotBeOff}}</b> <b>&nbsp;&nbsp;never be turned off.</b>
                                     </li>
                                 </ul>
+
+                            </div>
+                        </div>
+                        <div *ngIf="otherAnalyzed">
+                            <div *ngIf="otherAnalysisResult.homeBoundedOutBoundedResults.length==0">
+                                <b style="color: cadetblue;">Privacy secure!</b>
+                            </div>
+                            <div *ngIf="otherAnalysisResult.homeBoundedOutBoundedResults.length>0">
+                                <b style="color: cadetblue;">Privacy leaks!</b>
+                                <ul style="display: flex;flex-direction: column;list-style-type: none;flex-wrap: wrap;">
+                                    <li *ngFor="let homeBoundedOutBoundedResult of otherAnalysisResult.homeBoundedOutBoundedResults">
+                                        <ul style="display: flex;flex-direction: column;list-style-type: none;flex-wrap: wrap;">
+                                            <li *ngFor="let homeBounded of homeBoundedOutBoundedResult[0]">
+                                                <b style="color: red;">{{instanceStateDeduce(homeBounded)}}</b>
+                                            </li>
+                                        </ul>
+                                        <ul style="display: flex;flex-direction: column;list-style-type: none;flex-wrap: wrap;">
+                                            <li *ngFor="let outBounded of homeBoundedOutBoundedResult[1]">
+                                                <b style="color: red;">{{instanceStateDeduce(outBounded)}}</b>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div *ngIf="propertyAnalyzed">

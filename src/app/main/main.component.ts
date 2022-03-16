@@ -94,9 +94,14 @@ export class MainComponent implements OnInit {
 
   rules:Array<Rule>=new Array<Rule>();
   interactiveInstances:InstanceLayer=new InstanceLayer();
+  interactiveGenerated=false
   ifdFileName="";
   staticAnalysisResult=new StaticAnalysisResult();
   showStaticResultOrIFD="staticResult";
+
+
+  ///可控设备实例类型数
+  typeNum=new Map();
 
   singleModelFileName="";
   singleScenario=new Scenario();
@@ -611,14 +616,37 @@ export class MainComponent implements OnInit {
     }else
     if(this.instanceLayer==null){
       alert("Please upload the instance information file!")
-    }else
-    if(this.ruleTextFinal!=this.ruleText){
+    }else{
       this.ruleTextFinal=this.ruleText;
       this.modelGenerateService.genererateInteractiveEnvironment(this.ruleTextFinal,this.modelLayer,this.instanceLayer).subscribe(instanceAndRules=>{
         console.log(instanceAndRules)
         this.rules=instanceAndRules.rules;
-        this.interactiveInstances=instanceAndRules.interactiveInstance
+        this.interactiveInstances=instanceAndRules.interactiveInstance;
         this.ifdFileName=instanceAndRules.ifdFileName;
+        this.interactiveGenerated=true;
+
+        ///可控设备的类型
+        this.typeNum=new Map();
+        var chaNum=0;
+        var visibleNum=0;
+        for(let i=0;i<this.interactiveInstances.deviceInstances.length;i++){
+          var deviceType=this.interactiveInstances.deviceInstances[i].deviceType;
+          if(this.interactiveInstances.deviceInstances[i].visible){
+            visibleNum++;
+          }
+          chaNum+=deviceType.stateSyncValueEffects.length;
+          var num=this.typeNum.get(deviceType.typeName);
+          if(num==null||num==0){
+            this.typeNum.set(deviceType.typeName,1);
+          }else{
+            this.typeNum.set(deviceType.typeName,num+1);
+          }
+        }
+        console.log(this.typeNum)
+        console.log("可控设备种类数:"+this.typeNum.size);
+        console.log("可控设备channel数："+chaNum)
+        console.log("可观察设备数："+visibleNum);
+
       })
     }
   }
@@ -634,6 +662,7 @@ export class MainComponent implements OnInit {
     sum+=this.interactiveInstances.cyberServiceInstances.length;
     sum+=this.interactiveInstances.uncertainEntityInstances.length;
     sum+=this.interactiveInstances.deviceInstances.length;
+    sum+=this.interactiveInstances.sensorInstances.length;
     return sum;
   }
 
@@ -805,6 +834,7 @@ export class MainComponent implements OnInit {
     this.mainData.storage.equivalentTime=this.equivalentTime;
     this.mainData.storage.attributeValues=this.attributeValues;
     this.mainData.storage.ifdFileName=this.ifdFileName;
+    this.mainData.storage.interactiveGenerated=this.interactiveGenerated;
     this.router.navigate(["rule-analysis"]);
   }
 
@@ -831,6 +861,7 @@ export class MainComponent implements OnInit {
     this.mainData.storage.equivalentTime=this.equivalentTime;
     this.mainData.storage.attributeValues=this.attributeValues;
     this.mainData.storage.ifdFileName=this.ifdFileName;
+    this.mainData.storage.interactiveGenerated=this.interactiveGenerated;
     // this.mainData.storage = {
       
     //   scenarios:this.scenarios,

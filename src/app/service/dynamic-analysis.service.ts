@@ -6,7 +6,7 @@ import { ScenesTree } from '../class/scenes-tree';
 import { DeviceStateAndCausingRules,  PropertyAnalysisResult,  Scenario } from '../class/simulation';
 import { DeviceInstance, InstanceLayer } from '../class/instance';
 import { Rule } from '../class/rule';
-import { LocationInput, PropertyAnalysisInput } from '../class/input-style';
+import { LocationInput, OtherAnalysisInput, PropertyAnalysisInput } from '../class/input-style';
 import { OtherAnalysisOutput } from '../class/output-style';
 
 @Injectable({
@@ -61,9 +61,13 @@ export class DynamicAnalysisService {
     return this.http.post<Array<Array<Array<DeviceStateAndCausingRules>>>>(url,locationInput,this.httpOptions);
   }
 
-  getOtherAnalysis(scenarios:Array<Scenario>):Observable<OtherAnalysisOutput>{
+  getOtherAnalysis(scenarios:Array<Scenario>,instanceLayer:InstanceLayer):Observable<OtherAnalysisOutput>{
+    var otherAnalysisInput:OtherAnalysisInput={
+      scenarios:scenarios,
+      instanceLayer:instanceLayer
+    }
     var url=this.address+`analysis/getOtherAnalysis`;
-    return this.http.post<OtherAnalysisOutput>(url,scenarios,this.httpOptions);
+    return this.http.post<OtherAnalysisOutput>(url,otherAnalysisInput,this.httpOptions);
   }
   
   

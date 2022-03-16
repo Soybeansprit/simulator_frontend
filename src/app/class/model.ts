@@ -102,6 +102,7 @@ export class StateSyncValueEffect {
      stateId="";    ///对应xml文件中的节点id
      synchronisation="";   ///对应同步信号通道
      value="";  ///identifier取值
+     power=0.0; ///状态的功率
      effects=new Array<String[]>();  ///effect[0]=attribute, effect[1]=delta（对于会对总变化率产生影响的）, effect[2]=影响值
 
     public getStateName() {

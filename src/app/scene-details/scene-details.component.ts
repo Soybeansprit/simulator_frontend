@@ -87,6 +87,9 @@ export class SceneDetailsComponent implements OnInit {
 
   selectedDeviceStatesDuration = new Array<Array<string>>();   /////所选择设备各状态持续时间，用于计算功率
 
+  deviceConsumptions=new Array<Array<string>>();  ///各能耗
+  totalConsumption=0;
+
   /////综合并计数原因
   jitterCauseRulesCounts: Array<CauseRulesCount> = [];
   conflictCauseRulesCounts: Array<CauseRulesCount> = [];
@@ -664,6 +667,28 @@ export class SceneDetailsComponent implements OnInit {
       })
     }
 
+  }
+
+  energyConsumption(){
+    //总能耗计算
+    this.singleScenarioAnlaysisService.getEnergyConsumption(this.selectedScenario.dataTimeValues,this.interactiveInstances.deviceInstances).subscribe(deviceConsumptions=>{
+
+      console.log(deviceConsumptions)
+      this.getTotalConsumption(deviceConsumptions);
+      this.deviceConsumptions=deviceConsumptions;
+      console.log(this.deviceConsumptions)
+    })
+  }
+
+  getTotalConsumption(deviceConsumptions:Array<Array<string>>){
+    var totalConsumption=0.0;
+    for(let i=0;i<deviceConsumptions.length;i++){
+      var consumption=parseFloat(deviceConsumptions[i][1])*parseFloat(this.equivalentTime)/parseFloat(this.simulationTime)/1000;  ///单位度  kw*h
+      totalConsumption+=consumption;
+      deviceConsumptions[i][1]=consumption+"";
+    }
+    this.totalConsumption=totalConsumption;
+    console.log(totalConsumption)
   }
 
   ////选中待分析设备

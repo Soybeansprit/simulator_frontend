@@ -22,5 +22,5 @@ export class BestScenarioOutput{
 export class OtherAnalysisOutput{
 	deviceCannotBeTurnedOffList=new Array<string>();
 	notTriggeredRulesInAll=new Array<string>();
-
+    homeBoundedOutBoundedResults=new Array<Array<Array<string>>>();
 }

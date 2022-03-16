@@ -21,6 +21,7 @@ export class MainData{
         modelLayer:new ModelLayer(),
         instanceLayer:new InstanceLayer(),
         interactiveInstances:new InstanceLayer(),
+        interactiveGenerated:false,
         initModelFileName:"",
         rules:new Array<Rule>(),
         attributeNames:new Array<string>(),

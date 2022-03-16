@@ -85,6 +85,7 @@ export class DeviceInstance extends Instance{
      location="";
      sequenceNumber=0;
      deviceType=new DeviceType();
+     visible=false;
 
     public getLocation() {
         return this.location;

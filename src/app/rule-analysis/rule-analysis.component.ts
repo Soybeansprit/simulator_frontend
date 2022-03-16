@@ -67,6 +67,8 @@ export class RuleAnalysisComponent implements OnInit {
 
   propertyToBeAnalyzed=false
   propertyAnalysisResults=Array<PropertyAnalysisResult>()
+
+  privacyResults=new Array<string>()
   
   ////显示结果
   showResult="none";
@@ -165,7 +167,13 @@ export class RuleAnalysisComponent implements OnInit {
           }
           this.conflictAnalyzed=true;  ///表示已经分析过是否冲突了
           console.log(this.deviceAnalysiss)
-
+          var conflictNum=0;
+          for(let i=0;i<this.deviceAnalysiss.length;i++){
+            if(this.deviceAnalysiss[i].hasConflict){
+              conflictNum++;
+            }
+          }
+          console.log("冲突设备个数："+conflictNum)
         })
       }
 
@@ -175,6 +183,8 @@ export class RuleAnalysisComponent implements OnInit {
           this.conflictCausingRules=allSynthesizedDeviceAllStatesRuleAndPreRules;
         })
       }
+
+      
 
       searchAllScenariosJitter(){
         this.dynamicAnalysisService.searchAllScenariosJitter(this.scenarios,this.intervalTime,this.simulationTime,this.equivalentTime).subscribe(scenarios=>{
@@ -212,7 +222,13 @@ export class RuleAnalysisComponent implements OnInit {
           }
           this.jitterAnalyzed=true;  ///表示已经分析过是否冲突了
           console.log(this.deviceAnalysiss)
-
+          var jitterNum=0;
+          for(let i=0;i<this.deviceAnalysiss.length;i++){
+            if(this.deviceAnalysiss[i].hasJitter){
+              jitterNum++;
+            }
+          }
+          console.log("抖动设备个数："+jitterNum)
         })
       }
 
@@ -225,7 +241,7 @@ export class RuleAnalysisComponent implements OnInit {
 
       getOtherAnalysis(){
         
-        this.dynamicAnalysisService.getOtherAnalysis(this.scenarios).subscribe(otherAnalysis=>{
+        this.dynamicAnalysisService.getOtherAnalysis(this.scenarios,this.interactiveInstances).subscribe(otherAnalysis=>{
           this.otherAnalyzed=true;
           console.log(otherAnalysis)
           this.otherAnalysisResult=otherAnalysis
@@ -238,7 +254,20 @@ export class RuleAnalysisComponent implements OnInit {
               }
             }
           }
+
+          this.privacyResults=new Array<string>()
+          for(let i=0;i<otherAnalysis.homeBoundedOutBoundedResults.length;i++){
+            
+          }
         })
+      }
+
+      instanceStateDeduce(property:string):string{
+        property=property.toString()
+        var instanceStates=property.split("&")
+        var deduce=instanceStates[1]+" -> "+instanceStates[0];
+        console.log(deduce)
+        return instanceStates[1]+" -> "+instanceStates[0];
       }
 
 

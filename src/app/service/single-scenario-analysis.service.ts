@@ -5,7 +5,7 @@ import { ModelLayer } from '../class/model';
 import { DeviceInstance, InstanceLayer } from '../class/instance';
 import { Rule } from '../class/rule';
 import { DataTimeValue, DeviceConflict, DeviceJitter, DeviceStateAndCausingRules, Scenario, ScenesTree } from '../class/simulation';
-import { ConsumptionInput, LocationInput, SatisfactionInput } from '../class/input-style';
+import { ConsumptionInput, EnergyConsumptionInput, LocationInput, SatisfactionInput } from '../class/input-style';
 
 @Injectable({
   providedIn: 'root'
@@ -84,5 +84,15 @@ export class SingleScenarioAnalysisService {
     }
     var url=this.address+`analysis/getAttributeSatisfaction`;
     return this.http.post<number>(url,satisfactionInput,this.httpOptions);
+  }
+
+  ///计算总能耗
+  getEnergyConsumption(dataTimeValues:Array<DataTimeValue>,deviceInstances:Array<DeviceInstance>):Observable<Array<Array<string>>>{
+    var energyConsumptionInput:EnergyConsumptionInput={
+      dataTimeValues:dataTimeValues,
+      deviceInstances:deviceInstances
+    }
+    var url=this.address+`analysis/getEnergyConsumption`;
+    return this.http.post<Array<Array<string>>>(url,energyConsumptionInput,this.httpOptions);
   }
 }

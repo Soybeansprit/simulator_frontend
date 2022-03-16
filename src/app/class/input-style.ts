@@ -63,6 +63,11 @@ export class BestScenarioGenerateInput{
 
 }
 
+export class OtherAnalysisInput{
+    scenarios=new Array<Scenario>();
+	instanceLayer=new InstanceLayer();
+}
+
 export class PropertyAnalysisInput{
     scenarios=new Array<Scenario>();
     rules=new Array<Rule>();
@@ -77,4 +82,9 @@ export class SatisfactionInput{
 	lowValue="";
 	highValue="";
 	dataTimeValues=new Array<DataTimeValue>();
+}
+
+export class EnergyConsumptionInput{
+    dataTimeValues=new Array<DataTimeValue>();
+    deviceInstances=new Array<DeviceInstance>();
 }
