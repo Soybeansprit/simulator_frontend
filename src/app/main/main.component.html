@@ -287,11 +287,11 @@
             </div>
             
             <div class="button-group">
-                <button class="back-button" (click)="backToHomePage()" [style.display]="isHomePage?'none':'block'"> 
+                <button class="back-button" (click)="backToHomePage()" [style.display]="isHomePage?'none':'block'" style="font-size: 15px;"> 
                     Home Page
                 </button>
                 <!-- 上传环境本体，生成模型层-->
-                <button class="upload button" [style.display]="isHomePage?'block':'none'">Upload Ontology
+                <button class="upload button" [style.display]="isHomePage?'block':'none'">Upload Model Layer
                     <input class="change" type="file" ng2FileSelect [uploader]="modelUploader"
                         (change)="modelFileSubmit($event)" />
                 </button>
@@ -301,7 +301,7 @@
                         (change)="instanceFileSubmit($event)" />
                 </button>
                 <!-- 自动建模，生成交互环境，给出自动建模的结果 -->
-                <button class="auto_modeling_button" (click)="generateInteractiveEnvironment()" [style.display]="isHomePage?'block':'none'">Automatic Modeling</button>
+                <button class="auto_modeling_button" (click)="generateInteractiveEnvironment()" [style.display]="isHomePage?'block':'none'" style="font-size: 15px;">Automatic Modeling</button>
 
 
     
