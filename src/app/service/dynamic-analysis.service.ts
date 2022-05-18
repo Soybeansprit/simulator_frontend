@@ -18,7 +18,7 @@ export class DynamicAnalysisService {
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
-  address:string="http://localhost:8083/";
+  address:string="http://47.52.116.116:8083/";
 
   getPropertiesAnalysis(scenarios:Array<Scenario>,rules:Array<Rule>,properties:Array<string>,instanceLayer:InstanceLayer):Observable<Array<PropertyAnalysisResult>>{
     var propertyAnalysisInput:PropertyAnalysisInput={

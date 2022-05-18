@@ -15,7 +15,7 @@ export class StaticAnalysisService {
   httpOptions = {
   	headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
-  address:string="http://localhost:8083/";
+  address:string="http://47.52.116.116:8083/";
 
   
   getStaticAnalysisResult(ruleText:string,initModelFileName:string,propertyFileName:string):Observable<EnvironmentStatic>{

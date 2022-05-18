@@ -114,10 +114,10 @@
                             <div style="width: 100%;height: 100%;display: flex;flex-direction: column;position: relative;"
                                 *ngIf="selectedDeviceInstance.instanceName==''">
                                 <h2 style="text-align: center; margin-top: 5px;">
-                                    <b>Energy Consumption:</b> <b style="color: red;">&nbsp; {{totalConsumption.toFixed(2)}}kw*h</b></h2>
+                                    <b>Energy Consumption:</b> <b style="color: red;">&nbsp; {{totalConsumption.toFixed(2)}}kw·h</b></h2>
                                     <ul>
                                         <li *ngFor="let deviceConsumption of deviceConsumptions">
-                                            <b>{{deviceConsumption[0]}}:&nbsp;</b><b style="color: red;">{{getTimeToFix(deviceConsumption[1])}}kw*h</b>
+                                            <b>{{deviceConsumption[0]}}:&nbsp;</b><b style="color: red;">{{getTimeToFix(deviceConsumption[1])}}kw·h</b>
                                         </li>
                                     </ul>
 
