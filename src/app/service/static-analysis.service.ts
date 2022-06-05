@@ -17,7 +17,13 @@ export class StaticAnalysisService {
   };
   address:string="http://47.52.116.116:8083/";
 
-  
+  getIFDPng(ifdFileName:string):Observable<Array<string>>{
+    var fileNames=new Array<string>()
+    fileNames.push(ifdFileName);
+    var url=this.address+`analysis/getIFDPng`;
+    return this.http.post<Array<string>>(url,fileNames,this.httpOptions);
+  }
+
   getStaticAnalysisResult(ruleText:string,initModelFileName:string,propertyFileName:string):Observable<EnvironmentStatic>{
 
     var ruleTextLines:Array<string>;

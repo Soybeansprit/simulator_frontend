@@ -143,7 +143,10 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div *ngIf="showStaticResultOrIFD=='ifd'">
+                            <div style="height: 99%;width:99%" *ngIf="showStaticResultOrIFD=='ifd'">
+                                <a [href]="pngSrc" target="_blank">
+                                    <img  [src]="pngSrc"/>
+                                </a>
                                 
                             </div>
 

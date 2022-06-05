@@ -24,8 +24,9 @@ import { InteractiveLayerAndRules } from '../class/output-style';
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
-  ifdPath = "";
-
+  // ifdAddress = "D:/workspace/ifdFile/";
+  ifdAddress="/root/TAPs-Simulator/data/ifdFile/"
+  pngSrc="";
 
   show_tree: string = "block";
   show_scenes_rules: string = "none";
@@ -334,12 +335,12 @@ export class MainComponent implements OnInit {
     document.getElementById("static")!.style.display="none";
     document.getElementById("simulation")!.style.display="block";
   }
-  showIFD() {
-    var path = "./assets/IFD.png";
-    this.ifdPath = path;
-    document.getElementById("ontology_rules")!.style.display = "none";
+  // showIFD() {
+  //   var path = "./assets/IFD.png";
+  //   this.ifdPath = path;
+  //   document.getElementById("ontology_rules")!.style.display = "none";
 
-  }
+  // }
   /////显示仿真场景树
   showScenarioTree(){
     document.getElementById("all_scenes_tree")!.style.display = "block";
@@ -687,6 +688,23 @@ export class MainComponent implements OnInit {
   }
   displayIFD(){
     this.showStaticResultOrIFD="ifd"
+    var pngFileName=this.ifdFileName.substring(0,this.ifdFileName.indexOf(".dot"))+".png";
+    var url=`http://47.52.116.116:8083/analysis/getIFDPng?pngFilePath=${this.ifdAddress+pngFileName}`;
+
+    // console.log(this.ifdFileName)
+    this.pngSrc=url;
+    console.log(pngFileName)
+    console.log(this.pngSrc)
+   
+    // this.staticAnalysisService.getIFDPng(this.ifdFileName).subscribe(pngResults=>{
+    //   console.log(pngResults)
+    //   // this.pngSrc="assets/"+pngResults[0]
+    //   // console.log(this.pngSrc)
+    //   // alert("some")
+      
+    //   }
+    // )
+
   }
 
   dynamicAnalysis(){
